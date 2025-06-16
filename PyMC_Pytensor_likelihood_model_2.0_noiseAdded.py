@@ -24,7 +24,9 @@ pytensor.config.exception_verbosity = "high"
 def loglike(wt: pt.TensorVariable, wc: pt.TensorVariable) -> pt.TensorVariable:
     # wt = pt.vector("wt", dtype="float64")
     # wc = pt.scalar("wc", dtype="float64")
-
+    w_cut = pt.sqrt(1 - pt.pow(wc, 2))
+    sigma = 0.01
+    delta_u = (w_cut - wt) / sigma
     # Compute squared terms
     wt_squared = pt.pow(wt, 2)
     wc_squared = pt.pow(wc, 2)
@@ -51,9 +53,40 @@ def loglike(wt: pt.TensorVariable, wc: pt.TensorVariable) -> pt.TensorVariable:
 
     condition = pt.lt(wc, 1)
 
-    result = pt.switch(condition, expr1, expr2)
+    far_out_bit = pt.switch(condition, expr1, expr2)
 
-    return result
+    chunk1_out = 0.56419 * pt.pow((1 - pt.pow(wc, 2)), 5 / 4)
+
+    chunk2_in = 1.03045 - (
+        (0.0112281 * (pt.sqrt(1 - wc**2) - wt) ** 5) / pt.pow(sigma, 5)
+    )
+
+    chunk3_in = (0.0322015 * (pt.sqrt(1 - wc**2) - wt) ** 4) / pt.pow(sigma, 4)
+
+    chunk4_in = (0.089825 * (pt.sqrt(1 - wc**2) - wt) ** 3) / pt.pow(sigma, 3)
+
+    chunk5_in = (0.257612 * (pt.sqrt(1 - wc**2) - wt) ** 2) / pt.pow(sigma, 2)
+
+    chunk6_in = (1.0779 * (pt.sqrt(1 - wc**2) - wt)) / sigma
+
+    middle_bridge = (
+        chunk1_out
+        * (chunk2_in - chunk3_in + chunk4_in + chunk5_in - chunk6_in)
+        * pt.sqrt(sigma)
+    )
+
+    far_left_bit = (pt.exp(-pt.pow(delta_u, 2))) / pt.pow(delta_u, 3 / 2)
+    upper_bound = 0.61
+    lower_bound = 0.60
+    all_composed = pt.where(
+        w_cut < upper_bound,
+        pt.where(
+            (w_cut < upper_bound) & (w_cut > lower_bound), middle_bridge, far_left_bit
+        ),
+        far_out_bit,
+    )
+
+    return all_composed
 
 
 # Get the directory this code file is stored in
@@ -93,7 +126,7 @@ with model:
     # something with potential??
     b = 1.5
     c = 10
-    potential = pm.Potential("wc_constraint", 1 / pt.softplus(c + b * (wc - wc_min)))
+    # potential = pm.Potential("wc_constraint", 1 / pt.softplus(c + b * (wc - wc_min)))
     # w = pm.CustomDist("w",wc,logp=loglike)
     # sigma = pm.HalfNormal("sigma", sigma=1.0)
     #

@@ -93,4 +93,7 @@ with model:
     trace = pm.sample(10000, target_accept=0.9)
 
 
+summ = az.summary(trace)
+print(summ)
 az.plot_trace(trace, show=True)
+az.plot_posterior(trace, round_to=3, figsize=[8,4], textsize=10)
