@@ -74,6 +74,9 @@ wt_data = [sublist[3] for sublist in dataAll]
 wt_min = np.min(wt_data)
 wc_min = np.sqrt(1 - wt_min**2)
 
+# Trying the "smeared" distribution idea
+sigma = 0.5
+
 model = pm.Model()
 
 
