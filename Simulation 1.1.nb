@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[     57838,       1259]
-NotebookOptionsPosition[     56497,       1228]
-NotebookOutlinePosition[     56891,       1244]
-CellTagsIndexPosition[     56848,       1241]
+NotebookDataLength[     57862,       1259]
+NotebookOptionsPosition[     56521,       1228]
+NotebookOutlinePosition[     56915,       1244]
+CellTagsIndexPosition[     56872,       1241]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -1216,15 +1216,15 @@ Cell[BoxData[
 
 Cell[BoxData[
  RowBox[{"simulate", "[", 
-  RowBox[{"200", ",", 
+  RowBox[{"10", ",", 
    RowBox[{
     RowBox[{"NotebookDirectory", "[", "]"}], "<>", 
     "\"\</isotropic_sims\>\""}]}], "]"}]], "Input",
  CellChangeTimes->{{3.67881518133574*^9, 3.678815197587379*^9}, {
   3.957515589031053*^9, 3.957515596157816*^9}, {3.9575157875022707`*^9, 
-  3.957515787990067*^9}},
- CellLabel->
-  "In[110]:=",ExpressionUUID->"47ea3218-b768-4064-9762-55a1784adf75"]
+  3.957515787990067*^9}, {3.959158290599873*^9, 
+  3.9591582907579517`*^9}},ExpressionUUID->"47ea3218-b768-4064-9762-\
+55a1784adf75"]
 },
 WindowSize->{1099, 801},
 WindowMargins->{{282, Automatic}, {Automatic, 0}},
@@ -1260,7 +1260,7 @@ Cell[20586, 468, 34979, 731, 1490, "Input",ExpressionUUID->"df3d29d5-9ce4-4d41-b
 Cell[55568, 1201, 483, 12, 34, "Output",ExpressionUUID->"425c6be7-99b9-4798-b98a-f5d73c6f45de",
  CellGroupingRules->{"GroupTogetherGrouping", 10000.}]
 }, Open  ]],
-Cell[56066, 1216, 427, 10, 60, "Input",ExpressionUUID->"47ea3218-b768-4064-9762-55a1784adf75"]
+Cell[56066, 1216, 451, 10, 30, "Input",ExpressionUUID->"47ea3218-b768-4064-9762-55a1784adf75"]
 }
 ]
 *)
