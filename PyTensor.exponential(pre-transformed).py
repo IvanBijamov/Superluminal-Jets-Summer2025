@@ -7,7 +7,7 @@ Created on Tue Jun  3 08:53:03 2025
 """
 
 import arviz as az
-import matplotlib.pyplot 
+import matplotlib.pyplot
 import numpy as np
 import pymc as pm
 import pytensor
@@ -20,10 +20,11 @@ from simulationImport import importCSV
 
 pytensor.config.exception_verbosity = "high"
 
+
 def loglike(wt: pt.TensorVariable, wc: pt.TensorVariable) -> pt.TensorVariable:
     # wt = pt.vector("wt", dtype="float64")
     # wc = pt.scalar("wc", dtype="float64")
-    
+
     # Compute squared terms
     wt_squared = pt.pow(wt, 2)
     wc_squared = pt.pow(wc, 2)
@@ -42,26 +43,27 @@ def loglike(wt: pt.TensorVariable, wc: pt.TensorVariable) -> pt.TensorVariable:
     at_ratio = pt.arctan(wt / wc)
     # Single-argument arctan is OK here because wt & wc are always positive
 
-    numer2 = 2 * wt_times_wc * (wc - 1) + wt_times_wc + (wt_squared - wc_squared) * at_ratio
+    numer2 = (
+        2 * wt_times_wc * (wc - 1) + wt_times_wc + (wt_squared - wc_squared) * at_ratio
+    )
     denum2 = pt.pow(sum_squares, 2)
     expr2 = pt.log(numer2 / denum2)
-   
+
     condition = pt.lt(wc, 1)
-    
-    result = expr1 # pt.switch(condition, expr1, expr2)
+
+    result = expr1  # pt.switch(condition, expr1, expr2)
 
     return result
+
 
 # Get the directory this code file is stored in
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 # find the path for the data source;  this should work on everyone's system now
 dataset = "/isotropic_sims/10000/data_3957522615761_xx_0.8_yy_0.8_zz_0.8.csv"
-#dataset = "/isotropic_sims/10000/data_3957522615600_xx_1.2_yy_1.2_zz_1.2.csv"
+# dataset = "/isotropic_sims/10000/data_3957522615600_xx_1.2_yy_1.2_zz_1.2.csv"
 
-dataSource = (
-    dir_path + dataset
-)
+dataSource = dir_path + dataset
 
 print(f"Running on PyMC v{pm.__version__}")
 
@@ -71,7 +73,7 @@ radec_data = [sublist[1:3] for sublist in dataAll]
 wt_data = [sublist[3] for sublist in dataAll]
 # wt_data = pytensor.shared(wt_dataOLD, name="wt_shared")
 wt_min = np.min(wt_data)
-wc_min = np.sqrt(1-wt_min**2)
+wc_min = np.sqrt(1 - wt_min**2)
 
 model = pm.Model()
 
@@ -84,16 +86,29 @@ with model:
     # Expected value of wc, in terms of unknown model parameters and observed "X" values.
     # Right now this is very simple.  Eventually it will need to accept more parameter
     # values, along with RA & declination.
-    #wc = q + 1
-    
-    wc = ((wc_min + y + np.sqrt(y**2 - 2 * wc_min * y + 5 * wc_min**2)))/2
+    # wc = q + 1
+
+    wc = ((wc_min + y + np.sqrt(y**2 - 2 * wc_min * y + 5 * wc_min**2))) / 2
 
     # Likelihood (sampling distribution) of observations
     wt_obs = pm.CustomDist("wt_obs", wc, observed=wt_data, logp=loglike)
     trace = pm.sample(10000, target_accept=0.9)
+    trace_transform = trace.map(
+        lambda y: (wc_min + y + np.sqrt(y**2 - 2 * wc_min * y + 5 * wc_min**2)) / 2 - 1,
+        groups="posterior",
+    )
 
+# summ = az.summary(trace)
+# print(summ)
+az.plot_trace(trace_transform, show=True)
+az.plot_posterior(trace_transform, round_to=3, figsize=[8, 4], textsize=10)
+summary_with_quartiles = az.summary(
+    trace_transform,
+    stat_funcs={
+        "25%": lambda x: np.percentile(x, 25),
+        "50%": lambda x: np.percentile(x, 50),
+        "75%": lambda x: np.percentile(x, 75),
+    },
+)
 
-summ = az.summary(trace)
-print(summ)
-az.plot_trace(trace, show=True)
-az.plot_posterior(trace, round_to=3, figsize=[8,4], textsize=10)
+print(summary_with_quartiles)

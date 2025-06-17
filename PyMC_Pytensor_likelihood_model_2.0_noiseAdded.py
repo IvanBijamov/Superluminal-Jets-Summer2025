@@ -25,7 +25,7 @@ def loglike(wt: pt.TensorVariable, wc: pt.TensorVariable) -> pt.TensorVariable:
     # wt = pt.vector("wt", dtype="float64")
     # wc = pt.scalar("wc", dtype="float64")
     w_cut = pt.sqrt(1 - pt.pow(wc, 2))
-    sigma = 0.01
+    sigma = 0.02
     delta_u = (w_cut - wt) / sigma
     # Compute squared terms
     wt_squared = pt.pow(wt, 2)
@@ -76,13 +76,12 @@ def loglike(wt: pt.TensorVariable, wc: pt.TensorVariable) -> pt.TensorVariable:
     )
 
     far_left_bit = (pt.exp(-pt.pow(delta_u, 2))) / pt.pow(delta_u, 3 / 2)
-    upper_bound = 0.61
-    lower_bound = 0.60
+    upper_bound = 0.62
+    lower_bound = 0.59
+    n = 5
     all_composed = pt.where(
-        w_cut < upper_bound,
-        pt.where(
-            (w_cut < upper_bound) & (w_cut > lower_bound), middle_bridge, far_left_bit
-        ),
+        wc < (w_cut + n * sigma),
+        pt.where((wc > (w_cut - n * sigma)), middle_bridge, far_left_bit),
         far_out_bit,
     )
 

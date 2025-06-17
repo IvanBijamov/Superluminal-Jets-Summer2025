@@ -91,9 +91,9 @@ with model:
     wc = q + 1
 
     # something with potential??
-    b = 1.5
-    c = 10
-    potential = pm.Potential("wc_constraint", 1 / pt.softplus(c + b * (wc - wc_min)))
+    # b = 1.5
+    # c = 10
+    # potential = pm.Potential("wc_constraint", 1 / pt.softplus(c + b * (wc - wc_min)))
     # w = pm.CustomDist("w",wc,logp=loglike)
     # sigma = pm.HalfNormal("sigma", sigma=1.0)
     #
@@ -105,12 +105,22 @@ with model:
     # Likelihood (sampling distribution) of observations
     wt_obs = pm.CustomDist("wt_obs", wc, observed=wt_data, logp=loglike)
     step = pm.Metropolis()
-    trace = pm.sample(10000, tune=1000, target_accept=0.9)
+    trace = pm.sample(10000, tune=1000, target_accept=0.85)
 
     # trace_transform = trace.map(lambda y: wc_min*(np.exp(y)+1), groups="posterior")
 
 
 summ = az.summary(trace)
-print(summ)
+# print(summ)
 az.plot_trace(trace, show=True)
 az.plot_posterior(trace, round_to=3, figsize=[8, 4], textsize=10)
+summary_with_quartiles = az.summary(
+    trace,
+    stat_funcs={
+        "25%": lambda x: np.percentile(x, 25),
+        "50%": lambda x: np.percentile(x, 50),
+        "75%": lambda x: np.percentile(x, 75),
+    },
+)
+
+print(summary_with_quartiles)
