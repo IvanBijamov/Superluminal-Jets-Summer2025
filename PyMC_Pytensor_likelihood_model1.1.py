@@ -25,35 +25,57 @@ def loglike(wt: pt.TensorVariable, wc: pt.TensorVariable) -> pt.TensorVariable:
     # wt = pt.vector("wt", dtype="float64")
     # wc = pt.scalar("wc", dtype="float64")
 
-    # Compute squared terms
-    wt_squared = pt.pow(wt, 2)
-    wc_squared = pt.pow(wc, 2)
-    sum_squares = wc_squared + wt_squared
+    # PSEUDOTHEORY
+    # make w= wt+n*sigma
+    # N(w) = (pt.exp(-(w-wt)**2/2*sigma**2)*1/pt.sqrt(2*pi)*sigma
+    # can use the below for P(w) just mdofiy for same input of wt+n*sigma
+    sum = 0
+    sigma = 0.02
+    delta_w = sigma
+    wt_regular = wt
+    for n in range(-5, 5):
 
-    # First expression (used when wc < 1)
-    square_root = pt.sqrt(sum_squares - 1)
-    at = pt.arctan(square_root)
+        # check if inputs are corret
+        # Compute squared terms
+        # TODO fix naming, it's very jack hammered atm
 
-    numer1 = (wc_squared * square_root) + ((wt_squared - wc_squared) * at)
-    denom = pt.pow(sum_squares, 2)
-    expr1 = pt.log(numer1 / denom)
+        # w = wt_regular + n * delta_w
+        wt = wt_regular + n * delta_w
 
-    # Second expression (used when wc >= 1)
-    wt_times_wc = wt * wc
-    at_ratio = pt.arctan(wt / wc)
-    # Single-argument arctan is OK here because wt & wc are always positive
+        wt_squared = pt.pow(wt, 2)
+        wc_squared = pt.pow(wc, 2)
+        sum_squares = wc_squared + wt_squared
 
-    numer2 = (
-        2 * wt_times_wc * (wc - 1) + wt_times_wc + (wt_squared - wc_squared) * at_ratio
-    )
+        # First expression (used when wc < 1)
+        square_root = pt.sqrt(sum_squares - 1)
+        at = pt.arctan(square_root)
 
-    expr2 = pt.log(numer2 / denom)
+        numer1 = (wc_squared * square_root) + ((wt_squared - wc_squared) * at)
+        denom = pt.pow(sum_squares, 2)
+        expr1 = numer1 / denom
 
-    condition = pt.lt(wc, 1)
+        # Second expression (used when wc >= 1)
+        wt_times_wc = wt * wc
+        at_ratio = pt.arctan(wt / wc)
+        # Single-argument arctan is OK here because wt & wc are always positive
 
-    result = pt.switch(condition, expr1, expr2)
+        numer2 = (
+            2 * wt_times_wc * (wc - 1)
+            + wt_times_wc
+            + (wt_squared - wc_squared) * at_ratio
+        )
 
-    return result
+        expr2 = numer2 / denom
+
+        condition = pt.lt(wc, 1)
+
+        result = pt.switch(condition, expr1, expr2)
+
+        Nfunc = (pt.exp(-((n * sigma) ** 2) / (2 * sigma**2))) / (
+            pt.sqrt(2 * pt.pi) * sigma
+        )
+        sum += Nfunc * result * delta_w
+    return pt.log(sum)
 
 
 # Get the directory this code file is stored in
@@ -108,7 +130,7 @@ with model:
     # Likelihood (sampling distribution) of observations
     wt_obs = pm.CustomDist("wt_obs", wc, observed=wt_data, logp=loglike)
     step = pm.Metropolis()
-    trace = pm.sample(10000, tune=1000, target_accept=0.85)
+    trace = pm.sample(8000, tune=1000, step=pm.Metropolis())
 
     # trace_transform = trace.map(lambda y: wc_min*(np.exp(y)+1), groups="posterior")
 
