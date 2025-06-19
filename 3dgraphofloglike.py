@@ -7,8 +7,8 @@ from pytensor.compile.nanguardmode import NanGuardMode
 from simulationImport import importCSV
 import os
 
-sigma = 0.2
-n_val = 5
+sigma = 0.02
+n_val = 50
 
 
 def loglike(
@@ -78,23 +78,41 @@ def loglike(
             denom2 = sum_squares
             expr2 = numer2 / denom2
 
-            condition = pt.lt(wc, 1)
+            fastslowcondition = pt.lt(wc, 1)
 
-            result = pt.switch(condition, expr1, expr2)
+            result = pt.switch(fastslowcondition, expr1, expr2)
+            
+            # expr1 if wc < 1, expr2 if wc > 1
+            
+            negwtcondition = pt.lt(wt, 0)
+            sumsquarecondition = pt.lt(sum_squares, 1)
+            
+            result = pt.switch(negwtcondition | sumsquarecondition, 0, result)
+            
+            # expr1 if wc < 1 & wt > 0, expr2 if wc > 1 & wt >0, 0 if wt < 0 or sum_squares < 1
+            
             return result
 
         Nfunc = (pt.exp(-((n * sigma) ** 2) / (2 * sigma**2))) / (
             pt.sqrt(2 * pt.pi) * sigma
         )
+        # print(function(w+delta_w/2))
+        # print(function(w+delta_w/2))
+        # if pt.isnan(function(w + delta_w/2)):
+        #     print("w + ∆w/2 is ", w+delta_w/2)
+        # if pt.isnan(function(w - delta_w/2)):
+        #     print("w - ∆w/2 is ", w-delta_w/2)
         sum += Nfunc * (function(w + delta_w / 2) - function(w - delta_w / 2))
+        
     return pt.log(sum)
+    # return sum    
 
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 # find the path for the data source;  this should work on everyone's system now
-dataset = "/isotropic_sims/10/data_3959143911168_xx_0.8_yy_0.8_zz_0.8.csv"
-# dataset = "/isotropic_sims/10000/data_3957522615600_xx_1.2_yy_1.2_zz_1.2.csv"
+# dataset = "/isotropic_sims/10/data_3959143911168_xx_0.8_yy_0.8_zz_0.8.csv"
+dataset = "/isotropic_sims/10000/data_3957522615761_xx_0.8_yy_0.8_zz_0.8.csv"
 dataSource = dir_path + dataset
 
 dataAll = importCSV(dataSource)
@@ -113,10 +131,10 @@ f_loglike = pytensor.function(
 
 
 # wt_array = np.linspace(0, 3, 75)
-# wt_array = wt_data
-wt_array = 0.8
+wt_array = wt_data
+# wt_array = 1.2
 wc_array = np.linspace(0, 3, 100)  # 100 values for wc
-
+# wc_array = [1.2]
 
 WT, WC = np.meshgrid(wt_array, wc_array)
 
