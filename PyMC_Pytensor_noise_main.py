@@ -52,24 +52,39 @@ def loglike(wt: pt.TensorVariable, wc: pt.TensorVariable) -> pt.TensorVariable:
 
             # First expression (used when wc < 1)
             square_root = pt.sqrt(sum_squares - 1)
-            at = pt.arctan(w / wc)
+            at = pt.arctan(square_root)
 
-            numer1 = wc**2 + w * at
-            denom = w**2 + wc**2
-            expr1 = 1 - numer1 / denom
+            numer1 = wt * (square_root - at)
+            denom = sum_squares
+            expr1 = numer1 / denom
 
             # Second expression (used when wc >= 1)
-            wt_times_wc = wt * wc
-            at_ratio = pt.arctan(wt / wc)
+            # wt_times_wc = wt * wc
+            # at_ratio = pt.arctan(wt / wc)
             # Single-argument arctan is OK here because wt & wc are always positive
+            # this one isnt right
+            # piece2_1 = (wc - 1) / ((wc**3) * (wt**2))
+            #
+            # piece2_2 = wc / sum_squares
+            #
+            # piece2_3 = (wt * at_ratio) / sum_squares
+            #
+            # expr2 = -piece2_1 - piece2_2 - piece2_3
+            #
+            # at = pt.arctan(w / wc)
 
-            piece2_1 = (wc - 1) / ((wc**3) * (wt**2))
+            # this one also maybe isnt
 
-            piece2_2 = wc / sum_squares
+            # numer2 = wc**2 + w * at
+            # denom2 = w**2 + wc**2
+            # expr2 = 1 - numer2 / denom2
 
-            piece2_3 = (wt * at_ratio) / sum_squares
+            # newst test
 
-            expr2 = -piece2_1 - piece2_2 - piece2_3
+            at2 = pt.arctan(wt / wc)
+            numer2 = wt**2 - wt * at2
+            denom2 = sum_squares
+            expr2 = numer2 / denom2
 
             condition = pt.lt(wc, 1)
 
