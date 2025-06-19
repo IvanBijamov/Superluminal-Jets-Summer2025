@@ -52,11 +52,11 @@ def loglike(wt: pt.TensorVariable, wc: pt.TensorVariable) -> pt.TensorVariable:
 
             # First expression (used when wc < 1)
             square_root = pt.sqrt(sum_squares - 1)
-            at = pt.arctan(square_root)
+            at = pt.arctan(w / wc)
 
-            numer1 = wt * (square_root - at)
-            denom = sum_squares
-            expr1 = numer1 / denom
+            numer1 = wc**2 + w * at
+            denom = w**2 + wc**2
+            expr1 = 1 - numer1 / denom
 
             # Second expression (used when wc >= 1)
             wt_times_wc = wt * wc

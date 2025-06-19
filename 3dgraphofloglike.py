@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pytensor
 import pytensor.tensor as pt
+from pytensor.compile.nanguardmode import NanGuardMode
 
 from simulationImport import importCSV
 import os
@@ -43,11 +44,11 @@ def loglike(
 
             # First expression (used when wc < 1)
             square_root = pt.sqrt(sum_squares - 1)
-            at = pt.arctan(square_root)
+            at = pt.arctan(w / wc)
 
-            numer1 = wt * (square_root - at)
-            denom = sum_squares
-            expr1 = numer1 / denom
+            numer1 = wc**2 + w * at
+            denom = w**2 + wc**2
+            expr1 = 1 - numer1 / denom
 
             # Second expression (used when wc >= 1)
             wt_times_wc = wt * wc
@@ -77,7 +78,7 @@ def loglike(
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 # find the path for the data source;  this should work on everyone's system now
-dataset = "/isotropic_sims/10000/data_3957522615761_xx_0.8_yy_0.8_zz_0.8.csv"
+dataset = "/isotropic_sims/10/data_3959143911168_xx_0.8_yy_0.8_zz_0.8.csv"
 # dataset = "/isotropic_sims/10000/data_3957522615600_xx_1.2_yy_1.2_zz_1.2.csv"
 dataSource = dir_path + dataset
 
@@ -89,11 +90,16 @@ wt_sym = pt.dscalar("wt")
 wc_sym = pt.dscalar("wc")
 
 
-f_loglike = pytensor.function([wt_sym, wc_sym], loglike(wt_sym, wc_sym))
+f_loglike = pytensor.function(
+    [wt_sym, wc_sym],
+    loglike(wt_sym, wc_sym),
+    # mode=NanGuardMode(nan_is_error=True, inf_is_error=True, big_is_error=False),
+)
 
 
 # wt_array = np.linspace(0, 3, 75)
-wt_array = wt_data
+# wt_array = wt_data
+wt_array = 0.8
 wc_array = np.linspace(0, 3, 100)  # 100 values for wc
 
 
