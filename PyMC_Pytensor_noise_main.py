@@ -30,7 +30,7 @@ def loglike(wt: pt.TensorVariable, wc: pt.TensorVariable) -> pt.TensorVariable:
     # N(w) = (pt.exp(-(w-wt)**2/2*sigma**2)*1/pt.sqrt(2*pi)*sigma
     # can use the below for P(w) just mdofiy for same input of wt+n*sigma
     sum = 0
-    sigma = 0.02
+    sigma = 0.2
     delta_w = sigma
     wt_regular = wt
     for n in range(-5, 5):
@@ -86,15 +86,32 @@ def loglike(wt: pt.TensorVariable, wc: pt.TensorVariable) -> pt.TensorVariable:
             denom2 = sum_squares
             expr2 = numer2 / denom2
 
-            condition = pt.lt(wc, 1)
+            fastslowcondition = pt.lt(wc, 1)
 
-            result = pt.switch(condition, expr1, expr2)
+            result = pt.switch(fastslowcondition, expr1, expr2)
+
+            # expr1 if wc < 1, expr2 if wc > 1
+
+            negwtcondition = pt.lt(wt, 0)
+            sumsquarecondition = pt.lt(sum_squares, 1)
+
+            result = pt.switch(negwtcondition | sumsquarecondition, 0, result)
+
+            # expr1 if wc < 1 & wt > 0, expr2 if wc > 1 & wt >0, 0 if wt < 0 or sum_squares < 1
+
             return result
 
         Nfunc = (pt.exp(-((n * sigma) ** 2) / (2 * sigma**2))) / (
             pt.sqrt(2 * pt.pi) * sigma
         )
+        # print(function(w+delta_w/2))
+        # print(function(w+delta_w/2))
+        # if pt.isnan(function(w + delta_w/2)):
+        #     print("w + ∆w/2 is ", w+delta_w/2)
+        # if pt.isnan(function(w - delta_w/2)):
+        #     print("w - ∆w/2 is ", w-delta_w/2)
         sum += Nfunc * (function(w + delta_w / 2) - function(w - delta_w / 2))
+
     return pt.log(sum)
 
 
@@ -118,7 +135,7 @@ def main():
     wc_min = np.sqrt(1 - wt_min**2)
 
     # Trying the "smeared" distribution idea
-    sigma = 0.5
+    # sigma = 0.5
 
     model = pm.Model()
 
@@ -141,7 +158,7 @@ def main():
         # Likelihood (sampling distribution) of observations
         wt_obs = pm.CustomDist("wt_obs", wc, observed=wt_data, logp=loglike)
         step = pm.Metropolis()
-        trace = pm.sample(8000, tune=1000, step=step)
+        trace = pm.sample(4000, tune=1000)
 
         # trace_transform = trace.map(lambda y: wc_min*(np.exp(y)+1), groups="posterior")
 
