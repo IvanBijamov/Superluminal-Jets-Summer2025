@@ -7,8 +7,8 @@ from pytensor.compile.nanguardmode import NanGuardMode
 from simulationImport import importCSV
 import os
 
-sigma = 0.02
-n_val = 50
+sigma = 0.2
+n_val = 10
 
 
 def loglike(
@@ -81,31 +81,33 @@ def loglike(
             fastslowcondition = pt.lt(wc, 1)
 
             result = pt.switch(fastslowcondition, expr1, expr2)
-            
+
             # expr1 if wc < 1, expr2 if wc > 1
-            
+
             negwtcondition = pt.lt(wt, 0)
             sumsquarecondition = pt.lt(sum_squares, 1)
-            
+
             result = pt.switch(negwtcondition | sumsquarecondition, 0, result)
-            
+
             # expr1 if wc < 1 & wt > 0, expr2 if wc > 1 & wt >0, 0 if wt < 0 or sum_squares < 1
-            
+
             return result
 
-        Nfunc = (pt.exp(-((n * sigma) ** 2) / (2 * sigma**2))) / (
-            pt.sqrt(2 * pt.pi) * sigma
+        coefficient = ((n * sigma) / (pt.sqrt(2 * pt.pi) * sigma**3)) * pt.exp(
+            -((n * sigma) ** 2) / (2 * sigma**2)
         )
+
         # print(function(w+delta_w/2))
         # print(function(w+delta_w/2))
         # if pt.isnan(function(w + delta_w/2)):
         #     print("w + ∆w/2 is ", w+delta_w/2)
         # if pt.isnan(function(w - delta_w/2)):
         #     print("w - ∆w/2 is ", w-delta_w/2)
-        sum += Nfunc * (function(w + delta_w / 2) - function(w - delta_w / 2))
-        
+        sum += coefficient * function(w) * delta_w
+
     return pt.log(sum)
-    # return sum    
+    # return sum
+    # return sum
 
 
 dir_path = os.path.dirname(os.path.realpath(__file__))

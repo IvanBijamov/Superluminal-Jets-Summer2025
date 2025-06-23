@@ -24,16 +24,20 @@ pytensor.config.exception_verbosity = "high"
 def loglike(wt: pt.TensorVariable, wc: pt.TensorVariable) -> pt.TensorVariable:
     # wt = pt.vector("wt", dtype="float64")
     # wc = pt.scalar("wc", dtype="float64")
-
+    wt_regular = wt
     # PSEUDOTHEORY
     # make w= wt+n*sigma
     # N(w) = (pt.exp(-(w-wt)**2/2*sigma**2)*1/pt.sqrt(2*pi)*sigma
     # can use the below for P(w) just mdofiy for same input of wt+n*sigma
+
     sum = 0
+
+    # configurables
     sigma = 0.2
     delta_w = sigma
-    wt_regular = wt
-    for n in range(-5, 5):
+
+    n_val = 10
+    for n in range(-n_val, n_val):
 
         # check if inputs are corret
         # Compute squared terms
@@ -101,16 +105,17 @@ def loglike(wt: pt.TensorVariable, wc: pt.TensorVariable) -> pt.TensorVariable:
 
             return result
 
-        Nfunc = (pt.exp(-((n * sigma) ** 2) / (2 * sigma**2))) / (
-            pt.sqrt(2 * pt.pi) * sigma
+        coefficient = ((n * sigma) / (pt.sqrt(2 * pt.pi) * sigma**3)) * pt.exp(
+            -((n * sigma) ** 2) / (2 * sigma**2)
         )
+
         # print(function(w+delta_w/2))
         # print(function(w+delta_w/2))
         # if pt.isnan(function(w + delta_w/2)):
         #     print("w + ∆w/2 is ", w+delta_w/2)
         # if pt.isnan(function(w - delta_w/2)):
         #     print("w - ∆w/2 is ", w-delta_w/2)
-        sum += Nfunc * (function(w + delta_w / 2) - function(w - delta_w / 2))
+        sum += coefficient * function(w) * delta_w
 
     return pt.log(sum)
 
@@ -139,10 +144,6 @@ def main():
 
     model = pm.Model()
 
-    def transform(y, min):
-        wc = min * (np.exp(y) + 1)
-        return wc
-
     with model:
         # Priors for unknown model parameters.  I defined q to be wc - 1, to avoid
         # confusion between the model parameter and the inverse speed of light as a
@@ -157,12 +158,11 @@ def main():
 
         # Likelihood (sampling distribution) of observations
         wt_obs = pm.CustomDist("wt_obs", wc, observed=wt_data, logp=loglike)
-        step = pm.Metropolis()
-        trace = pm.sample(4000, tune=1000)
+        # step = pm.Metropolis()
 
-        # trace_transform = trace.map(lambda y: wc_min*(np.exp(y)+1), groups="posterior")
+        trace = pm.sample(10000, tune=1000)
 
-    summ = az.summary(trace)
+    # summ = az.summary(trace)
     # print(summ)
     az.plot_trace(trace, show=True)
     az.plot_posterior(trace, round_to=3, figsize=[8, 4], textsize=10)
