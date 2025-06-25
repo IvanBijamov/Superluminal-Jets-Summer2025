@@ -24,17 +24,15 @@ pytensor.config.exception_verbosity = "high"
 def loglike(wt: pt.TensorVariable, wc: pt.TensorVariable) -> pt.TensorVariable:
     # wt = pt.vector("wt", dtype="float64")
     # wc = pt.scalar("wc", dtype="float64")
-    wt_regular = wt
-    # PSEUDOTHEORY
-    # make w= wt+n*sigma
-    # N(w) = (pt.exp(-(w-wt)**2/2*sigma**2)*1/pt.sqrt(2*pi)*sigma
-    # can use the below for P(w) just mdofiy for same input of wt+n*sigma
+
+    wt_regular = wt[0]
+    sigma = wt[1]
 
     sum = 0
 
     # configurables
-    sigma = 0.2
-    delta_w = sigma
+    # sigma = 0.2
+    delta_w = 0.2
 
     n_val = 10
     for n in range(-n_val, n_val):
@@ -138,7 +136,11 @@ def main():
     wt_data = [sublist[3] for sublist in dataAll]
     wt_min = np.min(wt_data)
     wc_min = np.sqrt(1 - wt_min**2)
+    sigma_array = np.full(len(wt_data), 0.2)
 
+    wt_data_with_sigma = [0] * 2
+    wt_data_with_sigma[0] = wt_data
+    wt_data_with_sigma[1] = sigma_array
     # Trying the "smeared" distribution idea
     # sigma = 0.5
 
@@ -151,16 +153,16 @@ def main():
 
         q = pm.TruncatedNormal("q", sigma=0.01, lower=-1)
         wc = q + 1
-
+        # sigma = pm.Data("sigma_obs", sigma_array)
         # Expected value of wc, in terms of unknown model parameters and observed "X" values.
         # Right now this is very simple.  Eventually it will need to accept more parameter
         # values, along with RA & declination.
 
         # Likelihood (sampling distribution) of observations
-        wt_obs = pm.CustomDist("wt_obs", wc, observed=wt_data, logp=loglike)
+        wt_obs = pm.CustomDist("wt_obs", wc, observed=wt_data_with_sigma, logp=loglike)
         # step = pm.Metropolis()
 
-        trace = pm.sample(10000, tune=1000)
+        trace = pm.sample(4000, tune=1000)
 
     # summ = az.summary(trace)
     # print(summ)
