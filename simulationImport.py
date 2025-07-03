@@ -26,17 +26,18 @@ def importCSV(filepath):
         r = np.linalg.norm(pos)
         phi = np.arctan2(pos[1], pos[0])
         # if arccos, it is theta angle, if arcsin, then declination
-        theta = np.arcsin(pos[2]/r)
+        theta = np.arcsin(pos[2] / r)
         phis.append(phi)
         thetas.append(theta)
         radii.append(r)
 
     newList = []
-    i=0
+    i = 0
     # returns radius, theta/declination, phi, and inverse apparent velocity
     for radius, theta, phi in zip(radii, thetas, phis):
-        newList.append([radius, theta, phi, 1 / dataImport.iloc[i, 8]])
-        i+=1
+        # index 3 for warren data gen aniso and 8 for the mathematica iso version
+        newList.append([radius, theta, phi, 1 / dataImport.iloc[i, 3]])
+        i += 1
 
     return newList
 

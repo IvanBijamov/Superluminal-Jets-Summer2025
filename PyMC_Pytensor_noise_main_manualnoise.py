@@ -25,12 +25,13 @@ def loglike(wt: pt.TensorVariable, wc: pt.TensorVariable) -> pt.TensorVariable:
     # wt = pt.vector("wt", dtype="float64")
     # wc = pt.scalar("wc", dtype="float64")
 
-    wt_regular = wt
+    wt_regular = wt[0]
+    sigma = wt[1]
 
     sum = 0
 
     # configurables
-    sigma = 1
+    # sigma = 0.2
     delta_w = 0.2
 
     n_val = 10
@@ -124,7 +125,6 @@ def main():
     # find the path for the data source;  this should work on everyone's system now
     # dataset = "/isotropic_sims/10000/data_3957522615761_xx_0.8_yy_0.8_zz_0.8.csv"
     dataset = "/isotropic_sims/10000/data_3957522615600_xx_1.2_yy_1.2_zz_1.2.csv"
-    dataset = "/generated_sources.csv"
 
     dataSource = dir_path + dataset
 
@@ -135,7 +135,14 @@ def main():
     radec_data = [sublist[1:3] for sublist in dataAll]
     wt_data = [sublist[3] for sublist in dataAll]
     wt_min = np.min(wt_data)
-    # wc_min = np.sqrt(1 - wt_min**2)
+    wc_min = np.sqrt(1 - wt_min**2)
+    sigma_array = np.full(len(wt_data), 0.5)
+
+    wt_data_with_sigma = [0] * 2
+    wt_data_with_sigma[0] = wt_data
+    wt_data_with_sigma[1] = sigma_array
+    # Trying the "smeared" distribution idea
+    # sigma = 0.5
 
     model = pm.Model()
 
@@ -152,7 +159,7 @@ def main():
         # values, along with RA & declination.
 
         # Likelihood (sampling distribution) of observations
-        wt_obs = pm.CustomDist("wt_obs", wc, observed=wt_data, logp=loglike)
+        wt_obs = pm.CustomDist("wt_obs", wc, observed=wt_data_with_sigma, logp=loglike)
         # step = pm.Metropolis()
 
         trace = pm.sample(4000, tune=1000)

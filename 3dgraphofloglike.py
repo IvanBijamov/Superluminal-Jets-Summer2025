@@ -8,7 +8,7 @@ from simulationImport import importCSV
 import os
 
 sigma = 0.2
-n_val = 10
+n_val = 15
 
 
 def loglike(
@@ -74,7 +74,7 @@ def loglike(
             # newst test
 
             at2 = pt.arctan(wt / wc)
-            numer2 = wt**2 - wt * at2
+            numer2 = wt * (wt - at2)
             denom2 = sum_squares
             expr2 = numer2 / denom2
 
@@ -114,7 +114,9 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 
 # find the path for the data source;  this should work on everyone's system now
 # dataset = "/isotropic_sims/10/data_3959143911168_xx_0.8_yy_0.8_zz_0.8.csv"
-dataset = "/isotropic_sims/10000/data_3957522615761_xx_0.8_yy_0.8_zz_0.8.csv"
+# dataset = "/isotropic_sims/10000/data_3957522615761_xx_0.8_yy_0.8_zz_0.8.csv"
+dataset = "/isotropic_sims/10000/data_3957522615600_xx_1.2_yy_1.2_zz_1.2.csv"
+# dataset = "/isotropic_sims/10/data_3959143911168_xx_1.2_yy_1.2_zz_1.2.csv"
 dataSource = dir_path + dataset
 
 dataAll = importCSV(dataSource)
