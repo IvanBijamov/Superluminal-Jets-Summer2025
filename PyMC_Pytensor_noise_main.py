@@ -30,11 +30,11 @@ def loglike(wt: pt.TensorVariable, wc: pt.TensorVariable) -> pt.TensorVariable:
     sum = 0
 
     # configurables
-    sigma = 1
+    sigma = 0.2
     delta_w = 0.2
 
     n_val = 10
-    for n in range(-n_val, n_val):
+    for n in range(-n_val, n_val + 1):
 
         # check if inputs are corret
         # Compute squared terms
@@ -59,29 +59,6 @@ def loglike(wt: pt.TensorVariable, wc: pt.TensorVariable) -> pt.TensorVariable:
             denom = sum_squares
             expr1 = numer1 / denom
 
-            # Second expression (used when wc >= 1)
-            # wt_times_wc = wt * wc
-            # at_ratio = pt.arctan(wt / wc)
-            # Single-argument arctan is OK here because wt & wc are always positive
-            # this one isnt right
-            # piece2_1 = (wc - 1) / ((wc**3) * (wt**2))
-            #
-            # piece2_2 = wc / sum_squares
-            #
-            # piece2_3 = (wt * at_ratio) / sum_squares
-            #
-            # expr2 = -piece2_1 - piece2_2 - piece2_3
-            #
-            # at = pt.arctan(w / wc)
-
-            # this one also maybe isnt
-
-            # numer2 = wc**2 + w * at
-            # denom2 = w**2 + wc**2
-            # expr2 = 1 - numer2 / denom2
-
-            # newst test
-
             at2 = pt.arctan(wt / wc)
             numer2 = wt**2 - wt * at2
             denom2 = sum_squares
@@ -102,8 +79,11 @@ def loglike(wt: pt.TensorVariable, wc: pt.TensorVariable) -> pt.TensorVariable:
 
             return result
 
-        coefficient = ((n * sigma) / (pt.sqrt(2 * pt.pi) * sigma**3)) * pt.exp(
-            -((n * sigma) ** 2) / (2 * sigma**2)
+        # coefficient = (-(n * sigma) / (pt.sqrt(2 * pt.pi) * sigma**3)) * pt.exp(
+        #     -((n * sigma) ** 2) / (2 * sigma**2)
+        # )
+        coefficient = ((wt_regular - w) / (pt.sqrt(2 * pt.pi) * sigma**3)) * pt.exp(
+            (-((w - wt_regular) ** 2)) / (2 * sigma**2)
         )
 
         # print(function(w+delta_w/2))
@@ -113,6 +93,7 @@ def loglike(wt: pt.TensorVariable, wc: pt.TensorVariable) -> pt.TensorVariable:
         # if pt.isnan(function(w - delta_w/2)):
         #     print("w - ∆w/2 is ", w-delta_w/2)
         sum += coefficient * function(w) * delta_w
+    # sum = pt.where(sum < 1, 0, sum)
 
     return pt.log(sum)
 
@@ -122,9 +103,9 @@ def main():
     dir_path = os.path.dirname(os.path.realpath(__file__))
 
     # find the path for the data source;  this should work on everyone's system now
-    # dataset = "/isotropic_sims/10000/data_3957522615761_xx_0.8_yy_0.8_zz_0.8.csv"
-    dataset = "/isotropic_sims/10000/data_3957522615600_xx_1.2_yy_1.2_zz_1.2.csv"
-    dataset = "/generated_sources.csv"
+    dataset = "/isotropic_sims/10000/data_3957522615761_xx_0.8_yy_0.8_zz_0.8.csv"
+    # dataset = "/isotropic_sims/10000/data_3957522615600_xx_1.2_yy_1.2_zz_1.2.csv"
+    # dataset = "/generated_sources.csv"
 
     dataSource = dir_path + dataset
 
@@ -154,12 +135,12 @@ def main():
         # Likelihood (sampling distribution) of observations
         wt_obs = pm.CustomDist("wt_obs", wc, observed=wt_data, logp=loglike)
         # step = pm.Metropolis()
-
         trace = pm.sample(4000, tune=1000)
-
     # summ = az.summary(trace)
     # print(summ)
-    az.plot_trace(trace, show=True)
+    az.plot_trace(trace)
+    plt.gcf().suptitle("", fontsize=20)
+    plt.show()
     az.plot_posterior(trace, round_to=3, figsize=[8, 4], textsize=10)
     summary_with_quartiles = az.summary(
         trace,

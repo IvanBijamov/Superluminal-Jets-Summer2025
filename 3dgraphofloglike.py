@@ -7,8 +7,8 @@ from pytensor.compile.nanguardmode import NanGuardMode
 from simulationImport import importCSV
 import os
 
-sigma = 0.2
-n_val = 15
+sigma = 0.01
+n_val = 25
 
 
 def loglike(
@@ -23,14 +23,14 @@ def loglike(
     # can use the below for P(w) just mdofiy for same input of wt+n*sigma
     sum = 0
     # sigma = 0.02
-    delta_w = sigma
+    delta_w = sigma / 5
     wt_regular = wt
-    for n in range(-n_val, n_val):
+    for n in range(-n_val, n_val + 1):
 
         # check if inputs are corret
         # Compute squared terms
         # TODO fix naming, it's very jack hammered atm
-        w = wt_regular + n * sigma
+        w = wt_regular + n * delta_w
 
         def function(wt):
 
@@ -93,8 +93,8 @@ def loglike(
 
             return result
 
-        coefficient = ((n * sigma) / (pt.sqrt(2 * pt.pi) * sigma**3)) * pt.exp(
-            -((n * sigma) ** 2) / (2 * sigma**2)
+        coefficient = ((-n * delta_w) / (pt.sqrt(2 * pt.pi) * sigma**3)) * pt.exp(
+            (-((n * delta_w) ** 2)) / (2 * sigma**2)
         )
 
         # print(function(w+delta_w/2))
@@ -105,9 +105,8 @@ def loglike(
         #     print("w - ∆w/2 is ", w-delta_w/2)
         sum += coefficient * function(w) * delta_w
 
-    return pt.log(sum)
-    # return sum
-    # return sum
+    # return pt.log(sum)
+    return sum
 
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -115,7 +114,8 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 # find the path for the data source;  this should work on everyone's system now
 # dataset = "/isotropic_sims/10/data_3959143911168_xx_0.8_yy_0.8_zz_0.8.csv"
 # dataset = "/isotropic_sims/10000/data_3957522615761_xx_0.8_yy_0.8_zz_0.8.csv"
-dataset = "/isotropic_sims/10000/data_3957522615600_xx_1.2_yy_1.2_zz_1.2.csv"
+# dataset = "/isotropic_sims/10000/data_3957522615600_xx_1.2_yy_1.2_zz_1.2.csv"
+dataset = "/generated_sources.csv"
 # dataset = "/isotropic_sims/10/data_3959143911168_xx_1.2_yy_1.2_zz_1.2.csv"
 dataSource = dir_path + dataset
 
@@ -153,6 +153,7 @@ for i in range(WT.shape[0]):
         Z[i, j] = f_loglike(wt_val, wc_val)
 
 Z_combine = np.sum(Z, axis=1)
+Z_max = np.max(Z_combine)
 
 
 # Z_collapsed = np.trapz(Z, x=wt_array, axis=1)

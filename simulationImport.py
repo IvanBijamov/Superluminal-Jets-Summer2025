@@ -35,8 +35,8 @@ def importCSV(filepath):
     i = 0
     # returns radius, theta/declination, phi, and inverse apparent velocity
     for radius, theta, phi in zip(radii, thetas, phis):
-        # index 3 for warren data gen aniso and 8 for the mathematica iso version
-        newList.append([radius, theta, phi, 1 / dataImport.iloc[i, 3]])
+        # index 3 for warren data gen aniso and 8 for the mathematica iso version (take inverse of mathematica)
+        newList.append([radius, theta, phi, dataImport.iloc[i, 5]])
         i += 1
 
     return newList

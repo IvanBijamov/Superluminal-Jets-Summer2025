@@ -86,13 +86,31 @@ for _ in range(N_SOURCES):
 
     # 6 calculate wc(n_hat) with solve_wc -> (n_hat, parameteres)
     wc_nhat = solve_wc(δ, Bº, B_vec, n_hat)
-    v_c_val = min(wc_nhat) if wc_nhat else 1.0
+    v_c_val = 1 / min(wc_nhat) if wc_nhat else 1.0
 
     # 7
     w_true_value = w_true(v_braked, v_hat, n_hat, v_c_val)
+    if w_true_value < 0:
+        print("Warning: w_true value = ", w_true_value)
+        print(
+            "Parameter values: v_raw = ",
+            v_raw,
+            "\n v_braked = ",
+            v_braked,
+            "\n wc_nhat = ",
+            wc_nhat,
+            "\n v_c_val = ",
+            v_c_val,
+            "\n v_hat = ",
+            v_hat,
+            "\n n_hat = ",
+            n_hat,
+            "\n Angle between v_hat & n_hat = ",
+            np.arccos(np.dot(n_hat, v_hat)),
+        )
 
     # 8 generate sigma [0,1]
-    sigma = 1
+    sigma = 0.5
 
     # 9 generate w_obs -> normal distribution (wobs, sigma)
     w_obs = np.random.normal(loc=w_true_value, scale=sigma)
@@ -106,11 +124,11 @@ with open(OUTPUT_FILE, mode="w", newline="") as csvfile:
     writer = csv.writer(csvfile)
 
     # header line: δ, Bº, B_vec
-    writer.writerow(["delta", "B0", "B_x", "B_y", "B_z"])
+    # writer.writerow(["delta", "B0", "B_x", "B_y", "B_z"])
     writer.writerow([δ, Bº] + list(B_vec))
 
     # data header
-    writer.writerow(["n_x", "n_y", "n_z", "w_obs", "sigma", "w_true"])
+    # writer.writerow(["n_x", "n_y", "n_z", "w_obs", "sigma", "w_true"])
 
     # rows
     writer.writerows(rows)
