@@ -90,6 +90,7 @@ for _ in range(N_SOURCES):
 
     # 7
     w_true_value = w_true(v_braked, v_hat, n_hat, v_c_val)
+    
     if w_true_value < 0:
         print("Warning: w_true value = ", w_true_value)
         print(
@@ -108,15 +109,18 @@ for _ in range(N_SOURCES):
             "\n Angle between v_hat & n_hat = ",
             np.arccos(np.dot(n_hat, v_hat)),
         )
+    v_true_value = 1 / w_true_value
 
-    # 8 generate sigma [0,1]
-    sigma = 0.5
+    min_velocity = 1e-12
+    v_sigma = 0.03
+    #ensure noise doesnt make v_obs negative
+    v_obs = max(np.random.normal(loc=v_true_value, scale=v_sigma), min_velocity)
+    
+    w_obs = 1 / v_obs
 
-    # 9 generate w_obs -> normal distribution (wobs, sigma)
-    w_obs = np.random.normal(loc=w_true_value, scale=sigma)
-
+    
     # data storage
-    row = list(n_hat) + [w_obs, sigma, w_true_value]
+    row = list(n_hat) + [v_obs, v_sigma, v_true_value]
     rows.append(row)
 
 # csv file
