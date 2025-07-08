@@ -18,10 +18,20 @@ from pytensor.tensor import as_tensor_variable
 
 from simulationImport import importCSV
 
+pytensor.config.cxx = "/usr/bin/clang++"
 pytensor.config.exception_verbosity = "high"
 
 
-def loglike(wt: pt.TensorVariable, wc: pt.TensorVariable) -> pt.TensorVariable:
+sigma = 0.02
+n_val = 10
+
+
+def loglike(
+    wt: pt.TensorVariable,
+    wc: pt.TensorVariable,
+    sigma=sigma,
+    n_val=n_val,
+) -> pt.TensorVariable:
     # wt = pt.vector("wt", dtype="float64")
     # wc = pt.scalar("wc", dtype="float64")
 
@@ -30,10 +40,9 @@ def loglike(wt: pt.TensorVariable, wc: pt.TensorVariable) -> pt.TensorVariable:
     sum = 0
 
     # configurables
-    sigma = 0.2
-    delta_w = 0.2
 
-    n_val = 10
+    delta_w = sigma / 5
+
     for n in range(-n_val, n_val + 1):
 
         # check if inputs are corret
@@ -82,8 +91,8 @@ def loglike(wt: pt.TensorVariable, wc: pt.TensorVariable) -> pt.TensorVariable:
         # coefficient = (-(n * sigma) / (pt.sqrt(2 * pt.pi) * sigma**3)) * pt.exp(
         #     -((n * sigma) ** 2) / (2 * sigma**2)
         # )
-        coefficient = ((wt_regular - w) / (pt.sqrt(2 * pt.pi) * sigma**3)) * pt.exp(
-            (-((w - wt_regular) ** 2)) / (2 * sigma**2)
+        coefficient = ((n * delta_w) / (pt.sqrt(2 * pt.pi) * sigma**3)) * pt.exp(
+            (-((n * delta_w) ** 2)) / (2 * sigma**2)
         )
 
         # print(function(w+delta_w/2))
@@ -103,9 +112,9 @@ def main():
     dir_path = os.path.dirname(os.path.realpath(__file__))
 
     # find the path for the data source;  this should work on everyone's system now
-    dataset = "/isotropic_sims/10000/data_3957522615761_xx_0.8_yy_0.8_zz_0.8.csv"
+    # dataset = "/isotropic_sims/10000/data_3957522615761_xx_0.8_yy_0.8_zz_0.8.csv"
     # dataset = "/isotropic_sims/10000/data_3957522615600_xx_1.2_yy_1.2_zz_1.2.csv"
-    # dataset = "/generated_sources.csv"
+    dataset = "/generated_sources.csv"
 
     dataSource = dir_path + dataset
 
@@ -134,12 +143,12 @@ def main():
 
         # Likelihood (sampling distribution) of observations
         wt_obs = pm.CustomDist("wt_obs", wc, observed=wt_data, logp=loglike)
-        # step = pm.Metropolis()
-        trace = pm.sample(4000, tune=1000)
+        step = pm.Metropolis()
+        trace = pm.sample(9000, tune=1000, step=step)
     # summ = az.summary(trace)
     # print(summ)
     az.plot_trace(trace)
-    plt.gcf().suptitle("", fontsize=20)
+    plt.gcf().suptitle("sigma = " + str(sigma), fontsize=16)
     plt.show()
     az.plot_posterior(trace, round_to=3, figsize=[8, 4], textsize=10)
     summary_with_quartiles = az.summary(

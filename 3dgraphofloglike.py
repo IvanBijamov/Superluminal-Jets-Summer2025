@@ -7,30 +7,36 @@ from pytensor.compile.nanguardmode import NanGuardMode
 from simulationImport import importCSV
 import os
 
-sigma = 0.01
-n_val = 25
+# n_val = 15
+
+
+sigma = 0.02
+n_val = 10
 
 
 def loglike(
-    wt: pt.TensorVariable, wc: pt.TensorVariable, sigma=sigma, n_val=n_val
+    wt: pt.TensorVariable,
+    wc: pt.TensorVariable,
+    sigma=sigma,
+    n_val=n_val,
 ) -> pt.TensorVariable:
     # wt = pt.vector("wt", dtype="float64")
     # wc = pt.scalar("wc", dtype="float64")
 
-    # PSEUDOTHEORY
-    # make w= wt+n*sigma
-    # N(w) = (pt.exp(-(w-wt)**2/2*sigma**2)*1/pt.sqrt(2*pi)*sigma
-    # can use the below for P(w) just mdofiy for same input of wt+n*sigma
-    sum = 0
-    # sigma = 0.02
-    delta_w = sigma / 5
     wt_regular = wt
+
+    sum = 0
+
+    # configurables
+
+    delta_w = sigma / 5
+
     for n in range(-n_val, n_val + 1):
 
         # check if inputs are corret
         # Compute squared terms
         # TODO fix naming, it's very jack hammered atm
-        w = wt_regular + n * delta_w
+        w = wt_regular + n * sigma
 
         def function(wt):
 
@@ -50,31 +56,8 @@ def loglike(
             denom = sum_squares
             expr1 = numer1 / denom
 
-            # Second expression (used when wc >= 1)
-            # wt_times_wc = wt * wc
-            # at_ratio = pt.arctan(wt / wc)
-            # Single-argument arctan is OK here because wt & wc are always positive
-            # this one isnt right
-            # piece2_1 = (wc - 1) / ((wc**3) * (wt**2))
-            #
-            # piece2_2 = wc / sum_squares
-            #
-            # piece2_3 = (wt * at_ratio) / sum_squares
-            #
-            # expr2 = -piece2_1 - piece2_2 - piece2_3
-            #
-            # at = pt.arctan(w / wc)
-
-            # this one also maybe isnt
-
-            # numer2 = wc**2 + w * at
-            # denom2 = w**2 + wc**2
-            # expr2 = 1 - numer2 / denom2
-
-            # newst test
-
             at2 = pt.arctan(wt / wc)
-            numer2 = wt * (wt - at2)
+            numer2 = wt**2 - wt * at2
             denom2 = sum_squares
             expr2 = numer2 / denom2
 
@@ -93,7 +76,10 @@ def loglike(
 
             return result
 
-        coefficient = ((-n * delta_w) / (pt.sqrt(2 * pt.pi) * sigma**3)) * pt.exp(
+        # coefficient = (-(n * sigma) / (pt.sqrt(2 * pt.pi) * sigma**3)) * pt.exp(
+        #     -((n * sigma) ** 2) / (2 * sigma**2)
+        # )
+        coefficient = ((n * delta_w) / (pt.sqrt(2 * pt.pi) * sigma**3)) * pt.exp(
             (-((n * delta_w) ** 2)) / (2 * sigma**2)
         )
 
@@ -104,9 +90,11 @@ def loglike(
         # if pt.isnan(function(w - delta_w/2)):
         #     print("w - ∆w/2 is ", w-delta_w/2)
         sum += coefficient * function(w) * delta_w
+    # sum = pt.where(sum < 1, 0, sum)
 
-    # return pt.log(sum)
-    return sum
+    return pt.log(sum)
+
+    # return sum
 
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -137,10 +125,10 @@ f_loglike = pytensor.function(
 # wt_array = np.linspace(0, 3, 75)
 wt_array = wt_data
 # wt_array = 1.2
-wc_array = np.linspace(0, 3, 100)  # 100 values for wc
+q_array = np.linspace(-0.2, 0.1, 100)  # 100 values for wc
 # wc_array = [1.2]
 
-WT, WC = np.meshgrid(wt_array, wc_array)
+WT, WC = np.meshgrid(wt_array, q_array + 1)
 
 
 Z = np.empty(WT.shape)
@@ -155,14 +143,14 @@ for i in range(WT.shape[0]):
 Z_combine = np.sum(Z, axis=1)
 Z_max = np.max(Z_combine)
 
-
 # Z_collapsed = np.trapz(Z, x=wt_array, axis=1)
 
 
 plt.figure(figsize=(8, 6))
-plt.plot(wc_array, Z_combine, marker="o", linestyle="-")
-plt.xlabel("wc")
+plt.plot(q_array, np.exp(Z_combine - Z_max), marker="o", linestyle="-")
+plt.xlabel("q")
 plt.ylabel("log-like")
 plt.title("log-like vs. wc - sigma = " + str(sigma) + ", n_val = " + str(n_val))
+# plt.gcf().suptitle("sigma = " + str(sigma), fontsize=16)
 plt.grid(True)
 plt.show()
