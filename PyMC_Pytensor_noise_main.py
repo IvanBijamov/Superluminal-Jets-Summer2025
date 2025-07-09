@@ -23,7 +23,7 @@ pytensor.config.cxx = "/usr/bin/clang++"
 pytensor.config.exception_verbosity = "high"
 
 
-sigma = 0.1
+sigma = 0.01
 
 regenerate_data(sigma)
 
@@ -148,7 +148,7 @@ def main():
         # Likelihood (sampling distribution) of observations
         wt_obs = pm.CustomDist("wt_obs", wc, observed=wt_data, logp=loglike)
         # step = pm.Metropolis()
-        trace = pm.sample(4000, tune=1000)
+        trace = pm.sample(4000, tune=1000, target_accept=0.9)
     # summ = az.summary(trace)
     # print(summ)
     summary_with_quartiles = az.summary(
@@ -167,8 +167,10 @@ def main():
     # density_axes = axes_flat[0::2]
 
     qmin, qmax = left_ax.get_xlim()
+    dummy, scale = left_ax.get_ylim()
 
-    make_plot_like(sigma, left_ax, qmin, qmax)
+    # TODO: get vertical scale 
+    make_plot_like(sigma, left_ax, qmin, qmax, scale)
     # axes = az_plot.axes.flatten()
 
     plt.show()

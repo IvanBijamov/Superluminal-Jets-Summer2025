@@ -10,7 +10,7 @@ import os
 # n_val = 15
 
 
-def make_plot_like(sigma_val, ax, bound_min, bound_max):
+def make_plot_like(sigma_val, ax, bound_min, bound_max, scale):
     sigma = sigma_val
     n_val = 10
 
@@ -142,12 +142,12 @@ def make_plot_like(sigma_val, ax, bound_min, bound_max):
 
     ax.plot(
         q_array,
-        np.exp(Z_combine - Z_max),
-        marker="o",
-        linestyle="-",
+        scale*np.exp(Z_combine - Z_max),
+        marker="",
+        linestyle="dashed",
         label=f"log-like (σ={sigma_val}, n={n_val})",
         color="red",
-        linewidth=0.5,
+        linewidth=2,
     )
     # ax.set_xlabel("q")
     # ax.set_ylabel("scaled likelihood")
