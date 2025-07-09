@@ -15,14 +15,18 @@ import pytensor.tensor as pt
 import os
 
 from pytensor.tensor import as_tensor_variable
-
+from csv_file_imp import regenerate_data
 from simulationImport import importCSV
+from graphofloglike import make_plot_like
 
 pytensor.config.cxx = "/usr/bin/clang++"
 pytensor.config.exception_verbosity = "high"
 
 
-sigma = 1
+sigma = 0.1
+
+regenerate_data(sigma)
+
 n_val = 10
 
 
@@ -147,10 +151,6 @@ def main():
         trace = pm.sample(4000, tune=1000)
     # summ = az.summary(trace)
     # print(summ)
-    az.plot_trace(trace)
-    plt.gcf().suptitle("sigma = " + str(sigma), fontsize=16)
-    plt.show()
-    az.plot_posterior(trace, round_to=3, figsize=[8, 4], textsize=10)
     summary_with_quartiles = az.summary(
         trace,
         stat_funcs={
@@ -159,6 +159,19 @@ def main():
             "75%": lambda x: np.percentile(x, 75),
         },
     )
+    axes = az.plot_trace(trace, combined=True)
+    plt.gcf().suptitle("sigma = " + str(sigma), fontsize=16)
+
+    axes_flat = np.array(axes).flatten()
+    left_ax = axes_flat[0]
+
+    qmin, qmax = left_ax.get_xlim()
+
+    make_plot_like(sigma, left_ax, qmin, qmax)
+    # axes = az_plot.axes.flatten()
+
+    plt.show()
+    # az.plot_posterior(trace, round_to=3, figsize=[8, 4], textsize=10)
 
     print(summary_with_quartiles)
 
