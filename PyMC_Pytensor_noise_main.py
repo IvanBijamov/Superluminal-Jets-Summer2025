@@ -159,11 +159,12 @@ def main():
             "75%": lambda x: np.percentile(x, 75),
         },
     )
-    axes = az.plot_trace(trace, combined=True)
+    axes = az.plot_trace(trace, combined=False)
     plt.gcf().suptitle("sigma = " + str(sigma), fontsize=16)
 
     axes_flat = np.array(axes).flatten()
     left_ax = axes_flat[0]
+    # density_axes = axes_flat[0::2]
 
     qmin, qmax = left_ax.get_xlim()
 

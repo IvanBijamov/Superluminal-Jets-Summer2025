@@ -147,6 +147,7 @@ def make_plot_like(sigma_val, ax, bound_min, bound_max):
         linestyle="-",
         label=f"log-like (σ={sigma_val}, n={n_val})",
         color="red",
+        linewidth=0.5,
     )
     # ax.set_xlabel("q")
     # ax.set_ylabel("scaled likelihood")
