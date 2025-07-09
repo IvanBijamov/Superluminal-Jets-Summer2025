@@ -10,7 +10,7 @@ import os
 # n_val = 15
 
 
-sigma = 0.02
+sigma = 1
 n_val = 10
 
 
@@ -125,7 +125,7 @@ f_loglike = pytensor.function(
 # wt_array = np.linspace(0, 3, 75)
 wt_array = wt_data
 # wt_array = 1.2
-q_array = np.linspace(-0.2, 0.1, 100)  # 100 values for wc
+q_array = np.linspace(-2, 0, 200)  # 100 values for wc
 # wc_array = [1.2]
 
 WT, WC = np.meshgrid(wt_array, q_array + 1)

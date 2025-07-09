@@ -22,7 +22,7 @@ pytensor.config.cxx = "/usr/bin/clang++"
 pytensor.config.exception_verbosity = "high"
 
 
-sigma = 0.02
+sigma = 1
 n_val = 10
 
 
@@ -134,7 +134,7 @@ def main():
         # confusion between the model parameter and the inverse speed of light as a
         # function of the parameters.
 
-        q = pm.TruncatedNormal("q", sigma=0.01, lower=-1)
+        q = pm.TruncatedNormal("q", sigma=1, lower=-1)
         wc = q + 1
         # sigma = pm.Data("sigma_obs", sigma_array)
         # Expected value of wc, in terms of unknown model parameters and observed "X" values.
@@ -143,8 +143,8 @@ def main():
 
         # Likelihood (sampling distribution) of observations
         wt_obs = pm.CustomDist("wt_obs", wc, observed=wt_data, logp=loglike)
-        step = pm.Metropolis()
-        trace = pm.sample(9000, tune=1000, step=step)
+        # step = pm.Metropolis()
+        trace = pm.sample(4000, tune=1000)
     # summ = az.summary(trace)
     # print(summ)
     az.plot_trace(trace)
