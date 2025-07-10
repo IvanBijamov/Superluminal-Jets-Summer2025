@@ -27,33 +27,32 @@ sigma = 0.01
 
 regenerate_data(sigma)
 
-n_val = 10
-
-
 def loglike(
-    wt: pt.TensorVariable,
-    wc: pt.TensorVariable,
-    sigma=sigma,
-    n_val=n_val,
+    wt: pt.TensorVariable, # observed transverse w
+    wc: pt.TensorVariable, # inverse of speed of light along line of sight
+    sigma=sigma, # Gaussian noise on v
+    m=4, # window width for integration as multiple of sigma
 ) -> pt.TensorVariable:
     # wt = pt.vector("wt", dtype="float64")
     # wc = pt.scalar("wc", dtype="float64")
 
-    wt_regular = wt
+    # wt_regular = wt # Store observed value here
+    vt = 1/wt
 
     sum = 0
 
     # configurables
 
-    delta_w = sigma / 5
-    w_vals = np.linspace(wt_regular - n_val * delta_w, wt_regular + n_val * delta_w, 2*n_val + 1)
+    delta_v = sigma / 5
+    n_val = int(m * sigma / delta_v)
 
-    for w in w_vals:
+    for n in range(-n_val, n_val + 1):
 
         # check if inputs are corret
         # Compute squared terms
         # TODO fix naming, it's very jack hammered atm
-        
+        v_val = vt + n * delta_v
+
         def function(wt):
 
             # CDF VERSION
@@ -95,8 +94,8 @@ def loglike(
         # coefficient = (-(n * sigma) / (pt.sqrt(2 * pt.pi) * sigma**3)) * pt.exp(
         #     -((n * sigma) ** 2) / (2 * sigma**2)
         # )
-        coefficient = ((w - wt) / (pt.sqrt(2 * pt.pi) * sigma**3)) * pt.exp(
-            (-((w - wt) ** 2)) / (2 * sigma**2)
+        coefficient = ((- n * delta_v) / (pt.sqrt(2 * pt.pi) * sigma**3 * wt**2 )) * pt.exp(
+            (-((n * delta_v) ** 2)) / (2 * sigma**2)
         )
 
         # print(function(w+delta_w/2))
@@ -105,7 +104,7 @@ def loglike(
         #     print("w + ∆w/2 is ", w+delta_w/2)
         # if pt.isnan(function(w - delta_w/2)):
         #     print("w - ∆w/2 is ", w-delta_w/2)
-        sum += coefficient * function(w) * delta_w
+        sum += coefficient * function(1/v_val) * delta_v
     # sum = pt.where(sum < 1, 0, sum)
 
     return pt.log(sum)
@@ -148,7 +147,7 @@ def main():
         # Likelihood (sampling distribution) of observations
         wt_obs = pm.CustomDist("wt_obs", wc, observed=wt_data, logp=loglike)
         # step = pm.Metropolis()
-        trace = pm.sample(4000, tune=1000, target_accept=0.9)
+        trace = pm.sample(1000, tune=1000, target_accept=0.9, init_vals=[0])
     # summ = az.summary(trace)
     # print(summ)
     summary_with_quartiles = az.summary(
