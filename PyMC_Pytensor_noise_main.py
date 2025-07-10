@@ -22,7 +22,7 @@ from graphofloglike import make_plot_like
 pytensor.config.cxx = "/usr/bin/clang++"
 pytensor.config.exception_verbosity = "high"
 
-sigma = 0.2
+sigma = 0.1
 
 regenerate_data(sigma)
 
@@ -52,7 +52,7 @@ def loglike(
 
     delta_w = sigma / 3
 
-    for w in w_vals:
+    for n in range(-n_val, n_val + 1):
 
         # check if inputs are corret
         # Compute squared terms
