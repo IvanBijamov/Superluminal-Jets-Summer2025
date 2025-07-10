@@ -22,13 +22,18 @@ from graphofloglike import make_plot_like
 pytensor.config.cxx = "/usr/bin/clang++"
 pytensor.config.exception_verbosity = "high"
 
-
-sigma = 0.01
+sigma = 0.2
 
 regenerate_data(sigma)
 
-n_val = 10
-
+n_val = 12
+# TODO Ideally we'd have n_Val be larger and delta_w be smaller, but PyTensor 
+# throws an error when n_val gets much bigger than 15.  I suspect this is because
+# built-in differentiation algorithms run out of memory when there are too many 
+# terms in the Riemann sum.  
+# 
+# The values here sample the window between wt ± 4 sigma, but do it more 
+# coarsely than would be ideal.
 
 def loglike(
     wt: pt.TensorVariable,
@@ -45,15 +50,15 @@ def loglike(
 
     # configurables
 
-    delta_w = sigma / 5
-    w_vals = np.linspace(wt_regular - n_val * delta_w, wt_regular + n_val * delta_w, 2*n_val + 1)
+    delta_w = sigma / 3
 
     for w in w_vals:
 
         # check if inputs are corret
         # Compute squared terms
         # TODO fix naming, it's very jack hammered atm
-        
+        w = wt_regular + n * delta_w
+
         def function(wt):
 
             # CDF VERSION
@@ -95,8 +100,8 @@ def loglike(
         # coefficient = (-(n * sigma) / (pt.sqrt(2 * pt.pi) * sigma**3)) * pt.exp(
         #     -((n * sigma) ** 2) / (2 * sigma**2)
         # )
-        coefficient = ((w - wt) / (pt.sqrt(2 * pt.pi) * sigma**3)) * pt.exp(
-            (-((w - wt) ** 2)) / (2 * sigma**2)
+        coefficient = ((w - wt_regular) / (pt.sqrt(2 * pt.pi) * sigma**3)) * pt.exp(
+            (-((w - wt_regular) ** 2)) / (2 * sigma**2)
         )
 
         # print(function(w+delta_w/2))
@@ -170,7 +175,7 @@ def main():
     dummy, scale = left_ax.get_ylim()
 
     # TODO: get vertical scale 
-    make_plot_like(sigma, left_ax, qmin, qmax, scale)
+    make_plot_like(sigma, n_val, left_ax, qmin, qmax, scale)
     # axes = az_plot.axes.flatten()
 
     plt.show()

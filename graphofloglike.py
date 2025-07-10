@@ -10,9 +10,8 @@ import os
 # n_val = 15
 
 
-def make_plot_like(sigma_val, ax, bound_min, bound_max, scale):
+def make_plot_like(sigma_val, n_val, ax, bound_min, bound_max, scale):
     sigma = sigma_val
-    n_val = 10
 
     def loglike(
         wt: pt.TensorVariable,
@@ -29,14 +28,14 @@ def make_plot_like(sigma_val, ax, bound_min, bound_max, scale):
 
         # configurables
 
-        delta_w = sigma / 5
+        delta_w = sigma / 3
 
         for n in range(-n_val, n_val + 1):
 
             # check if inputs are corret
             # Compute squared terms
             # TODO fix naming, it's very jack hammered atm
-            w = wt_regular + n * sigma
+            w = wt_regular + n * delta_w
 
             def function(wt):
 
