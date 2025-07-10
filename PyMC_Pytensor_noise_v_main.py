@@ -15,43 +15,49 @@ import pytensor.tensor as pt
 import os
 
 from pytensor.tensor import as_tensor_variable
-from csv_file_imp import regenerate_data
+from csv_file_imp_v import regenerate_data
 from simulationImport import importCSV
 from graphofloglike import make_plot_like
 
 pytensor.config.cxx = "/usr/bin/clang++"
 pytensor.config.exception_verbosity = "high"
 
-
-sigma = 0.01
+sigma = 0.1
 
 regenerate_data(sigma)
 
+n_val = 12
+# TODO Ideally we'd have n_Val be larger and delta_w be smaller, but PyTensor 
+# throws an error when n_val gets much bigger than 15.  I suspect this is because
+# built-in differentiation algorithms run out of memory when there are too many 
+# terms in the Riemann sum.  
+# 
+# The values here sample the window between wt ± 4 sigma, but do it more 
+# coarsely than would be ideal.
+
 def loglike(
-    wt: pt.TensorVariable, # observed transverse w
-    wc: pt.TensorVariable, # inverse of speed of light along line of sight
-    sigma=sigma, # Gaussian noise on v
-    m=4, # window width for integration as multiple of sigma
+    wt: pt.TensorVariable,
+    wc: pt.TensorVariable,
+    sigma=sigma,
+    n_val=n_val,
 ) -> pt.TensorVariable:
     # wt = pt.vector("wt", dtype="float64")
     # wc = pt.scalar("wc", dtype="float64")
 
-    # wt_regular = wt # Store observed value here
     vt = 1/wt
 
     sum = 0
 
     # configurables
 
-    delta_v = sigma / 5
-    n_val = int(m * sigma / delta_v)
+    delta_v = sigma / 3
 
     for n in range(-n_val, n_val + 1):
 
         # check if inputs are corret
         # Compute squared terms
         # TODO fix naming, it's very jack hammered atm
-        v_val = vt + n * delta_v
+        v = vt + n * delta_v
 
         def function(wt):
 
@@ -94,8 +100,8 @@ def loglike(
         # coefficient = (-(n * sigma) / (pt.sqrt(2 * pt.pi) * sigma**3)) * pt.exp(
         #     -((n * sigma) ** 2) / (2 * sigma**2)
         # )
-        coefficient = ((- n * delta_v) / (pt.sqrt(2 * pt.pi) * sigma**3 * wt**2 )) * pt.exp(
-            (-((n * delta_v) ** 2)) / (2 * sigma**2)
+        coefficient = ((vt - v) / (pt.sqrt(2 * pt.pi) * sigma**3 * wt**2)) * pt.exp(
+            (-((vt - v) ** 2)) / (2 * sigma**2)
         )
 
         # print(function(w+delta_w/2))
@@ -104,7 +110,7 @@ def loglike(
         #     print("w + ∆w/2 is ", w+delta_w/2)
         # if pt.isnan(function(w - delta_w/2)):
         #     print("w - ∆w/2 is ", w-delta_w/2)
-        sum += coefficient * function(1/v_val) * delta_v
+        sum += coefficient * function(wt) * delta_v
     # sum = pt.where(sum < 1, 0, sum)
 
     return pt.log(sum)
@@ -126,7 +132,10 @@ def main():
     # Import data from file
     dataAll = importCSV(dataSource)
     radec_data = [sublist[1:3] for sublist in dataAll]
-    wt_data = [sublist[3] for sublist in dataAll]
+    vt_data = [sublist[3] for sublist in dataAll]
+    print(vt_data[:10])
+    wt_data = np.pow(vt_data, -1.0)
+    print(wt_data[:10])
     wt_min = np.min(wt_data)
     # wc_min = np.sqrt(1 - wt_min**2)
 
@@ -147,7 +156,8 @@ def main():
         # Likelihood (sampling distribution) of observations
         wt_obs = pm.CustomDist("wt_obs", wc, observed=wt_data, logp=loglike)
         # step = pm.Metropolis()
-        trace = pm.sample(1000, tune=1000, target_accept=0.9, init_vals=[0])
+        # initvals = {'q': 0.0}
+        trace = pm.sample(1000, tune=1000, target_accept=0.9)
     # summ = az.summary(trace)
     # print(summ)
     summary_with_quartiles = az.summary(
@@ -169,7 +179,7 @@ def main():
     dummy, scale = left_ax.get_ylim()
 
     # TODO: get vertical scale 
-    make_plot_like(sigma, left_ax, qmin, qmax, scale)
+    make_plot_like(sigma, n_val, left_ax, qmin, qmax, scale)
     # axes = az_plot.axes.flatten()
 
     plt.show()
