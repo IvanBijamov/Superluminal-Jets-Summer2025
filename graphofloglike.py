@@ -7,11 +7,13 @@ from pytensor.compile.nanguardmode import NanGuardMode
 from simulationImport import importCSV
 import os
 
+
 # n_val = 15
 
 
-def make_plot_like(sigma_val, n_val, ax, bound_min, bound_max, scale):
+def make_plot_like(sigma_val, ax, bound_min, bound_max, scale):
     sigma = sigma_val
+    n_val = 10
 
     def loglike(
         wt: pt.TensorVariable,
@@ -28,72 +30,57 @@ def make_plot_like(sigma_val, n_val, ax, bound_min, bound_max, scale):
 
         # configurables
 
-        delta_w = sigma / 3
+        delta_w = sigma / 5
+        w_vals = pt.linspace(
+            wt_regular - n_val * delta_w, wt_regular + n_val * delta_w, 2 * n_val + 1
+        )
 
-        for n in range(-n_val, n_val + 1):
+        def function(wt_input):
 
-            # check if inputs are corret
-            # Compute squared terms
-            # TODO fix naming, it's very jack hammered atm
-            w = wt_regular + n * delta_w
+            # CDF VERSION
 
-            def function(wt):
+            # wt = w + delta_w / 2
 
-                # CDF VERSION
+            wt_squared = pt.pow(wt_input, 2)
+            wc_squared = pt.pow(wc, 2)
+            sum_squares = wc_squared + wt_squared
 
-                # wt = w + delta_w / 2
+            # First expression (used when wc < 1)
+            square_root = pt.sqrt(sum_squares - 1)
+            at = pt.arctan(square_root)
 
-                wt_squared = pt.pow(wt, 2)
-                wc_squared = pt.pow(wc, 2)
-                sum_squares = wc_squared + wt_squared
+            numer1 = wt_input * (square_root - at)
+            denom = sum_squares
+            expr1 = numer1 / denom
 
-                # First expression (used when wc < 1)
-                square_root = pt.sqrt(sum_squares - 1)
-                at = pt.arctan(square_root)
+            at2 = pt.arctan(wt_input / wc)
+            numer2 = wt_input**2 - wt_input * at2
+            denom2 = sum_squares
+            expr2 = numer2 / denom2
 
-                numer1 = wt * (square_root - at)
-                denom = sum_squares
-                expr1 = numer1 / denom
+            fastslowcondition = pt.lt(wc, 1)
 
-                at2 = pt.arctan(wt / wc)
-                numer2 = wt**2 - wt * at2
-                denom2 = sum_squares
-                expr2 = numer2 / denom2
+            result = pt.switch(fastslowcondition, expr1, expr2)
 
-                fastslowcondition = pt.lt(wc, 1)
+            # expr1 if wc < 1, expr2 if wc > 1
 
-                result = pt.switch(fastslowcondition, expr1, expr2)
+            negwtcondition = pt.lt(wt_input, 0)
+            sumsquarecondition = pt.lt(sum_squares, 1)
 
-                # expr1 if wc < 1, expr2 if wc > 1
+            result = pt.switch(negwtcondition | sumsquarecondition, 0, result)
 
-                negwtcondition = pt.lt(wt, 0)
-                sumsquarecondition = pt.lt(sum_squares, 1)
+            return result
 
-                result = pt.switch(negwtcondition | sumsquarecondition, 0, result)
+        # expr1 if wc < 1 & wt > 0, expr2 if wc > 1 & wt >0, 0 if wt < 0 or sum_squares < 1
 
-                # expr1 if wc < 1 & wt > 0, expr2 if wc > 1 & wt >0, 0 if wt < 0 or sum_squares < 1
+        coefficient = (
+            (w_vals - wt_regular) / (pt.sqrt(2 * pt.pi) * sigma**3)
+        ) * pt.exp((-((w_vals - wt_regular) ** 2)) / (2 * sigma**2))
 
-                return result
-
-            # coefficient = (-(n * sigma) / (pt.sqrt(2 * pt.pi) * sigma**3)) * pt.exp(
-            #     -((n * sigma) ** 2) / (2 * sigma**2)
-            # )
-            coefficient = ((n * delta_w) / (pt.sqrt(2 * pt.pi) * sigma**3)) * pt.exp(
-                (-((n * delta_w) ** 2)) / (2 * sigma**2)
-            )
-
-            # print(function(w+delta_w/2))
-            # print(function(w+delta_w/2))
-            # if pt.isnan(function(w + delta_w/2)):
-            #     print("w + ∆w/2 is ", w+delta_w/2)
-            # if pt.isnan(function(w - delta_w/2)):
-            #     print("w - ∆w/2 is ", w-delta_w/2)
-            sum += coefficient * function(w) * delta_w
+        total = pt.sum(coefficient * function(w_vals) * delta_w)
         # sum = pt.where(sum < 1, 0, sum)
 
-        return pt.log(sum)
-
-        # return sum
+        return pt.log(total)
 
     dir_path = os.path.dirname(os.path.realpath(__file__))
 
@@ -141,7 +128,7 @@ def make_plot_like(sigma_val, n_val, ax, bound_min, bound_max, scale):
 
     ax.plot(
         q_array,
-        scale*np.exp(Z_combine - Z_max),
+        scale * np.exp(Z_combine - Z_max),
         marker="",
         linestyle="dashed",
         label=f"log-like (σ={sigma_val}, n={n_val})",
