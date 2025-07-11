@@ -119,7 +119,6 @@ for _ in range(N_SOURCES):
     v_obs = max(abs_v, min_velocity)
     
     w_obs = 1 / v_obs
-
     
     # data storage
     row = list(n_hat) + [v_obs, v_sigma, v_true_value]
@@ -134,7 +133,7 @@ with open(OUTPUT_FILE, mode="w", newline="") as csvfile:
     writer.writerow([δ, Bº] + list(B_vec))
 
     # data header
-    # writer.writerow(["n_x", "n_y", "n_z", "w_obs", "sigma", "w_true"])
+    # writer.writerow(["n_x", "n_y", "n_z", "v_obs", "sigma", "v_true"])
 
     # rows
     writer.writerows(rows)

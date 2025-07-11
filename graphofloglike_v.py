@@ -14,15 +14,13 @@ def make_plot_like(sigma_val, n_val, ax, bound_min, bound_max, scale):
     sigma = sigma_val
 
     def loglike(
-        wt: pt.TensorVariable,
+        vt: pt.TensorVariable, #observed transverse velocities
         wc: pt.TensorVariable,
         sigma=sigma,
         n_val=n_val,
     ) -> pt.TensorVariable:
         # wt = pt.vector("wt", dtype="float64")
         # wc = pt.scalar("wc", dtype="float64")
-
-        vt = 1/wt
 
         sum = 0
 
@@ -35,51 +33,57 @@ def make_plot_like(sigma_val, n_val, ax, bound_min, bound_max, scale):
             # check if inputs are corret
             # Compute squared terms
             # TODO fix naming, it's very jack hammered atm
-            v = vt + n * delta_v
+            v_samples = vt + n * delta_v
 
-            def function(wt):
+            def function(v_arg): # Define CDF in terms of v
 
                 # CDF VERSION
 
-                # wt = w + delta_w / 2
-
-                wt_squared = pt.pow(wt, 2)
+                wt = pt.pow(v_arg, -1)
+                wt_squared = pt.pow(v_arg, -2)
                 wc_squared = pt.pow(wc, 2)
                 sum_squares = wc_squared + wt_squared
 
                 # First expression (used when wc < 1)
                 square_root = pt.sqrt(sum_squares - 1)
                 at = pt.arctan(square_root)
-
                 numer1 = wt * (square_root - at)
-                denom = sum_squares
-                expr1 = numer1 / denom
-
+                expr1 = 1 - numer1 / sum_squares
+                
+                # Second expression (used when wc > 1)
                 at2 = pt.arctan(wt / wc)
                 numer2 = wt**2 - wt * at2
-                denom2 = sum_squares
-                expr2 = numer2 / denom2
+                expr2 = 1 - numer2 / sum_squares
 
                 fastslowcondition = pt.lt(wc, 1)
 
                 result = pt.switch(fastslowcondition, expr1, expr2)
+                # result is now: 
+                    # expr1 if wc < 1
+                    # expr2 if wc > 1
 
-                # expr1 if wc < 1, expr2 if wc > 1
-
-                negwtcondition = pt.lt(wt, 0)
                 sumsquarecondition = pt.lt(sum_squares, 1)
+                result = pt.switch(sumsquarecondition, 1, result)
+                # result is now:    
+                    # 1 if wc < 1 and wt^2 + wc^2 < 1
+                    # expr1 if wc < 1 and wt^2 + wc^2 > 1
+                    # expr2 if wc > 1
 
-                result = pt.switch(negwtcondition | sumsquarecondition, 0, result)
-
-                # expr1 if wc < 1 & wt > 0, expr2 if wc > 1 & wt >0, 0 if wt < 0 or sum_squares < 1
+                negvcondition = pt.lt(v_arg, 0)
+                result = pt.switch(negvcondition, 0, result)
+                # result is now:    
+                    # 0 if vt < 0
+                    # 1 if wc < 1 and wt^2 + wc^2 < 1
+                    # expr1 if wc < 1 and wt^2 + wc^2 > 1
+                    # expr2 if wc > 1
 
                 return result
 
             # coefficient = (-(n * sigma) / (pt.sqrt(2 * pt.pi) * sigma**3)) * pt.exp(
             #     -((n * sigma) ** 2) / (2 * sigma**2)
             # )
-            coefficient = ((vt - v) / (pt.sqrt(2 * pt.pi) * sigma**3 * wt**2)) * pt.exp(
-                (-((vt - v) ** 2)) / (2 * sigma**2)
+            coefficient = (v_samples - vt) / (pt.sqrt(2 * pt.pi) * sigma**3) * pt.exp(
+                (-((vt - v_samples) ** 2)) / (2 * sigma**2)
             )
 
             # print(function(w+delta_w/2))
@@ -88,9 +92,8 @@ def make_plot_like(sigma_val, n_val, ax, bound_min, bound_max, scale):
             #     print("w + ∆w/2 is ", w+delta_w/2)
             # if pt.isnan(function(w - delta_w/2)):
             #     print("w - ∆w/2 is ", w-delta_w/2)
-            sum += coefficient * function(wt) * delta_v
-        # sum = pt.where(sum < 1, 0, sum)
-
+            sum += coefficient * function(v_samples) * delta_v
+        
         return pt.log(sum)
 
         # return sum
@@ -107,32 +110,32 @@ def make_plot_like(sigma_val, n_val, ax, bound_min, bound_max, scale):
 
     dataAll = importCSV(dataSource)
     radec_data = [sublist[1:3] for sublist in dataAll]
-    wt_data = [sublist[3] for sublist in dataAll]
+    vt_data = [sublist[3] for sublist in dataAll]
 
-    wt_sym = pt.dscalar("wt")
+    vt_sym = pt.dscalar("vt")
     wc_sym = pt.dscalar("wc")
 
     f_loglike = pytensor.function(
-        [wt_sym, wc_sym],
-        loglike(wt_sym, wc_sym),
+        [vt_sym, wc_sym],
+        loglike(vt_sym, wc_sym),
         # mode=NanGuardMode(nan_is_error=True, inf_is_error=True, big_is_error=False),
     )
 
     # wt_array = np.linspace(0, 3, 75)
-    wt_array = wt_data
+    vt_array = vt_data
     # wt_array = 1.2
     q_array = np.linspace(bound_min, bound_max, 200)  # 100 values for wc
     # wc_array = [1.2]
 
-    WT, WC = np.meshgrid(wt_array, q_array + 1)
+    VT, WC = np.meshgrid(vt_array, q_array + 1)
 
-    Z = np.empty(WT.shape)
+    Z = np.empty(VT.shape)
 
-    for i in range(WT.shape[0]):
-        for j in range(WT.shape[1]):
-            wt_val = WT[i, j]
+    for i in range(VT.shape[0]):
+        for j in range(VT.shape[1]):
+            vt_val = VT[i, j]
             wc_val = WC[i, j]
-            Z[i, j] = f_loglike(wt_val, wc_val)
+            Z[i, j] = f_loglike(vt_val, wc_val)
 
     Z_combine = np.sum(Z, axis=1)
     Z_max = np.max(Z_combine)
@@ -166,7 +169,15 @@ def make_plot_like(sigma_val, n_val, ax, bound_min, bound_max, scale):
 def main():
     sigma_val = 0.01
     n_val = 12
+    
+    fig, ax = plt.subplots() 
+    bound_min = -1
+    bound_max = 1
+    scale = 1
     make_plot_like(sigma_val, n_val, ax, bound_min, bound_max, scale)
+    
+    plt.show()
+    
 
 if __name__ == "__main__":
     main()
