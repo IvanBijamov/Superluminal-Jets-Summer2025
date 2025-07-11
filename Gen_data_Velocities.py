@@ -12,10 +12,12 @@ import csv
 # parameteres
 δ = -0.1
 Bº = 1.0
-B_vec = np.array([1.0, 0.0, 0.0])
+B_vec = np.array([0.0, 0.0, 0.0])
 N_SOURCES = 1000  # Number of data points to generate
-OUTPUT_FILE = "generated_sources.csv"
+OUTPUT_FILE = "million_generated_sources.csv"
 
+v_cutoff = np.sqrt((1 - δ * Bº**2)/(-δ * Bº**2))
+print("Cutoff velocity: ", v_cutoff)
 
 # fns
 def solve_wc(δ, Bº, B_vec, n_hat):
@@ -112,18 +114,28 @@ for _ in range(N_SOURCES):
     v_true_value = 1 / w_true_value
 
     min_velocity = 1e-12
-    v_sigma = 0.03
+    v_sigma = 0
     
     #ensure noise doesnt make v_obs negative
     abs_v = abs(np.random.normal(loc=v_true_value, scale=v_sigma))
     v_obs = max(abs_v, min_velocity)
     
     w_obs = 1 / v_obs
-
     
     # data storage
     row = list(n_hat) + [v_obs, v_sigma, v_true_value]
     rows.append(row)
+    
+    if v_true_value > v_cutoff:
+        print("Warning: a source has v_true = ", v_true_value)
+        print("v_cutoff is ", v_cutoff)
+        dp = np.dot(v_hat, n_hat)
+        print("Dot product between v-hat & n-hat: ", dp)
+        print("Angle between v-hat and n-hat: theta = ", np.arccos(dp)) 
+        print("Actual speed: v = ", v_raw)
+        print("Speed of light along line of sight: vc = ", v_c_val)
+        print("")
+        print("solve_wc result: ", solve_wc(δ, Bº, B_vec, n_hat))
 
 # csv file
 with open(OUTPUT_FILE, mode="w", newline="") as csvfile:
@@ -134,7 +146,7 @@ with open(OUTPUT_FILE, mode="w", newline="") as csvfile:
     writer.writerow([δ, Bº] + list(B_vec))
 
     # data header
-    # writer.writerow(["n_x", "n_y", "n_z", "w_obs", "sigma", "w_true"])
+    # writer.writerow(["n_x", "n_y", "n_z", "v_obs", "sigma", "v_true"])
 
     # rows
     writer.writerows(rows)
