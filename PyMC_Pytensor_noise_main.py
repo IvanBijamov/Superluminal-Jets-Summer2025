@@ -25,7 +25,7 @@ sigma_default = 0.1
 
 regenerate_data(sigma_default)
 
-n_val_default = 10
+n_val_default = 20
 
 
 def loglike_borked(

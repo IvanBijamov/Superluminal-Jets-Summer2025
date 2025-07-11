@@ -13,7 +13,7 @@ import os
 
 def make_plot_like(sigma_val, ax, bound_min, bound_max, scale):
     sigma = sigma_val
-    n_val = 10
+    n_val = 20
 
     def loglike(
         wt: pt.TensorVariable,
