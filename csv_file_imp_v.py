@@ -112,11 +112,12 @@ def regenerate_data(sigma_val):
             )
         v_true_value = 1 / w_true_value
 
-        min_velocity = 1e-12
         v_sigma = sigma_val
+        v_obs = np.random.normal(loc=v_true_value, scale=v_sigma)
         
         #ensure noise doesnt make v_obs negative
-        abs_v = abs(np.random.normal(loc=v_true_value, scale=v_sigma))
+        min_velocity = 1e-12        
+        abs_v = abs(v_obs)
         v_obs = max(abs_v, min_velocity)
         
         w_obs = 1 / v_obs

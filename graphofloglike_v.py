@@ -138,7 +138,11 @@ def make_plot_like(sigma_val, n_val, ax, bound_min, bound_max, scale):
             Z[i, j] = f_loglike(vt_val, wc_val)
 
     Z_combine = np.sum(Z, axis=1)
-    Z_max = np.max(Z_combine)
+    Z_max = np.nanmax(Z_combine)
+    # Z_min = np.min()
+    
+    # print(Z_combine)
+    print(Z_max)
 
     # Z_collapsed = np.trapz(Z, x=wt_array, axis=1)
 
@@ -166,18 +170,18 @@ def make_plot_like(sigma_val, n_val, ax, bound_min, bound_max, scale):
     # # plt.show()
     return ax
 
-def main():
-    sigma_val = 0.01
-    n_val = 12
+# def main():
+#     sigma_val = 0.01
+#     n_val = 12
     
-    fig, ax = plt.subplots() 
-    bound_min = -1
-    bound_max = 1
-    scale = 1
-    make_plot_like(sigma_val, n_val, ax, bound_min, bound_max, scale)
+#     fig, ax = plt.subplots() 
+#     bound_min = -1
+#     bound_max = 1
+#     scale = 1
+#     make_plot_like(sigma_val, n_val, ax, bound_min, bound_max, scale)
     
-    plt.show()
+#     plt.show()
     
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()

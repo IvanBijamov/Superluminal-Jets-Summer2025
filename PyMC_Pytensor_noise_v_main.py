@@ -17,12 +17,12 @@ import os
 from pytensor.tensor import as_tensor_variable
 from csv_file_imp_v import regenerate_data
 from simulationImport import importCSV
-from graphofloglike import make_plot_like
+from graphofloglike_v import make_plot_like
 
 pytensor.config.cxx = "/usr/bin/clang++"
 pytensor.config.exception_verbosity = "high"
 
-sigma = 0.01
+sigma = 0.1
 
 regenerate_data(sigma)
 
@@ -157,7 +157,7 @@ def main():
         # values, along with RA & declination.
 
         # Likelihood (sampling distribution) of observations
-        wt_obs = pm.CustomDist("wt_obs", wc, observed=wt_data, logp=loglike)
+        vt_obs = pm.CustomDist("vt_obs", wc, observed=vt_data, logp=loglike)
         # step = pm.Metropolis()
         trace = pm.sample(1000, tune=1000, target_accept=0.9)
     # summ = az.summary(trace)

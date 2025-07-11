@@ -31,7 +31,7 @@ n_val = 12
 # throws an error when n_val gets much bigger than 15.  I suspect this is because
 # built-in differentiation algorithms run out of memory when there are too many 
 # terms in the Riemann sum.  
-# 
+
 # The values here sample the window between wt ± 4 sigma, but do it more 
 # coarsely than would be ideal.
 
