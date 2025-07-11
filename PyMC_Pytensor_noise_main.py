@@ -160,7 +160,7 @@ def main():
         },
     )
     axes = az.plot_trace(trace, combined=False)
-    plt.gcf().suptitle("sigma = " + str(sigma), fontsize=16)
+    plt.gcf().suptitle("sigma = " + str(sigma_default), fontsize=16)
 
     axes_flat = np.array(axes).flatten()
     left_ax = axes_flat[0]
@@ -170,7 +170,7 @@ def main():
     dummy, scale = left_ax.get_ylim()
 
     # TODO: get vertical scale
-    make_plot_like(sigma, left_ax, qmin, qmax, scale)
+    make_plot_like(sigma_default, left_ax, qmin, qmax, scale)
     # axes = az_plot.axes.flatten()
 
     plt.show()
