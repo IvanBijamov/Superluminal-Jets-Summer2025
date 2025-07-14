@@ -106,7 +106,7 @@ def loglike(
         # )
         coefficient = ((v_samples - vt)  * pt.exp(
             (-((v_samples - vt) ** 2)) / (2 * sigma**2))   
-            + (v_samples + vt) / (pt.sqrt(2 * pt.pi) * sigma**3) * pt.exp(
+            + (v_samples + vt) * pt.exp(
             (-((v_samples + vt) ** 2)) / (2 * sigma**2)))/ (pt.sqrt(2 * pt.pi) * sigma**3)
 
         # print(function(w+delta_w/2))
