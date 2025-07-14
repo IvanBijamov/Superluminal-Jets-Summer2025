@@ -37,7 +37,7 @@ def solve_wc(δ, Bº, B_vec, n_hat):
 
 def regenerate_data(sigma_val):
     # parameteres
-    δ = -0.1
+    δ = 0.1
     Bº = 1.0
     B_vec = np.array([0.0, 0.0, 0.0])
     N_SOURCES = 1000  # Number of data points to generate
