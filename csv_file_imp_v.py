@@ -9,14 +9,14 @@ author: mseifer1
 import numpy as np
 import csv
 
-def regenerate_data(sigma_val):
+
+def regenerate_data():
     # parameteres
     δ = 0.1
     Bº = 1.0
     B_vec = np.array([0.0, 0.0, 0.0])
     N_SOURCES = 1000  # Number of data points to generate
     OUTPUT_FILE = "generated_sources.csv"
-
 
     # fns
     def solve_wc(δ, Bº, B_vec, n_hat):
@@ -43,7 +43,6 @@ def regenerate_data(sigma_val):
         positive_wc = [wc for wc in (wc1, wc2) if wc > 0]
         return positive_wc if positive_wc else None
 
-
     def w_true(v, v_hat, n_hat, v_c_val):
 
         dot = np.dot(n_hat, v_hat)  # n̂ ⋅ v̂
@@ -53,7 +52,6 @@ def regenerate_data(sigma_val):
         if denom == 0:
             return np.inf  # avoid error- divide by 0
         return numer / denom
-
 
     # generate data
     rows = []
@@ -91,7 +89,7 @@ def regenerate_data(sigma_val):
 
         # 7
         w_true_value = w_true(v_braked, v_hat, n_hat, v_c_val)
-        
+
         if w_true_value < 0:
             print("Warning: w_true value = ", w_true_value)
             print(
@@ -111,17 +109,19 @@ def regenerate_data(sigma_val):
                 np.arccos(np.dot(n_hat, v_hat)),
             )
         v_true_value = 1 / w_true_value
-
-        v_sigma = sigma_val
+        # sigma_default = np.random.uniform(
+        #     low=0.01, high=0.5, size=len(N_SOURCES)
+        # ).tolist()
+        v_sigma = np.random.uniform(low=0.01, high=0.5)
         v_obs = np.random.normal(loc=v_true_value, scale=v_sigma)
-        
-        #ensure noise doesnt make v_obs negative
-        min_velocity = 1e-12        
+
+        # ensure noise doesnt make v_obs negative
+        min_velocity = 1e-12
         abs_v = abs(v_obs)
         v_obs = max(abs_v, min_velocity)
-        
+
         w_obs = 1 / v_obs
-        
+
         # data storage
         row = list(n_hat) + [v_obs, v_sigma, v_true_value]
         rows.append(row)
@@ -139,3 +139,7 @@ def regenerate_data(sigma_val):
 
         # rows
         writer.writerows(rows)
+
+
+if __name__ == "__main__":
+    regenerate_data()
