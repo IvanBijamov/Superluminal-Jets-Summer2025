@@ -10,6 +10,31 @@ import numpy as np
 import csv
 
 
+def solve_wc(δ, Bº, B_vec, n_hat):
+    dot_product = np.dot(B_vec, n_hat)
+
+    if np.allclose(B_vec, 0):
+        if δ * Bº**2 >= 1:
+            return None
+        wc = 1 / np.sqrt(1 - δ * Bº**2)
+        return [wc] if wc > 0 else None
+
+    a = δ * Bº**2 - 1
+    b = 2 * δ * Bº * dot_product
+    c = δ * dot_product**2 + 1
+
+    discriminant = b**2 - 4 * a * c
+    if discriminant < 0:
+        return None
+
+    sqrt_disc = np.sqrt(discriminant)
+    wc1 = (-b + sqrt_disc) / (2 * a)
+    wc2 = (-b - sqrt_disc) / (2 * a)
+
+    positive_wc = [wc for wc in (wc1, wc2) if wc > 0]
+    return positive_wc if positive_wc else None
+
+
 def regenerate_data(sigma_val):
     # parameteres
     δ = -0.1
@@ -19,29 +44,6 @@ def regenerate_data(sigma_val):
     OUTPUT_FILE = "generated_sources.csv"
 
     # fns
-    def solve_wc(δ, Bº, B_vec, n_hat):
-        dot_product = np.dot(B_vec, n_hat)
-
-        if np.allclose(B_vec, 0):
-            if δ * Bº**2 >= 1:
-                return None
-            wc = 1 / np.sqrt(1 - δ * Bº**2)
-            return [wc] if wc > 0 else None
-
-        a = δ * Bº**2 - 1
-        b = 2 * δ * Bº * dot_product
-        c = δ * dot_product**2 + 1
-
-        discriminant = b**2 - 4 * a * c
-        if discriminant < 0:
-            return None
-
-        sqrt_disc = np.sqrt(discriminant)
-        wc1 = (-b + sqrt_disc) / (2 * a)
-        wc2 = (-b - sqrt_disc) / (2 * a)
-
-        positive_wc = [wc for wc in (wc1, wc2) if wc > 0]
-        return positive_wc if positive_wc else None
 
     def w_true(v, v_hat, n_hat, v_c_val):
 
@@ -133,3 +135,7 @@ def regenerate_data(sigma_val):
 
         # rows
         writer.writerows(rows)
+
+
+if __name__ == "__main__":
+    regenerate_data(sigma_val=0.1)
