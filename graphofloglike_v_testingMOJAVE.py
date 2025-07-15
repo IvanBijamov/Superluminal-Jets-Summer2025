@@ -10,7 +10,7 @@ import os
 # n_val = 15
 
 
-def make_plot_like(n_val_default, ax, bound_min, bound_max, scale):
+def make_plot_like(n_val_default, ax, bound_min, bound_max, scale, summed=True):
     # sigma = sigma_val
 
     def loglike(
@@ -22,7 +22,7 @@ def make_plot_like(n_val_default, ax, bound_min, bound_max, scale):
         vt = vt_stack[:, 0]
         sigma = vt_stack[:, 1]
         # configurables
-        delta_v = sigma / 3
+        delta_v = sigma / 100
 
         sigma_bcast = sigma[:, None]
 
@@ -99,7 +99,7 @@ def make_plot_like(n_val_default, ax, bound_min, bound_max, scale):
         # Final Probability and Log -Probability
         # Multiply by Δw to get the final probability for each observation.
         P_obs = sum_over_v * delta_v
-        return pt.sum(pt.log(P_obs + 1e-9))
+        return pt.log(P_obs + 1e-9)
 
         # return sum
 
@@ -121,7 +121,9 @@ def make_plot_like(n_val_default, ax, bound_min, bound_max, scale):
 
     vt_and_sigma_noNaN = vt_and_sigma[~np.isnan(vt_and_sigma).any(axis=1)]
 
-    vt_data_with_sigma = vt_and_sigma_noNaN[:200]
+    nstart = 40 # First source
+    nsources = 5 # Number of sources in plot
+    vt_data_with_sigma = vt_and_sigma_noNaN[nstart:nstart+nsources]
     vt_stack_sym = pt.dmatrix("vt_stack_sym")
     wc_sym = pt.dscalar("wc_sym")
 
@@ -130,26 +132,33 @@ def make_plot_like(n_val_default, ax, bound_min, bound_max, scale):
         loglike(vt_stack_sym, wc_sym),
     )
 
-    q_array = np.linspace(bound_min, bound_max, 200)
+    ngraphpoints = 100
+    q_array = np.linspace(bound_min, bound_max, ngraphpoints)
 
-    log_likelihood_values = np.empty_like(q_array)
+    log_likelihood_values = np.empty((ngraphpoints,nsources))
 
     for i, q_val in enumerate(q_array):
         wc_val = q_val + 1
 
-        log_likelihood_values[i] = f_loglike(vt_data_with_sigma, wc_val)
+        log_likelihood_values[i,:] = f_loglike(vt_data_with_sigma, wc_val)
+    
+    total_log_likelihood = np.sum(log_likelihood_values, axis=1)
 
-    Z_max = np.nanmax(log_likelihood_values)
-
-    ax.plot(
-        q_array,
-        scale * np.exp(log_likelihood_values - Z_max),
-        marker="",
-        linestyle="dashed",
-        label=f"log-like (σ=varied, n={n_val_default})",
-        color="red",
-        linewidth=2,
-    )
+    if summed:
+        Z_max = np.nanmax(total_log_likelihood)
+        ax.plot(
+            q_array,
+            total_log_likelihood - Z_max,
+            marker="",
+            label=f"log-like (σ=varied, n={n_val_default})",
+        )
+    else:
+        ax.plot(
+            q_array,
+            log_likelihood_values,
+            marker="",
+            label=f"log-like (σ=varied, n={n_val_default})",
+        )
 
     return ax
 
@@ -159,21 +168,30 @@ def main_test():
     Sets up a plot, calls the likelihood plotting function, and displays it.
     """
 
-    fig, ax = plt.subplots(figsize=(10, 6))
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 6))
 
     n_val = 20
     q_min = -1
     q_max = 2.0
     plot_scale = 1.0
     make_plot_like(
-        n_val_default=n_val, ax=ax, bound_min=q_min, bound_max=q_max, scale=plot_scale
+        n_val_default=n_val, ax=ax1, bound_min=q_min, bound_max=q_max, scale=plot_scale,summed=False
+    )
+    make_plot_like(
+        n_val_default=n_val, ax=ax2, bound_min=q_min, bound_max=q_max, scale=plot_scale
     )
 
-    ax.set_xlabel("q")
-    ax.set_ylabel("Scaled Likelihood")
-    ax.set_title("Profile Likelihood of Parameter q")
-    ax.grid(True)
-    ax.legend()
+    ax1.set_xlabel("q")
+    ax1.set_ylabel("Individual log-likelihood")
+    ax1.set_title("Individual log-likelihoods of Parameter q")
+    ax1.grid(True)
+    ax1.legend()
+
+    ax2.set_xlabel("q")
+    ax2.set_ylabel("Total log-likelihood")
+    ax2.set_title("Total log-likelihood of Parameter q")
+    ax2.grid(True)
+    ax2.legend()
 
     plt.tight_layout()
     plt.show()
