@@ -22,11 +22,17 @@ def importCSV(filepath):
     phis = []
     # TODO: find numpy function to make code more efficient with finding r
     for i in range(len(dataImport)):
-        pos = dataImport.iloc[i, 0:3]
-        r = np.linalg.norm(pos)
-        phi = np.arctan2(pos[1], pos[0])
-        # if arccos, it is theta angle, if arcsin, then declination
-        theta = np.arcsin(pos[2] / r)
+        # pos = dataImport.iloc[i, 0:3]
+        # r = np.linalg.norm(pos)
+        # phi = np.arctan2(pos[1], pos[0])
+        # # if arccos, it is theta angle, if arcsin, then declination
+        # theta = np.arcsin(pos[2] / r)
+
+        # THESE ARE PLACEHOLDERS, UNCOMMENT ABOVE TO GET ACTUAL POSITION STUFF WORKING
+
+        r = 1.0
+        phi = 1.0
+        theta = 1.0
         phis.append(phi)
         thetas.append(theta)
         radii.append(r)
@@ -36,9 +42,11 @@ def importCSV(filepath):
     # returns radius, theta/declination, phi, and inverse apparent velocity
     for radius, theta, phi in zip(radii, thetas, phis):
         # index 3 for warren data gen aniso and 8 for the mathematica iso version (take inverse of mathematica)
+        # 13 and 14 for error and whatnot of mojave
         newList.append(
-            [radius, theta, phi, dataImport.iloc[i, 3], dataImport.iloc[i, 4]]
+            [radius, theta, phi, dataImport.iloc[i, 13], dataImport.iloc[i, 14]]
         )
+        # print([radius, theta, phi, dataImport.iloc[i, 13], dataImport.iloc[i, 14]])
         i += 1
 
     return newList

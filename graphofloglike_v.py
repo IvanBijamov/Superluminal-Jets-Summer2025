@@ -10,92 +10,96 @@ import os
 # n_val = 15
 
 
-def make_plot_like(sigma_val, n_val, ax, bound_min, bound_max, scale):
-    sigma = sigma_val
+def make_plot_like(n_val_default, ax, bound_min, bound_max, scale):
+    # sigma = sigma_val
 
     def loglike(
-        vt: pt.TensorVariable, #observed transverse velocities
+        vt_stack: pt.TensorVariable,
+        # sigma: pt.TensorVariable,
         wc: pt.TensorVariable,
-        sigma=sigma,
-        n_val=n_val,
+        n_val=n_val_default,
     ) -> pt.TensorVariable:
-        # wt = pt.vector("wt", dtype="float64")
-        # wc = pt.scalar("wc", dtype="float64")
-
-        sum = 0
-
+        vt = vt_stack[:, 0]
+        sigma = vt_stack[:, 1]
         # configurables
-
         delta_v = sigma / 3
 
-        for n in range(-n_val, n_val + 1):
+        sigma_bcast = sigma[:, None]
 
-            # check if inputs are corret
-            # Compute squared terms
-            # TODO fix naming, it's very jack hammered atm
-            v_samples = vt + n * delta_v
+        v_offsets = pt.linspace(-n_val, n_val, 2 * n_val + 1)
 
-            def function(v_arg): # Define CDF in terms of v
+        vt_bcast = vt[:, None]
+        delta_v_bcast = delta_v[:, None]
+        v_offsets_bcast = v_offsets[None, :]
 
-                # CDF VERSION
+        v = vt_bcast + v_offsets_bcast * delta_v_bcast
+        v_minus_vt = v - vt_bcast
+        v_plus_vt = v + vt_bcast
 
-                wt = pt.pow(v_arg, -1)
-                wt_squared = pt.pow(v_arg, -2)
-                wc_squared = pt.pow(wc, 2)
-                sum_squares = wc_squared + wt_squared
+        # need to somehow get w in here as a pytensor thing using pytensor computations
+        # check if inputs are corret
+        # Compute squared terms
+        # TODO fix naming, it's very jack hammered atm
 
-                # First expression (used when wc < 1)
-                square_root = pt.sqrt(sum_squares - 1)
-                at = pt.arctan(square_root)
-                numer1 = wt * (square_root - at)
-                expr1 = 1 - numer1 / sum_squares
-                
-                # Second expression (used when wc > 1)
-                at2 = pt.arctan(wt / wc)
-                numer2 = wt**2 - wt * at2
-                expr2 = 1 - numer2 / sum_squares
+        def CDF_function(v_inner):
 
-                fastslowcondition = pt.lt(wc, 1)
+            w_inner = pt.pow(v_inner, -1)
+            wt_squared = pt.pow(w_inner, 2)
+            wc_squared = pt.pow(wc, 2)
+            sum_squares = wc_squared + wt_squared
 
-                result = pt.switch(fastslowcondition, expr1, expr2)
-                # result is now: 
-                    # expr1 if wc < 1
-                    # expr2 if wc > 1
+            # First expression (used when wc < 1)
+            square_root = pt.sqrt(sum_squares - 1)
+            at = pt.arctan(square_root)
 
-                sumsquarecondition = pt.lt(sum_squares, 1)
-                result = pt.switch(sumsquarecondition, 1, result)
-                # result is now:    
-                    # 1 if wc < 1 and wt^2 + wc^2 < 1
-                    # expr1 if wc < 1 and wt^2 + wc^2 > 1
-                    # expr2 if wc > 1
+            numer1 = w_inner * (square_root - at)
+            # denom = sum_squares
+            expr1 = 1 - numer1 / sum_squares
 
-                negvcondition = pt.lt(v_arg, 0)
-                result = pt.switch(negvcondition, 0, result)
-                # result is now:    
-                    # 0 if vt < 0
-                    # 1 if wc < 1 and wt^2 + wc^2 < 1
-                    # expr1 if wc < 1 and wt^2 + wc^2 > 1
-                    # expr2 if wc > 1
+            at2 = pt.arctan(w_inner / wc)
+            numer2 = w_inner**2 - w_inner * at2
+            expr2 = 1 - numer2 / sum_squares
 
-                return result
+            fastslowcondition = pt.lt(wc, 1)
 
-            # coefficient = (-(n * sigma) / (pt.sqrt(2 * pt.pi) * sigma**3)) * pt.exp(
-            #     -((n * sigma) ** 2) / (2 * sigma**2)
-            # )
-            coefficient = ((v_samples - vt)  * pt.exp(
-                (-((v_samples - vt) ** 2)) / (2 * sigma**2))   
-                + (v_samples + vt) / (pt.sqrt(2 * pt.pi) * sigma**3) * pt.exp(
-                (-((v_samples + vt) ** 2)) / (2 * sigma**2)))/ (pt.sqrt(2 * pt.pi) * sigma**3)
+            result = pt.switch(fastslowcondition, expr1, expr2)
+            # result is now:
+            # expr1 if wc < 1
+            # expr2 if wc > 1
 
-            # print(function(w+delta_w/2))
-            # print(function(w+delta_w/2))
-            # if pt.isnan(function(w + delta_w/2)):
-            #     print("w + ∆w/2 is ", w+delta_w/2)
-            # if pt.isnan(function(w - delta_w/2)):
-            #     print("w - ∆w/2 is ", w-delta_w/2)
-            sum += coefficient * function(v_samples) * delta_v
-        
-        return pt.log(sum)
+            sumsquarecondition = pt.lt(sum_squares, 1)
+            result = pt.switch(sumsquarecondition, 1, result)
+            # result is now:
+            # 1 if wc < 1 and wt^2 + wc^2 < 1
+            # expr1 if wc < 1 and wt^2 + wc^2 > 1
+            # expr2 if wc > 1
+
+            negvcondition = pt.lt(v_inner, 0)
+            result = pt.switch(negvcondition, 0, result)
+            # result is now:
+            # 0 if vt < 0
+            # 1 if wc < 1 and wt^2 + wc^2 < 1
+            # expr1 if wc < 1 and wt^2 + wc^2 > 1
+            # expr2 if wc > 1
+
+            return result
+
+        # coefficient = (w_minus_wt / (pt.sqrt(2 * pt.pi) * sigma**3)) * pt.exp(
+        #     (-(w_minus_wt**2)) / (2 * sigma**2)
+        # )
+
+        coefficient = (
+            v_minus_vt * pt.exp(-(v_minus_vt**2) / (2 * sigma_bcast**2))
+            + v_plus_vt * pt.exp(-(v_plus_vt**2) / (2 * sigma_bcast**2))
+        ) / (pt.sqrt(2 * pt.pi) * sigma_bcast**3)
+
+        summand = coefficient * CDF_function(v)
+        sum_over_v = pt.sum(summand, axis=1)
+
+        # Final Probability and Log -Probability
+        # Multiply by Δw to get the final probability for each observation.
+        P_obs = sum_over_v * delta_v
+        return pt.sum(pt.log(P_obs + 1e-9))
 
         # return sum
 
@@ -105,15 +109,20 @@ def make_plot_like(sigma_val, n_val, ax, bound_min, bound_max, scale):
     # dataset = "/isotropic_sims/10/data_3959143911168_xx_0.8_yy_0.8_zz_0.8.csv"
     # dataset = "/isotropic_sims/10000/data_3957522615761_xx_0.8_yy_0.8_zz_0.8.csv"
     # dataset = "/isotropic_sims/10000/data_3957522615600_xx_1.2_yy_1.2_zz_1.2.csv"
-    dataset = "/generated_sources.csv"
+    dataset = "/mojave_cleaned.csv"
     # dataset = "/isotropic_sims/10/data_3959143911168_xx_1.2_yy_1.2_zz_1.2.csv"
     dataSource = dir_path + dataset
 
     dataAll = importCSV(dataSource)
     radec_data = [sublist[1:3] for sublist in dataAll]
     vt_data = [sublist[3] for sublist in dataAll]
+    vt_data_noNaN = [value for value in vt_data if not np.isnan(value)]
+    sigma_default = [sublist[4] for sublist in dataAll]
+    sigma_default_noNaN = [value for value in sigma_default if not np.isnan(value)]
+    # sigma_default = np.random.uniform(low=0.01, high=0.5, size=len(vt_data)).tolist()
+    vt_data_with_sigma = np.stack([vt_data_noNaN, sigma_default_noNaN], axis=1)
 
-    vt_sym = pt.dscalar("vt")
+    vt_sym = pt.dvector("vt")
     wc_sym = pt.dscalar("wc")
 
     f_loglike = pytensor.function(
@@ -123,7 +132,7 @@ def make_plot_like(sigma_val, n_val, ax, bound_min, bound_max, scale):
     )
 
     # wt_array = np.linspace(0, 3, 75)
-    vt_array = vt_data
+    vt_array = vt_data_with_sigma
     # wt_array = 1.2
     q_array = np.linspace(bound_min, bound_max, 200)  # 100 values for wc
     # wc_array = [1.2]
@@ -141,7 +150,7 @@ def make_plot_like(sigma_val, n_val, ax, bound_min, bound_max, scale):
     Z_combine = np.sum(Z, axis=1)
     Z_max = np.nanmax(Z_combine)
     # Z_min = np.min()
-    
+
     # print(Z_combine)
     print(Z_max)
 
@@ -149,10 +158,10 @@ def make_plot_like(sigma_val, n_val, ax, bound_min, bound_max, scale):
 
     ax.plot(
         q_array,
-        scale*np.exp(Z_combine - Z_max),
+        scale * np.exp(Z_combine - Z_max),
         marker="",
         linestyle="dashed",
-        label=f"log-like (σ={sigma_val}, n={n_val})",
+        label=f"log-like (σ=varied, n={n_val_default})",
         color="red",
         linewidth=2,
     )
@@ -171,18 +180,19 @@ def make_plot_like(sigma_val, n_val, ax, bound_min, bound_max, scale):
     # # plt.show()
     return ax
 
-# def main():
-#     sigma_val = 0.01
-#     n_val = 12
-    
-#     fig, ax = plt.subplots() 
-#     bound_min = -1
-#     bound_max = 1
-#     scale = 1
-#     make_plot_like(sigma_val, n_val, ax, bound_min, bound_max, scale)
-    
-#     plt.show()
-    
 
-# if __name__ == "__main__":
-#     main()
+def main():
+    sigma_val = 0.01
+    n_val = 12
+
+    fig, ax = plt.subplots()
+    bound_min = -1
+    bound_max = 1
+    scale = 1
+    make_plot_like(n_val, ax, bound_min, bound_max, scale)
+
+    plt.show()
+
+
+if __name__ == "__main__":
+    main()

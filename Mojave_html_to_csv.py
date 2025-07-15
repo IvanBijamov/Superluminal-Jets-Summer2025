@@ -11,19 +11,20 @@ import pandas as pd
 import numpy as np
 import requests
 import html
+import os
 
-#Fetch HTML 
+# Fetch HTML
 url = "https://www.cv.nrao.edu/MOJAVE/velocitytableXVIII.html"
 response = requests.get(url)
-html_text = html.unescape(response.text)  #decodes &plusmn to ±
+html_text = html.unescape(response.text)  # decodes &plusmn to ±
 
-#read first table from HTML
+# read first table from HTML
 df = pd.read_html(html_text)[0]
 
-#drop unwanted headers
+# drop unwanted headers
 df = df.iloc[3:-1].reset_index(drop=True)
 
-#parse by splitting
+# parse by splitting
 new_cols = []
 
 for col in df.columns:
@@ -47,13 +48,16 @@ for col in df.columns:
     else:
         new_cols.append(col)
 
-#clean and convert
+# clean and convert
 df_clean = df[new_cols]
-df_clean = df_clean.apply(pd.to_numeric, errors='ignore')
+df_clean = df_clean.apply(pd.to_numeric, errors="ignore")
 
 
-#save path
-csv_path = "/Users/warrenschindler/Desktop/one/mojave_cleaned.csv"
+# save path
+dir_path = os.path.dirname(os.path.realpath(__file__))
+dataset = "/mojave_cleaned.csv"
+csv_path = dir_path + dataset
+# csv_path = "/Users/warrenschindler/Desktop/one/mojave_cleaned.csv"
 df_clean.to_csv(csv_path, index=False)
 
 print(f"Cleaned table saved as {csv_path}")

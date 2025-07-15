@@ -23,7 +23,7 @@ pytensor.config.exception_verbosity = "high"
 
 # sigma_default = 0.1
 
-regenerate_data()
+# regenerate_data()
 
 n_val_default = 20
 
@@ -37,7 +37,7 @@ def loglike_borked(
     vt = vt_stack[:, 0]
     sigma = vt_stack[:, 1]
     # configurables
-    delta_v = sigma / 3
+    delta_v = sigma
 
     sigma_bcast = sigma[:, None]
 
@@ -124,7 +124,7 @@ def main():
     # find the path for the data source;  this should work on everyone's system now
     # dataset = "/isotropic_sims/10000/data_3957522615761_xx_0.8_yy_0.8_zz_0.8.csv"
     # dataset = "/isotropic_sims/10000/data_3957522615600_xx_1.2_yy_1.2_zz_1.2.csv"
-    dataset = "/generated_sources.csv"
+    dataset = "/mojave_cleaned.csv"
 
     dataSource = dir_path + dataset
 
@@ -132,14 +132,28 @@ def main():
 
     # Import data from file
     dataAll = importCSV(dataSource)
-    radec_data = [sublist[1:3] for sublist in dataAll]
-    vt_data = [sublist[3] for sublist in dataAll]
-    sigma_default = [sublist[4] for sublist in dataAll]
-    # sigma_default = np.random.uniform(low=0.01, high=0.5, size=len(vt_data)).tolist()
-    vt_data_with_sigma = np.stack([vt_data, sigma_default], axis=1)
-    # print(vt_data[:10])
-    # wt_data = np.pow(vt_data, -1.0)
-    # wc_min = np.sqrt(1 - wt_min**2)
+    # radec_data = [sublist[1:3] for sublist in dataAll]
+    # vt_data = np.array([sublist[3] for sublist in dataAll])
+    # vt_data_noNaN = vt_data[~np.isnan(vt_data)]
+    # sigma_default = np.array([sublist[4] for sublist in dataAll])
+    # sigma_default_noNaN = sigma_default[~np.isnan(sigma_default)]
+    # vt_data_with_sigma = np.stack([vt_data_noNaN, sigma_default_noNaN], axis=1)
+
+    vt_and_sigma = np.stack(
+        [[sublist[3] for sublist in dataAll], [sublist[4] for sublist in dataAll]],
+        axis=1,
+    )
+
+    # print(vt_and_sigma)
+
+    vt_and_sigma_noNaN = vt_and_sigma[~np.isnan(vt_and_sigma).any(axis=1)]
+
+    # Test that removes sigma values bigger than the data value in case something funky
+    # vt_data_with_sigma = vt_and_sigma_noNaN[
+    #     vt_and_sigma_noNaN[:, 1] <= vt_and_sigma_noNaN[:, 0]
+    # ]
+    vt_data_with_sigma = vt_and_sigma_noNaN[43:84]
+    # print(vt_data_with_sigma)
 
     model = pm.Model()
 
@@ -160,7 +174,7 @@ def main():
             "vt_obs", wc, observed=vt_data_with_sigma, logp=loglike_borked
         )
         # step = pm.Metropolis()
-        trace = pm.sample(1000, tune=1000, target_accept=0.95)
+        trace = pm.sample(4000, tune=1000, target_accept=0.95)
     # summ = az.summary(trace)
     # print(summ)
     summary_with_quartiles = az.summary(
@@ -173,19 +187,19 @@ def main():
     )
     sigma_temp = 0.1
     axes = az.plot_trace(trace, combined=False)
-    plt.gcf().suptitle("sigma = " + str(sigma_temp), fontsize=16)
-
-    axes_flat = np.array(axes).flatten()
-    left_ax = axes_flat[0]
-    # density_axes = axes_flat[0::2]
-
-    qmin, qmax = left_ax.get_xlim()
-    dummy, scale = left_ax.get_ylim()
-
-    # TODO: get vertical scale
-    # temp for plot
-
-    make_plot_like(sigma_temp, n_val_default, left_ax, qmin, qmax, scale)
+    # plt.gcf().suptitle("sigma = " + str(sigma_temp), fontsize=16)
+    #
+    # axes_flat = np.array(axes).flatten()
+    # left_ax = axes_flat[0]
+    # # density_axes = axes_flat[0::2]
+    #
+    # qmin, qmax = left_ax.get_xlim()
+    # dummy, scale = left_ax.get_ylim()
+    #
+    # # TODO: get vertical scale
+    # # temp for plot
+    #
+    # make_plot_like(n_val_default, left_ax, qmin, qmax, scale)
     # axes = az_plot.axes.flatten()
 
     plt.show()
