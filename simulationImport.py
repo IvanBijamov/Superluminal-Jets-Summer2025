@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 
 
-def importCSV(filepath):
+def importCSV(filepath, filetype="Mojave"):
     # Must modify file path to match where your version of the file is stored
     # Ensure that you correct the headers of the file you use, as by default only
     # 6 out of the 9 have headers, which causes it to break
@@ -40,11 +40,19 @@ def importCSV(filepath):
     newList = []
     i = 0
     # returns radius, theta/declination, phi, and inverse apparent velocity
+    if filetype=="Mojave" :
+        vindex = 13
+        dvindex = 14
+    elif type=="Schindler":
+        vindex = 3
+        dvindex = 4
+        
     for radius, theta, phi in zip(radii, thetas, phis):
-        # index 3 for warren data gen aniso and 8 for the mathematica iso version (take inverse of mathematica)
+        # index 3 & 4 for warren data gen aniso
+        # 8 for the mathematica iso version (take inverse of mathematica)
         # 13 and 14 for error and whatnot of mojave
         newList.append(
-            [radius, theta, phi, dataImport.iloc[i, 13], dataImport.iloc[i, 14]]
+            [radius, theta, phi, dataImport.iloc[i, vindex], dataImport.iloc[i, dvindex]]
         )
         # print([radius, theta, phi, dataImport.iloc[i, 13], dataImport.iloc[i, 14]])
         i += 1

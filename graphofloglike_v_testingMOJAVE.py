@@ -110,6 +110,7 @@ def make_plot_like(n_val_default, ax, bound_min, bound_max, scale, summed=True):
     # dataset = "/isotropic_sims/10000/data_3957522615761_xx_0.8_yy_0.8_zz_0.8.csv"
     # dataset = "/isotropic_sims/10000/data_3957522615600_xx_1.2_yy_1.2_zz_1.2.csv"
     dataset = "/mojave_cleaned.csv"
+    # dataset = "/generated_sources.csv"
     # dataset = "/isotropic_sims/10/data_3959143911168_xx_1.2_yy_1.2_zz_1.2.csv"
     dataSource = dir_path + dataset
 
@@ -146,7 +147,8 @@ def make_plot_like(n_val_default, ax, bound_min, bound_max, scale, summed=True):
         log_likelihood_values[i,:] = f_loglike(vt_data_with_sigma, wc_val)
     
     # Print any array indices where the log_likelihood is a Nan
-    print(np.argwhere(np.isnan(log_likelihood_values)))
+    if not(summed):
+        print(np.argwhere(np.isnan(log_likelihood_values)))
     
     total_log_likelihood = np.sum(log_likelihood_values, axis=1)
 
@@ -180,7 +182,7 @@ def main_test():
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 6))
 
     n_val = 20
-    q_min = -1
+    q_min = -1.0
     q_max = 2.0
     plot_scale = 1.0
     make_plot_like(
