@@ -38,6 +38,7 @@ def loglike_borked(
     sigma = vt_stack[:, 1]
     # configurables
     delta_v = sigma
+    
 
     sigma_bcast = sigma[:, None]
 
@@ -125,6 +126,7 @@ def main():
     # dataset = "/isotropic_sims/10000/data_3957522615761_xx_0.8_yy_0.8_zz_0.8.csv"
     # dataset = "/isotropic_sims/10000/data_3957522615600_xx_1.2_yy_1.2_zz_1.2.csv"
     dataset = "/mojave_cleaned.csv"
+    # dataset = "/generated_sources.csv"
 
     dataSource = dir_path + dataset
 
@@ -144,7 +146,7 @@ def main():
         axis=1,
     )
 
-    # print(vt_and_sigma)
+    print(vt_and_sigma[:10])
 
     vt_and_sigma_noNaN = vt_and_sigma[~np.isnan(vt_and_sigma).any(axis=1)]
 
@@ -152,7 +154,7 @@ def main():
     # vt_data_with_sigma = vt_and_sigma_noNaN[
     #     vt_and_sigma_noNaN[:, 1] <= vt_and_sigma_noNaN[:, 0]
     # ]
-    vt_data_with_sigma = vt_and_sigma_noNaN[43:84]
+    vt_data_with_sigma = vt_and_sigma_noNaN
     # print(vt_data_with_sigma)
 
     model = pm.Model()
@@ -162,7 +164,7 @@ def main():
         # confusion between the model parameter and the inverse speed of light as a
         # function of the parameters.
 
-        q = pm.TruncatedNormal("q", sigma=3, lower=-1)
+        q = pm.TruncatedNormal("q", sigma=3, lower = -1)
         wc = q + 1
         # sigma = pm.Data("sigma_obs", sigma_array)
         # Expected value of wc, in terms of unknown model parameters and observed "X" values.
@@ -174,7 +176,11 @@ def main():
             "vt_obs", wc, observed=vt_data_with_sigma, logp=loglike_borked
         )
         # step = pm.Metropolis()
+                        
+        print(model.debug(verbose=True))
+
         trace = pm.sample(4000, tune=1000, target_accept=0.95)
+        
     # summ = az.summary(trace)
     # print(summ)
     summary_with_quartiles = az.summary(
