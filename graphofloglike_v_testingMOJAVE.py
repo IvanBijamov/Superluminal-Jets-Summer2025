@@ -120,10 +120,13 @@ def make_plot_like(n_val_default, ax, bound_min, bound_max, scale, summed=True):
     )
 
     vt_and_sigma_noNaN = vt_and_sigma[~np.isnan(vt_and_sigma).any(axis=1)]
+    
+    datasetsize = len(vt_and_sigma_noNaN)
 
-    nstart = 40 # First source
-    nsources = 5 # Number of sources in plot
-    vt_data_with_sigma = vt_and_sigma_noNaN[nstart:nstart+nsources]
+    nstart = 0 # First source
+    nsources = 2000 # Number of sources in plot
+    nsources = min(datasetsize - nstart, nsources) # In case we try to grab more sources than are available
+    vt_data_with_sigma = vt_and_sigma_noNaN[nstart:nstart + nsources]
     vt_stack_sym = pt.dmatrix("vt_stack_sym")
     wc_sym = pt.dscalar("wc_sym")
 
@@ -142,6 +145,9 @@ def make_plot_like(n_val_default, ax, bound_min, bound_max, scale, summed=True):
 
         log_likelihood_values[i,:] = f_loglike(vt_data_with_sigma, wc_val)
     
+    # Print any array indices where the log_likelihood is a Nan
+    print(np.argwhere(np.isnan(log_likelihood_values)))
+    
     total_log_likelihood = np.sum(log_likelihood_values, axis=1)
 
     if summed:
@@ -150,14 +156,17 @@ def make_plot_like(n_val_default, ax, bound_min, bound_max, scale, summed=True):
             q_array,
             total_log_likelihood - Z_max,
             marker="",
-            label=f"log-like (σ=varied, n={n_val_default})",
+            # label="",
         )
     else:
+        labels = [str(nstart + i) for i in range(nsources)]
+        lw = max(min(1.0, 10/nsources),0.2)
         ax.plot(
             q_array,
             log_likelihood_values,
             marker="",
-            label=f"log-like (σ=varied, n={n_val_default})",
+            label=labels,
+            linewidth=lw
         )
 
     return ax
@@ -185,13 +194,14 @@ def main_test():
     ax1.set_ylabel("Individual log-likelihood")
     ax1.set_title("Individual log-likelihoods of Parameter q")
     ax1.grid(True)
-    ax1.legend()
+    if len(ax1.lines) <= 10:
+        ax1.legend()
 
     ax2.set_xlabel("q")
     ax2.set_ylabel("Total log-likelihood")
     ax2.set_title("Total log-likelihood of Parameter q")
     ax2.grid(True)
-    ax2.legend()
+    # ax2.legend()
 
     plt.tight_layout()
     plt.show()
