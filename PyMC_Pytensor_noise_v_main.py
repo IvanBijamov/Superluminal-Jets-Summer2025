@@ -21,9 +21,9 @@ from graphofloglike_v import make_plot_like
 pytensor.config.exception_verbosity = "high"
 
 
-sigma_default = 0.1
+sigma_default = 10
 
-regenerate_data(sigma_default)
+regenerate_data()
 
 n_val_default = 20
 
@@ -37,7 +37,7 @@ def loglike_borked(
 
     # configurables
     delta_v = sigma / 3
-    
+
     # Define offsets relative to vt in Riemann sum
     v_range = pt.linspace(-n_val * delta_v, n_val * delta_v, 2 * n_val + 1)
 
@@ -78,38 +78,36 @@ def loglike_borked(
         fastslowcondition = pt.lt(wc, 1)
 
         result = pt.switch(fastslowcondition, expr1, expr2)
-        # result is now: 
-            # expr1 if wc < 1
-            # expr2 if wc > 1
+        # result is now:
+        # expr1 if wc < 1
+        # expr2 if wc > 1
 
         sumsquarecondition = pt.lt(sum_squares, 1)
         result = pt.switch(sumsquarecondition, 1, result)
-        # result is now:    
-            # 1 if wc < 1 and wt^2 + wc^2 < 1
-            # expr1 if wc < 1 and wt^2 + wc^2 > 1
-            # expr2 if wc > 1
+        # result is now:
+        # 1 if wc < 1 and wt^2 + wc^2 < 1
+        # expr1 if wc < 1 and wt^2 + wc^2 > 1
+        # expr2 if wc > 1
 
         negvcondition = pt.lt(v_inner, 0)
         result = pt.switch(negvcondition, 0, result)
-        # result is now:    
-            # 0 if vt < 0
-            # 1 if wc < 1 and wt^2 + wc^2 < 1
-            # expr1 if wc < 1 and wt^2 + wc^2 > 1
-            # expr2 if wc > 1
+        # result is now:
+        # 0 if vt < 0
+        # 1 if wc < 1 and wt^2 + wc^2 < 1
+        # expr1 if wc < 1 and wt^2 + wc^2 > 1
+        # expr2 if wc > 1
 
         return result
 
     # coefficient = (w_minus_wt / (pt.sqrt(2 * pt.pi) * sigma**3)) * pt.exp(
     #     (-(w_minus_wt**2)) / (2 * sigma**2)
     # )
-    
-    coefficient = ( 
-                    v_minus_vt * pt.exp( - (v_minus_vt**2) / (2 * sigma**2) )
-                    + v_plus_vt * pt.exp( - (v_plus_vt**2) / (2 * sigma**2) )
-                   ) / ( 
-                       pt.sqrt(2 * pt.pi) * sigma**3 
-                       )
-    
+
+    coefficient = (
+        v_minus_vt * pt.exp(-(v_minus_vt**2) / (2 * sigma**2))
+        + v_plus_vt * pt.exp(-(v_plus_vt**2) / (2 * sigma**2))
+    ) / (pt.sqrt(2 * pt.pi) * sigma**3)
+
     summand = coefficient * CDF_function(v)
     sum_over_v = pt.sum(summand, axis=1)
 
@@ -157,7 +155,7 @@ def main():
         # Likelihood (sampling distribution) of observations
         vt_obs = pm.CustomDist("vt_obs", wc, observed=vt_data, logp=loglike_borked)
         # step = pm.Metropolis()
-        trace = pm.sample(1000, tune=1000, target_accept = 0.95)
+        trace = pm.sample(1000, tune=1000, target_accept=0.95)
     # summ = az.summary(trace)
     # print(summ)
     summary_with_quartiles = az.summary(

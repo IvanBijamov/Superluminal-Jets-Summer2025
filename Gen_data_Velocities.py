@@ -16,8 +16,9 @@ B_vec = np.array([0.0, 0.0, 0.0])
 N_SOURCES = 1000  # Number of data points to generate
 OUTPUT_FILE = "million_generated_sources.csv"
 
-v_cutoff = np.sqrt((1 - δ * Bº**2)/(-δ * Bº**2))
+v_cutoff = np.sqrt((1 - δ * Bº**2) / (-δ * Bº**2))
 print("Cutoff velocity: ", v_cutoff)
+
 
 # fns
 def solve_wc(δ, Bº, B_vec, n_hat):
@@ -41,7 +42,7 @@ def solve_wc(δ, Bº, B_vec, n_hat):
     wc1 = (-b + sqrt_disc) / (2 * a)
     wc2 = (-b - sqrt_disc) / (2 * a)
 
-    positive_wc = [wc for wc in (wc1, wc2) if wc > 0]
+    positive_wc = [wc for wc in (wc1, wc2) if 1 > wc > 0]
     return positive_wc if positive_wc else None
 
 
@@ -92,7 +93,7 @@ for _ in range(N_SOURCES):
 
     # 7
     w_true_value = w_true(v_braked, v_hat, n_hat, v_c_val)
-    
+
     if w_true_value < 0:
         print("Warning: w_true value = ", w_true_value)
         print(
@@ -115,23 +116,23 @@ for _ in range(N_SOURCES):
 
     min_velocity = 1e-12
     v_sigma = 0
-    
-    #ensure noise doesnt make v_obs negative
+
+    # ensure noise doesnt make v_obs negative
     abs_v = abs(np.random.normal(loc=v_true_value, scale=v_sigma))
     v_obs = max(abs_v, min_velocity)
-    
+
     w_obs = 1 / v_obs
-    
+
     # data storage
     row = list(n_hat) + [v_obs, v_sigma, v_true_value]
     rows.append(row)
-    
+
     if v_true_value > v_cutoff:
         print("Warning: a source has v_true = ", v_true_value)
         print("v_cutoff is ", v_cutoff)
         dp = np.dot(v_hat, n_hat)
         print("Dot product between v-hat & n-hat: ", dp)
-        print("Angle between v-hat and n-hat: theta = ", np.arccos(dp)) 
+        print("Angle between v-hat and n-hat: theta = ", np.arccos(dp))
         print("Actual speed: v = ", v_raw)
         print("Speed of light along line of sight: vc = ", v_c_val)
         print("")

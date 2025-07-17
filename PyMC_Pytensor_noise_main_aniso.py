@@ -157,7 +157,7 @@ def main():
         δ = -0.1
         Bº = 1.0
         B_vec = np.array([1.0, 0.0, 0.0])
-        n_hat_base = pm.Normal("n_hat_base", shape=(len(wt_data), 3))
+        n_hat_base = pm.Normal("n_hat_base", shape=(3, len(wt_data)))
 
         norm = pt.linalg.norm(n_hat_base, axis=1, keepdims=True)
         n_hat = pm.Deterministic("n_hat", n_hat_base / norm)
