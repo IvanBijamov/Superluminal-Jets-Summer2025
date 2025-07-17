@@ -43,7 +43,7 @@ def importCSV(filepath, filetype="Mojave"):
     if filetype=="Mojave" :
         vindex = 13
         dvindex = 14
-    elif type=="Schindler":
+    elif filetype=="Schindler":
         vindex = 3
         dvindex = 4
         
