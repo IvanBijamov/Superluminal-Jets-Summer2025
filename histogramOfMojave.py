@@ -16,44 +16,57 @@ dataset = "/mojave_cleaned.csv"
 dataSource = dir_path + dataset
 
 dataAll = importCSV(dataSource)
-N_bins = 2000
+N_bins = 20
 vt_data = [sublist[3] for sublist in dataAll]
-plt.hist(vt_data, bins=N_bins, density=True)
+plt.hist(vt_data, bins="auto", density=True, label="MOJAVE data")
 # plt.xlim(0, 3)
 plt.title("Histogram of Mojave Data")
 plt.xlabel("Value")
-plt.yscale("log")
+# plt.yscale("log")
 plt.ylabel("Frequency")
 
 
 class lorentzInvar(rv_continuous):
     "Lorentz Invariant Probability"
 
+    # TODO: This throws an error if 0 is fed in, but it returns the cor
     def _pdf(self, x):
-        x = 1 / x
-        return ((x + (x**2 - 1) * np.arctan(x)) / ((x**2 + 1) ** 2)) / (1 / x**2)
+        return np.where( x <0, 0, 
+                        np.where( x == 0, np.pi/2, (x + (1 - x**2)*np.arctan(1/x))/(1+x**2)))
+    
+        
+        # if x == 0:
+        #     return np.pi()/2
+        # elif x < 0:
+        #     return 0
+        # else:
+        #     x = 1 / x
+        #     return ((x + (x**2 - 1) * np.arctan(x)) / ((x**2 + 1) ** 2)) / (1 / x**2)
 
 
 lorentzInvariant = lorentzInvar(name="lorentzInvariant")
 
+ymin, ymax = plt.ylim()
+vmin, vmax = plt.xlim()
+v_values = np.linspace(vmin, vmax, 1000)
+# pdf_values = np.where( v_values <= 0, np.pi()/2, (v_values + (1 - v_values**2)*np.arctan(1/v_values))/(1+x**2)**2)
 
-x = np.linspace(0.000001, 35, 100 * 12)
 
-
-pdf_values = lorentzInvariant.pdf(x)
+pdf_values = lorentzInvariant.pdf(v_values)
 
 # Plotting the probability distribution
 plt.plot(
-    x,
-    pdf_values * len(vt_data) * 1 / N_bins,
-    label="Prob. dist for $w_t$($v_c$=1)",
+    v_values,
+    pdf_values,
+    label="Expected prob. dist ($v_c=1$)",
     color="red",
 )
 plt.xlabel("$v_t$")
 plt.ylabel("P($v_t$)")
 plt.title("Lorentz Invariant Probability Distribution")
-plt.yscale("log")
+# plt.yscale("log")
 plt.legend()
+plt.ylim(top=ymax)
 plt.grid(True)
 
 plt.show()
