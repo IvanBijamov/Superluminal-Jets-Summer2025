@@ -112,8 +112,8 @@ def regenerate_data():
         # sigma_default = np.random.uniform(
         #     low=0.01, high=0.5, size=len(N_SOURCES)
         # ).tolist()
-        # v_sigma = abs(np.random.normal(loc=0, scale=1))
-        v_sigma = 0.2
+        v_sigma = abs(np.random.normal(loc=0, scale=1))
+        # v_sigma = 0.2
         v_obs = np.random.normal(loc=v_true_value, scale=v_sigma)
 
         # ensure noise doesnt make v_obs negative
