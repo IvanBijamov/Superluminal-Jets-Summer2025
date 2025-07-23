@@ -8,17 +8,20 @@ Created on Tue Jun  3 08:53:03 2025
 
 import arviz as az
 import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
 import numpy as np
 import pymc as pm
 import pytensor
 import pytensor.tensor as pt
 import os
+import scipy
 
 from csv_file_imp_v import regenerate_data
 from simulationImport import importCSV
 from graphofloglike_v import make_plot_like
 
 pytensor.config.exception_verbosity = "high"
+pytensor.config.cxx = '/usr/bin/clang++'
 
 # pytensor.config.mode = "NanGuardMode"
 
@@ -29,7 +32,7 @@ regenerate_data()
 
 n_val_default = 20
 
-n_samples = 5000
+n_samples = 10000
 
 
 def loglike_borked(
@@ -166,27 +169,44 @@ def main():
     #     vt_and_sigma_noNaN[:, 1] <= vt_and_sigma_noNaN[:, 0]
     # ]
     vt_data_with_sigma = vt_and_sigma_noNaN
-    
-    
-    fig, ax1 = plt.subplots()
-    subsetsize= 50
-    ax1.errorbar(range(subsetsize), vt_data_with_sigma[:subsetsize,0],vt_data_with_sigma[:subsetsize,1], 
-                 label="All sources", 
-                 fmt="none",
-                 capsize=2)
-    
     superluminal_data = vt_data_with_sigma[vt_data_with_sigma[:, 0] >=1 ]
     
-    positions = [i for i, x in enumerate(vt_data_with_sigma[:subsetsize,0]) if x >= 1]
+    
+    # Create scatte plot showing both data sets
+    fig, ax = plt.subplots()
+    ax.grid()
+    ax.set_axisbelow(True)
+    
+    ax.scatter(superluminal_data[:,0],superluminal_data[:,1],
+               label=f"Superlum. sources ($n = {len(superluminal_data)})$",
+               marker="o",
+               color="#ff7f0e"
+               )    
+    ax.scatter(vt_data_with_sigma[:,0],vt_data_with_sigma[:,1],
+               label=f"All sources ($n = {len(vt_data_with_sigma)})$",
+               marker=".",
+               color="#1f77b4"
+               )    
+
+    
+    # subsetsize= 50
+    # ax1.errorbar(range(subsetsize), vt_data_with_sigma[:subsetsize,0],vt_data_with_sigma[:subsetsize,1], 
+    #              label="All sources", 
+    #              fmt="none",
+    #              capsize=2)
+    
     # print(superluminal_data)
     # print(vt_data_with_sigma)
 
-    ax1.errorbar(positions, vt_data_with_sigma[positions,0],vt_data_with_sigma[positions,1], 
-                 label="Superlum. sources", 
-                 fmt="none",
-                 color="red",
-                 capsize=2)
+    # ax1.errorbar(positions, vt_data_with_sigma[positions,0],vt_data_with_sigma[positions,1], 
+    #              label="Superlum. sources", 
+    #              fmt="none",
+    #              color="red",
+    #              capsize=2)
     
+    ax.set_title("Scatter plot for data sets")
+    ax.set_xlabel("$v_t$")
+    ax.set_ylabel(r'$\sigma_v$')
     plt.legend()
     plt.show()
 
@@ -281,11 +301,21 @@ def main():
     #     },
     # )
     
+    fig2, ax2 = plt.subplots()
+    
     az.plot_density([basetrace,superlumtrace], 
                     data_labels=["All sources", "Superluminal only"], 
                     shade=0.2, 
-                    hdi_prob=0.99
+                    hdi_prob=0.99,
+                    ax=ax2
                     )
+    
+    
+    # ax2.spines["left"].set_visible("True")
+    # ax.yaxis.set_major_locator(ticker.AutoLocator())
+    # ax2.grid()
+    # ax2.set_axisbelow(True)
+    plt.show()
 
 
 
