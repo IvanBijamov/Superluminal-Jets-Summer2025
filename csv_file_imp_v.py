@@ -12,7 +12,7 @@ import csv
 
 def regenerate_data():
     # parameteres
-    δ = 0
+    δ = -0.2
     Bº = 1.0
     B_vec = np.array([0.0, 0.0, 0.0])
     N_SOURCES = 1000  # Number of data points to generate
@@ -40,7 +40,7 @@ def regenerate_data():
         wc1 = (-b + sqrt_disc) / (2 * a)
         wc2 = (-b - sqrt_disc) / (2 * a)
 
-        positive_wc = [wc for wc in (wc1, wc2) if 1 > wc > 0]
+        positive_wc = [wc for wc in (wc1, wc2) if wc > 0]
         return positive_wc if positive_wc else None
 
     def w_true(v, v_hat, n_hat, v_c_val):
