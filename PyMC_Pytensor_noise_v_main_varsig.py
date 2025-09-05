@@ -18,7 +18,11 @@ from csv_file_imp_v import regenerate_data
 from simulationImport import importCSV
 from graphofloglike_v import make_plot_like
 
-pytensor.config.exception_verbosity = "high"
+# pytensor.config.exception_verbosity = "high"
+
+# Prof. Seifert needs the code line below to run PyMC on his machine 
+# Please just comment out instead of deleting it!
+pytensor.config.cxx = "/usr/bin/clang++"
 
 # pytensor.config.mode = "NanGuardMode"
 
@@ -188,7 +192,7 @@ def main():
 
         print(model.debug(verbose=True))
 
-        trace = pm.sample(5000, tune=1000, target_accept=0.95)
+        trace = pm.sample(1000, tune=1000, target_accept=0.95)
 
     # summ = az.summary(trace)
     # print(summ)
