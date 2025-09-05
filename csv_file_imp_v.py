@@ -12,7 +12,9 @@ import csv
 
 def regenerate_data():
     # parameteres
-    δ = -0.2
+    q = -0.2
+    δ = 1 - 1 / (q + 1) ** 2
+    # δ = -0.2
     Bº = 1.0
     B_vec = np.array([0.0, 0.0, 0.0])
     N_SOURCES = 1000  # Number of data points to generate
