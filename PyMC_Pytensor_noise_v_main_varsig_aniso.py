@@ -89,6 +89,11 @@ def loglike(
 
     sigma_bcast = sigma[:, None]
 
+    # Broadcast wc per observation across the integration axis
+    wc_bcast = (
+        pt.flatten(wc)[:, None] if wc.ndim > 0 else pt.ones_like(vt)[:, None] * wc
+    )
+
     v_offsets = pt.linspace(-n_val, n_val, 2 * n_val + 1)
 
     vt_bcast = vt[:, None]
@@ -108,7 +113,7 @@ def loglike(
 
         w_inner = pt.switch(pt.eq(v_inner, 0), 0, pt.pow(v_inner, -1))
         wt_squared = pt.pow(w_inner, 2)
-        wc_squared = pt.pow(wc, 2)
+        wc_squared = pt.pow(wc_bcast, 2)
         sum_squares = wc_squared + wt_squared
 
         # First expression (used when wc < 1)
@@ -119,11 +124,11 @@ def loglike(
         # denom = sum_squares
         expr1 = 1 - numer1 / sum_squares
 
-        at2 = pt.arctan(w_inner / wc)
+        at2 = pt.arctan(w_inner / wc_bcast)
         numer2 = w_inner**2 - w_inner * at2
         expr2 = 1 - numer2 / sum_squares
 
-        fastslowcondition = pt.lt(wc, 1)
+        fastslowcondition = pt.lt(wc_bcast, 1)
 
         result = pt.switch(fastslowcondition, expr1, expr2)
         # result is now:
@@ -237,16 +242,18 @@ def main():
         B_n = pm.math.dot(n_hat_data, B_vec)
         # B_n = pt.sum(B_vec * n_hats, axis=1)
 
-        wc = pm.Deterministic(
-            "wc", ((-Bº * B_n + pt.sqrt(1 + (Bº**2 - B_n**2) ** 2)) / (1 + Bº**2))
-        )
+        wc_expr = (-Bº * B_n + pt.sqrt(1 + (Bº**2 - B_n**2) ** 2)) / (1 + Bº**2)
+        # Track a single scalar "wc" trace summarizing dependence on n_hat_data
+        wc = pm.Deterministic("wc", pt.mean(wc_expr))
         # sigma = pm.Data("sigma_obs", sigma_array)
         # Expected value of wc, in terms of unknown model parameters and observed "X" values.
         # Right now this is very simple.  Eventually it will need to accept more parameter
         # values, along with RA & declination.
 
         # Likelihood (sampling distribution) of observations
-        vt_obs = pm.CustomDist("vt_obs", wc, observed=vt_data_with_sigma, logp=loglike)
+        vt_obs = pm.CustomDist(
+            "vt_obs", wc_expr, observed=vt_data_with_sigma, logp=loglike
+        )
         # step = pm.Metropolis()
 
         print(model.debug(verbose=True))
@@ -285,6 +292,7 @@ def main():
     az.plot_posterior(trace, round_to=3, figsize=[8, 4], textsize=10)
 
     print(summary_with_quartiles)
+    plt.show()
 
 
 if __name__ == "__main__":
