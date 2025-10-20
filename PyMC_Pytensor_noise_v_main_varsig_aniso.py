@@ -8,19 +8,20 @@ Created on Tue Jun  3 08:53:03 2025
 
 import arviz as az
 import matplotlib.pyplot as plt
-import matplotlib.ticker as ticker
 import numpy as np
 import pymc as pm
 import pytensor
 import pytensor.tensor as pt
 import os
-import scipy
 
 from csv_file_imp_v import regenerate_data
 from simulationImport import importCSV
 from graphofloglike_v import make_plot_like
 
-pytensor.config.exception_verbosity = "high"
+# pytensor.config.exception_verbosity = "high"
+
+# Prof. Seifert needs the code line below to run PyMC on his machine
+# Please just comment out instead of deleting it!
 pytensor.config.cxx = "/usr/bin/clang++"
 
 # pytensor.config.mode = "NanGuardMode"
@@ -32,10 +33,50 @@ regenerate_data()
 
 n_val_default = 20
 
-n_samples = 1000
+
+def create_unit_vectors(size):
+
+    vecs = np.random.normal(size=(size, 3))
+
+    norms = np.linalg.norm(vecs, axis=1, keepdims=True)
+
+    norms = np.where(norms == 0, 1, norms)
+    n_hats = vecs / norms
+
+    zero_vec_mask = (n_hats == 0).all(axis=1)
+    n_hats[zero_vec_mask] = [1.0, 0.0, 0.0]
+    return np.array(n_hats)
 
 
-def loglike_borked(
+def solve_wc_pt(δ, Bº, B_vec, n_hat):
+
+    dot = pt.dot(B_vec, n_hat)
+
+    a = δ * Bº**2 - 1
+    b = 2 * δ * Bº * dot
+    c = δ * dot**2 + 1
+    disc = b**2 - 4 * a * c
+
+    wc0 = 1 / pt.sqrt(1 - δ * Bº**2)
+    wc1 = (-b + pt.sqrt(disc)) / (2 * a)
+    wc2 = (-b - pt.sqrt(disc)) / (2 * a)
+
+    # when B_vec is  zero
+    case_zero = pt.switch(
+        pt.lt(δ * Bº**2, 1),
+        pt.switch(pt.gt(wc0, 0), pt.stack([wc0]), pt.constant([])),
+        pt.constant([]),
+    )
+
+    # when B_vec is not zero
+    roots = pt.stack([wc1, wc2])
+    pos_roots = roots[pt.gt(roots, 0)]
+    case_nonzero = pt.switch(pt.lt(disc, 0), pt.constant([]), pos_roots)
+
+    return pt.switch(pt.all(pt.eq(B_vec, 0)), case_zero, case_nonzero)
+
+
+def loglike(
     vt_stack: pt.TensorVariable,
     # sigma: pt.TensorVariable,
     wc: pt.TensorVariable,
@@ -131,15 +172,16 @@ def main():
     # find the path for the data source;  this should work on everyone's system now
     # dataset = "/isotropic_sims/10000/data_3957522615761_xx_0.8_yy_0.8_zz_0.8.csv"
     # dataset = "/isotropic_sims/10000/data_3957522615600_xx_1.2_yy_1.2_zz_1.2.csv"
-    # dataset = "/mojave_cleaned.csv"
-    dataset = "/generated_sources.csv"
+    dataset = "/mojave_cleaned.csv"
+    # dataset = "/generated_sources.csv"
 
     dataSource = dir_path + dataset
 
     print(f"Running on PyMC v{pm.__version__}")
 
     # Import data from file
-    dataAll = importCSV(dataSource, filetype="Schindler")
+    # dataAll = importCSV(dataSource, filetype="Schindler")
+    dataAll = importCSV(dataSource, filetype="Mojave")
     # radec_data = [sublist[1:3] for sublist in dataAll]
     # vt_data = np.array([sublist[3] for sublist in dataAll])
     # vt_data_noNaN = vt_data[~np.isnan(vt_data)]
@@ -155,6 +197,7 @@ def main():
     # Warren
     vt_data = [sublist[3] for sublist in dataAll]
     sigmas = [sublist[4] for sublist in dataAll]
+    # sigmas = [0.2] * len(vt_data)
     vt_and_sigma = np.stack(
         [vt_data, sigmas],
         axis=1,
@@ -169,87 +212,59 @@ def main():
     #     vt_and_sigma_noNaN[:, 1] <= vt_and_sigma_noNaN[:, 0]
     # ]
     vt_data_with_sigma = vt_and_sigma_noNaN
-    superluminal_data = vt_data_with_sigma[vt_data_with_sigma[:, 0] >= 1]
-
-    # Create scatte plot showing both data sets
-    fig, ax = plt.subplots()
-    ax.grid()
-    ax.set_axisbelow(True)
-
-    ax.scatter(
-        superluminal_data[:, 0],
-        superluminal_data[:, 1],
-        label=f"Superlum. sources ($n = {len(superluminal_data)})$",
-        marker="o",
-        color="#ff7f0e",
-    )
-    ax.scatter(
-        vt_data_with_sigma[:, 0],
-        vt_data_with_sigma[:, 1],
-        label=f"All sources ($n = {len(vt_data_with_sigma)})$",
-        marker=".",
-        color="#1f77b4",
-    )
-
-    # subsetsize= 50
-    # ax1.errorbar(range(subsetsize), vt_data_with_sigma[:subsetsize,0],vt_data_with_sigma[:subsetsize,1],
-    #              label="All sources",
-    #              fmt="none",
-    #              capsize=2)
-
-    # print(superluminal_data)
     # print(vt_data_with_sigma)
+    size = len(vt_data_with_sigma)
+    n_hats = create_unit_vectors(size)
 
-    # ax1.errorbar(positions, vt_data_with_sigma[positions,0],vt_data_with_sigma[positions,1],
-    #              label="Superlum. sources",
-    #              fmt="none",
-    #              color="red",
-    #              capsize=2)
+    model = pm.Model()
 
-    ax.set_title("Scatter plot for data sets")
-    ax.set_xlabel("$v_t$")
-    ax.set_ylabel(r"$\sigma_v$")
-    plt.legend()
-    plt.savefig("scatterplotsuperlum.pdf")  # Vector format, great for printing
-    plt.close()
-    # plt.show()
-
-    basemodel = pm.Model()
-
-    with basemodel:
+    with model:
         # Priors for unknown model parameters.  I defined q to be wc - 1, to avoid
         # confusion between the model parameter and the inverse speed of light as a
         # function of the parameters.
 
-        q = pm.TruncatedNormal("q", sigma=3, lower=-1)
-        wc = q + 1
+        # q = pm.TruncatedNormal("q", sigma=3, lower=-1)
+        # wc = q + 1
+
+        n_hat_data = pm.Data("n_hat_data", n_hats)
+        Bº = pm.HalfNormal("Bº", sigma=10)
+
+        # bx = pm.Normal("bx", mu=0, sigma=10)
+        # by = pm.Normal("by", mu=0, sigma=10)
+        # bz = pm.Normal("bz", mu=0, sigma=10)
+        B_vec = pm.Normal("B_vec", mu=0, sigma=10, shape=3)
+        # TODO figure out how to do B_vec stuff with dot product
+        B_n = pm.math.dot(n_hat_data, B_vec)
+        # B_n = pt.sum(B_vec * n_hats, axis=1)
+
+        wc = pm.Deterministic(
+            "wc", ((-Bº * B_n + pt.sqrt(1 + (Bº**2 - B_n**2) ** 2)) / (1 + Bº**2))
+        )
         # sigma = pm.Data("sigma_obs", sigma_array)
         # Expected value of wc, in terms of unknown model parameters and observed "X" values.
         # Right now this is very simple.  Eventually it will need to accept more parameter
         # values, along with RA & declination.
 
         # Likelihood (sampling distribution) of observations
-        vt_obs = pm.CustomDist(
-            "vt_obs", wc, observed=vt_data_with_sigma, logp=loglike_borked
-        )
+        vt_obs = pm.CustomDist("vt_obs", wc, observed=vt_data_with_sigma, logp=loglike)
         # step = pm.Metropolis()
 
-        # print(basemodel.debug(verbose=True))
+        print(model.debug(verbose=True))
 
-        basetrace = pm.sample(n_samples, tune=1000, target_accept=0.95)
+        trace = pm.sample(2000, tune=1000, target_accept=0.90)
 
     # summ = az.summary(trace)
     # print(summ)
     summary_with_quartiles = az.summary(
-        basetrace,
+        trace,
         stat_funcs={
             "25%": lambda x: np.percentile(x, 25),
             "50%": lambda x: np.percentile(x, 50),
             "75%": lambda x: np.percentile(x, 75),
         },
     )
-    # sigma_temp = 0.1
-    # axes = az.plot_trace(basetrace, combined=False)
+    sigma_temp = 0.1
+    axes = az.plot_trace(trace, combined=False)
     # plt.gcf().suptitle("sigma = " + str(sigma_temp), fontsize=16)
     #
     # axes_flat = np.array(axes).flatten()
@@ -264,65 +279,12 @@ def main():
     #
     # make_plot_like(n_val_default, left_ax, qmin, qmax, scale)
     # axes = az_plot.axes.flatten()
-
+    # plt.savefig("Mojaveplot.pdf")
+    # plt.close()
     # plt.show()
-    # az.plot_posterior(trace, round_to=3, figsize=[8, 4], textsize=10)
+    az.plot_posterior(trace, round_to=3, figsize=[8, 4], textsize=10)
 
-    # print(summary_with_quartiles)
-
-    superlummodel = pm.Model()
-
-    with superlummodel:
-        # Priors for unknown model parameters.  I defined q to be wc - 1, to avoid
-        # confusion between the model parameter and the inverse speed of light as a
-        # function of the parameters.
-
-        q = pm.TruncatedNormal("q", sigma=3, lower=-1)
-        wc = q + 1
-        # sigma = pm.Data("sigma_obs", sigma_array)
-        # Expected value of wc, in terms of unknown model parameters and observed "X" values.
-        # Right now this is very simple.  Eventually it will need to accept more parameter
-        # values, along with RA & declination.
-
-        # Likelihood (sampling distribution) of observations
-        vt_obs = pm.CustomDist(
-            "vt_obs", wc, observed=superluminal_data, logp=loglike_borked
-        )
-        # step = pm.Metropolis()
-
-        # print(basemodel.debug(verbose=True))
-
-        superlumtrace = pm.sample(n_samples, tune=1000, target_accept=0.95)
-
-    # summ = az.summary(trace)
-    # print(summ)
-    # summary_with_quartiles = az.summary(
-    #     basetrace,
-    #     stat_funcs={
-    #         "25%": lambda x: np.percentile(x, 25),
-    #         "50%": lambda x: np.percentile(x, 50),
-    #         "75%": lambda x: np.percentile(x, 75),
-    #     },
-    # )
-
-    fig2, ax2 = plt.subplots()
-
-    az.plot_density(
-        [basetrace, superlumtrace],
-        data_labels=["All sources", "Superluminal only"],
-        shade=0.2,
-        hdi_prob=0.99,
-        ax=ax2,
-    )
-
-    # ax2.spines["left"].set_visible("True")
-    # ax.yaxis.set_major_locator(ticker.AutoLocator())
-    # ax2.grid()
-    # ax2.set_axisbelow(True)
-
-    plt.savefig("comparisonOfSpikesSuperlum.pdf")  # Vector format, great for printing
-    plt.close()
-    # plt.show()
+    print(summary_with_quartiles)
 
 
 if __name__ == "__main__":
