@@ -14,18 +14,24 @@ import pytensor
 import pytensor.tensor as pt
 import os
 
-from csv_file_imp import regenerate_data
+from csv_file_imp_v import regenerate_data
 from simulationImport import importCSV
-from graphofloglike import make_plot_like
+
+# from graphofloglike import make_plot_like
 
 pytensor.config.exception_verbosity = "high"
 
 
 sigma_default = 1
 
-regenerate_data(sigma_default)
+regenerate_data()
 
 n_val_default = 20
+
+size = 100
+# Predictor variables
+RA = np.random.randn(size)
+Dec = np.random.randn(size)
 
 
 def loglike_borked(
@@ -155,12 +161,13 @@ def main():
 
         # q = pm.TruncatedNormal("q", sigma=1, lower=-1)
         δ = -0.1
-        Bº = 1.0
-        B_vec = np.array([1.0, 0.0, 0.0])
-        n_hat_base = pm.Normal("n_hat_base", shape=(3, len(wt_data)))
-
-        norm = pt.linalg.norm(n_hat_base, axis=1, keepdims=True)
-        n_hat = pm.Deterministic("n_hat", n_hat_base / norm)
+        # Bº = 1.0
+        # components of B mu
+        Bº = pm.TruncatedNormal("bx", mu=0, sigma=10, lower=0)
+        bx = pm.TruncatedNormal("bx", mu=0, sigma=10, lower=0)
+        by = pm.TruncatedNormal("by", mu=0, sigma=10, lower=0)
+        bz = pm.TruncatedNormal("bz", mu=0, sigma=10, lower=0)
+        B_vec = pt.as_tensor_variable(np.array([Bº, bx, by, bz]))
         wc = pm.Deterministic("wc", solve_wc_pt(δ, Bº, B_vec, n_hat))
         # wc = q + 1
         # sigma = pm.Data("sigma_obs", sigma_array)
