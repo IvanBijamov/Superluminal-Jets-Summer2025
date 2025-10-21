@@ -177,16 +177,16 @@ def main():
     # find the path for the data source;  this should work on everyone's system now
     # dataset = "/isotropic_sims/10000/data_3957522615761_xx_0.8_yy_0.8_zz_0.8.csv"
     # dataset = "/isotropic_sims/10000/data_3957522615600_xx_1.2_yy_1.2_zz_1.2.csv"
-    dataset = "/mojave_cleaned.csv"
-    # dataset = "/generated_sources.csv"
+    # dataset = "/mojave_cleaned.csv"
+    dataset = "/generated_sources.csv"
 
     dataSource = dir_path + dataset
 
     print(f"Running on PyMC v{pm.__version__}")
 
     # Import data from file
-    # dataAll = importCSV(dataSource, filetype="Schindler")
-    dataAll = importCSV(dataSource, filetype="Mojave")
+    dataAll = importCSV(dataSource, filetype="Schindler")
+    # dataAll = importCSV(dataSource, filetype="Mojave")
     # radec_data = [sublist[1:3] for sublist in dataAll]
     # vt_data = np.array([sublist[3] for sublist in dataAll])
     # vt_data_noNaN = vt_data[~np.isnan(vt_data)]
@@ -258,7 +258,7 @@ def main():
 
         print(model.debug(verbose=True))
 
-        trace = pm.sample(2000, tune=1000, target_accept=0.90)
+        trace = pm.sample(8000, tune=1000, target_accept=0.90)
 
     # summ = az.summary(trace)
     # print(summ)
