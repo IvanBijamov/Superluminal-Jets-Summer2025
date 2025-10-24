@@ -11,12 +11,13 @@ import csv
 
 
 def regenerate_data():
-    # parameteres
+    # parameteres\
+    #np.random.seed(42)
     q = -0.5
     δ = 1 - 1 / (q + 1) ** 2
     # δ = -0.2
-    Bº = 1.0
-    B_vec = np.array([-1.0, 0.0, 0.0])
+    Bº = 0.2
+    B_vec = np.array([0.2, 0.0, 0.0])
     N_SOURCES = 1000  # Number of data points to generate
     OUTPUT_FILE = "generated_sources.csv"
 

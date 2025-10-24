@@ -29,7 +29,7 @@ pytensor.config.cxx = "/usr/bin/clang++"
 
 # sigma_default = 0.1
 
-regenerate_data()
+# regenerate_data()
 
 n_val_default = 20
 
@@ -232,7 +232,7 @@ def main():
         # wc = q + 1
 
         n_hat_data = pm.Data("n_hat_data", n_hats)
-        Bº = pm.HalfNormal("Bº", sigma=10)
+        Bº = pm.Normal("Bº", sigma=10)
 
         # bx = pm.Normal("bx", mu=0, sigma=10)
         # by = pm.Normal("by", mu=0, sigma=10)
@@ -245,6 +245,7 @@ def main():
         wc_expr = (-Bº * B_n + pt.sqrt(1 + (Bº**2 - B_n**2) ** 2)) / (1 + Bº**2)
         # Track a single scalar "wc" trace summarizing dependence on n_hat_data
         wc = pm.Deterministic("wc", pt.mean(wc_expr))
+        q = pm.Deterministic("q", wc - 1)
         # sigma = pm.Data("sigma_obs", sigma_array)
         # Expected value of wc, in terms of unknown model parameters and observed "X" values.
         # Right now this is very simple.  Eventually it will need to accept more parameter
@@ -258,7 +259,7 @@ def main():
 
         print(model.debug(verbose=True))
 
-        trace = pm.sample(8000, tune=1000, target_accept=0.90)
+        trace = pm.sample(1000, tune=1000, target_accept=0.90)
 
     # summ = az.summary(trace)
     # print(summ)
@@ -271,7 +272,7 @@ def main():
         },
     )
     sigma_temp = 0.1
-    axes = az.plot_trace(trace, combined=False)
+    axes = az.plot_trace(trace, combined=False, legend=True)
     # plt.gcf().suptitle("sigma = " + str(sigma_temp), fontsize=16)
     #
     # axes_flat = np.array(axes).flatten()
