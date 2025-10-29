@@ -116,7 +116,7 @@ def loglike(
         sum_squares = wc_squared + wt_squared
 
         # First expression (used when wc < 1)
-        square_root = pt.sqrt(sum_squares - 1)
+        square_root = pt.sqrt(pt.clip(sum_squares - 1, 1e-12, np.inf))
         at = pt.arctan(square_root)
 
         numer1 = w_inner * (square_root - at)
@@ -166,13 +166,13 @@ def loglike(
     # Final Probability and Log -Probability
     # Multiply by Δw to get the final probability for each observation.
     P_obs = sum_over_v * delta_v
-    return pt.sum(pt.log(P_obs + 1e-9))
+    return pt.sum(pt.log(pt.clip(P_obs, 1e-12, np.inf)))
 
 
 def main():
     # Get the directory this code file is stored in
     dir_path = os.path.dirname(os.path.realpath(__file__))
-    regenerate_data()
+    # regenerate_data()
 
     # find the path for the data source;  this should work on everyone's system now
     # dataset = "/isotropic_sims/10000/data_3957522615761_xx_0.8_yy_0.8_zz_0.8.csv"
@@ -219,6 +219,7 @@ def main():
     vt_data_with_sigma = vt_and_sigma_noNaN
     # print(vt_data_with_sigma)
     size = len(vt_data_with_sigma)
+    np.random.seed(42)
     n_hats = create_unit_vectors(size)
 
     model = pm.Model()
@@ -232,27 +233,23 @@ def main():
         # wc = q + 1
 
         n_hat_data = pm.Data("n_hat_data", n_hats)
-        Bº = pm.Normal("Bº", sigma=5)
+        Bº = pm.Normal("Bº", sigma=3)
 
-        B_vec = pm.Normal("B_vec", sigma=10, shape=3)
-
-        # Soft barrier Potential to sharply penalize ||B_vec|| >= 1 while keeping gradients smooth
-        r = pt.sqrt(pt.sum(B_vec**2))
-        epsilon = 0.02  # sharpness: smaller => sharper boundary at r=1 (smoothed to reduce divergences)
-        gamma = 1e8  # strength of the penalty above the boundary (slightly reduced for stability)
-        # Softplus barrier: penalty = -(gamma/epsilon) * (softplus((r-1)/epsilon) - softplus(0))
-        softplus = pt.log1p(pt.exp((r - 1.0) / epsilon))
-        softplus0 = pt.log1p(pt.exp(0.0))
-        penalty = -(gamma / epsilon) * (softplus - softplus0)
-        pm.Potential("r_lt1_softbarrier", penalty)
+        # Reparameterize B_vec to keep ||B_vec|| < 1 without a steep Potential
+        b_raw = pm.Normal("b_raw", mu=0, sigma=1, shape=3)
+        r_raw = pt.sqrt(pt.sum(b_raw**2))
+        u = b_raw / (r_raw + 1e-9)
+        rho = pm.Normal("rho", mu=0, sigma=1)
+        r_unit = pm.math.sigmoid(rho)  # in (0,1)
+        B_vec = pm.Deterministic("B_vec", r_unit * u)
 
         B_n = pm.math.dot(n_hat_data, B_vec)
         # B_n = pt.sum(B_vec * n_hats, axis=1)
 
         wc_expr = (-Bº * B_n + pt.sqrt(1 + (Bº**2 - B_n**2) ** 2)) / (1 + Bº**2)
         # Track a single scalar "wc" trace summarizing dependence on n_hat_data
-        wc = pm.Deterministic("wc", pt.mean(wc_expr))
-        q = pm.Deterministic("q", wc - 1)
+        # wc = pm.Deterministic("wc", pt.mean(wc_expr))
+        # q = pm.Deterministic("q", wc - 1)
         # sigma = pm.Data("sigma_obs", sigma_array)
         # Expected value of wc, in terms of unknown model parameters and observed "X" values.
         # Right now this is very simple.  Eventually it will need to accept more parameter
@@ -270,13 +267,22 @@ def main():
         # except Exception as e:
         #     print(f"model.debug failed (skipping): {e}")
 
-        trace = pm.sample(1000, tune=1000, target_accept=0.90)
+        trace = pm.sample(
+            draws=9000,
+            tune=2000,
+            target_accept=0.98,
+            chains=4,
+            cores=4,
+            init="jitter+adapt_diag",
+            random_seed=42,
+        )
 
         # Remove the raw reparameterization variable from the saved trace
         # so it doesn't show up in the posterior/warmup_posterior groups.
 
     # summ = az.summary(trace)
     # print(summ)
+    # Diagnostics and plots
     summary_with_quartiles = az.summary(
         trace,
         stat_funcs={
@@ -285,13 +291,41 @@ def main():
             "75%": lambda x: np.percentile(x, 75),
         },
     )
-    sigma_temp = 0.1
-    axes = az.plot_trace(trace, combined=False, legend=True)
 
-    az.plot_posterior(trace, round_to=3, figsize=[8, 4], textsize=10)
+    # Divergences and tree depth
+    try:
+        div_total = int(trace.sample_stats["diverging"].values.sum())
+    except Exception:
+        div_total = -1
+    try:
+        max_tree = int(trace.sample_stats["tree_depth"].values.max())
+    except Exception:
+        max_tree = -1
 
+    print("Sampler diagnostics:")
+    print(f"  Divergences total: {div_total}")
+    print(f"  Max tree depth: {max_tree}")
     print(summary_with_quartiles)
-    plt.show()
+
+    # Save plots instead of showing (Agg backend)
+    try:
+        axes = az.plot_trace(trace, combined=False, legend=True)
+        plt.savefig(os.path.join(dir_path, "trace.png"), dpi=150, bbox_inches="tight")
+        plt.show()
+        plt.close()
+        az.plot_posterior(trace, round_to=3, figsize=[8, 4], textsize=10)
+        plt.show()
+        plt.savefig(
+            os.path.join(dir_path, "posterior.png"), dpi=150, bbox_inches="tight"
+        )
+        plt.show()
+        plt.close()
+        az.plot_energy(trace)
+        plt.show()
+        plt.savefig(os.path.join(dir_path, "energy.png"), dpi=150, bbox_inches="tight")
+        plt.close()
+    except Exception as e:
+        print(f"Plot saving failed: {e}")
 
 
 if __name__ == "__main__":
