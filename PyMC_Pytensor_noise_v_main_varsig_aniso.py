@@ -29,7 +29,6 @@ pytensor.config.cxx = "/usr/bin/clang++"
 
 # sigma_default = 0.1
 
-# regenerate_data()
 
 n_val_default = 20
 
@@ -173,6 +172,7 @@ def loglike(
 def main():
     # Get the directory this code file is stored in
     dir_path = os.path.dirname(os.path.realpath(__file__))
+    regenerate_data()
 
     # find the path for the data source;  this should work on everyone's system now
     # dataset = "/isotropic_sims/10000/data_3957522615761_xx_0.8_yy_0.8_zz_0.8.csv"
@@ -232,13 +232,20 @@ def main():
         # wc = q + 1
 
         n_hat_data = pm.Data("n_hat_data", n_hats)
-        Bº = pm.Normal("Bº", sigma=10)
+        Bº = pm.Normal("Bº", sigma=5)
 
-        # bx = pm.Normal("bx", mu=0, sigma=10)
-        # by = pm.Normal("by", mu=0, sigma=10)
-        # bz = pm.Normal("bz", mu=0, sigma=10)
-        B_vec = pm.Normal("B_vec", mu=0, sigma=10, shape=3)
-        # TODO figure out how to do B_vec stuff with dot product
+        B_vec = pm.Normal("B_vec", sigma=10, shape=3)
+
+        # Soft barrier Potential to sharply penalize ||B_vec|| >= 1 while keeping gradients smooth
+        r = pt.sqrt(pt.sum(B_vec**2))
+        epsilon = 0.02  # sharpness: smaller => sharper boundary at r=1 (smoothed to reduce divergences)
+        gamma = 1e8  # strength of the penalty above the boundary (slightly reduced for stability)
+        # Softplus barrier: penalty = -(gamma/epsilon) * (softplus((r-1)/epsilon) - softplus(0))
+        softplus = pt.log1p(pt.exp((r - 1.0) / epsilon))
+        softplus0 = pt.log1p(pt.exp(0.0))
+        penalty = -(gamma / epsilon) * (softplus - softplus0)
+        pm.Potential("r_lt1_softbarrier", penalty)
+
         B_n = pm.math.dot(n_hat_data, B_vec)
         # B_n = pt.sum(B_vec * n_hats, axis=1)
 
@@ -257,9 +264,16 @@ def main():
         )
         # step = pm.Metropolis()
 
-        print(model.debug(verbose=True))
+        # model.debug can break when Potentials are present (PyMC/PyTensor expects an iterable of graphs)
+        # try:
+        #     print(model.debug(verbose=True))
+        # except Exception as e:
+        #     print(f"model.debug failed (skipping): {e}")
 
         trace = pm.sample(1000, tune=1000, target_accept=0.90)
+
+        # Remove the raw reparameterization variable from the saved trace
+        # so it doesn't show up in the posterior/warmup_posterior groups.
 
     # summ = az.summary(trace)
     # print(summ)
@@ -273,23 +287,7 @@ def main():
     )
     sigma_temp = 0.1
     axes = az.plot_trace(trace, combined=False, legend=True)
-    # plt.gcf().suptitle("sigma = " + str(sigma_temp), fontsize=16)
-    #
-    # axes_flat = np.array(axes).flatten()
-    # left_ax = axes_flat[0]
-    # # density_axes = axes_flat[0::2]
-    #
-    # qmin, qmax = left_ax.get_xlim()
-    # dummy, scale = left_ax.get_ylim()
-    #
-    # # TODO: get vertical scale
-    # # temp for plot
-    #
-    # make_plot_like(n_val_default, left_ax, qmin, qmax, scale)
-    # axes = az_plot.axes.flatten()
-    # plt.savefig("Mojaveplot.pdf")
-    # plt.close()
-    # plt.show()
+
     az.plot_posterior(trace, round_to=3, figsize=[8, 4], textsize=10)
 
     print(summary_with_quartiles)
