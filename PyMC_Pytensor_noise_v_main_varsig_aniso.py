@@ -172,7 +172,7 @@ def loglike(
 def main():
     # Get the directory this code file is stored in
     dir_path = os.path.dirname(os.path.realpath(__file__))
-    # regenerate_data()
+    regenerate_data()
 
     # find the path for the data source;  this should work on everyone's system now
     # dataset = "/isotropic_sims/10000/data_3957522615761_xx_0.8_yy_0.8_zz_0.8.csv"
@@ -210,7 +210,8 @@ def main():
 
     # print(vt_and_sigma[:10])
 
-    vt_and_sigma_noNaN = vt_and_sigma[~np.isnan(vt_and_sigma).any(axis=1)]
+    mask = ~np.isnan(vt_and_sigma).any(axis=1)
+    vt_and_sigma_noNaN = vt_and_sigma[mask]
 
     # Test that removes sigma values bigger than the data value in case something funky
     # vt_data_with_sigma = vt_and_sigma_noNaN[
@@ -219,23 +220,20 @@ def main():
     vt_data_with_sigma = vt_and_sigma_noNaN
     # print(vt_data_with_sigma)
     size = len(vt_data_with_sigma)
-    np.random.seed(42)
-    n_hats = create_unit_vectors(size)
+    # Load observed n̂ from generated CSV (first three columns), align with NaN mask
+    n_hat_full = np.genfromtxt(
+        dataSource, delimiter=",", skip_header=1, usecols=(0, 1, 2)
+    )
+    n_hats = n_hat_full[mask]
 
     model = pm.Model()
 
     with model:
-        # Priors for unknown model parameters.  I defined q to be wc - 1, to avoid
-        # confusion between the model parameter and the inverse speed of light as a
-        # function of the parameters.
-
-        # q = pm.TruncatedNormal("q", sigma=3, lower=-1)
-        # wc = q + 1
 
         n_hat_data = pm.Data("n_hat_data", n_hats)
-        Bº = pm.Normal("Bº", sigma=3)
+        Bº = pm.TruncatedNormal("Bº", lower=0, sigma=3)
 
-        # Reparameterize B_vec to keep ||B_vec|| < 1 without a steep Potential
+        # Reparameterize B_vec to keep ||B_vec|| < 1
         b_raw = pm.Normal("b_raw", mu=0, sigma=1, shape=3)
         r_raw = pt.sqrt(pt.sum(b_raw**2))
         u = b_raw / (r_raw + 1e-9)
@@ -244,7 +242,6 @@ def main():
         B_vec = pm.Deterministic("B_vec", r_unit * u)
 
         B_n = pm.math.dot(n_hat_data, B_vec)
-        # B_n = pt.sum(B_vec * n_hats, axis=1)
 
         wc_expr = (-Bº * B_n + pt.sqrt(1 + (Bº**2 - B_n**2) ** 2)) / (1 + Bº**2)
         # Track a single scalar "wc" trace summarizing dependence on n_hat_data
@@ -268,17 +265,15 @@ def main():
         #     print(f"model.debug failed (skipping): {e}")
 
         trace = pm.sample(
-            draws=9000,
+            draws=1000,
             tune=2000,
             target_accept=0.98,
             chains=4,
             cores=4,
             init="jitter+adapt_diag",
             random_seed=42,
+            var_names=["Bº", "B_vec"],
         )
-
-        # Remove the raw reparameterization variable from the saved trace
-        # so it doesn't show up in the posterior/warmup_posterior groups.
 
     # summ = az.summary(trace)
     # print(summ)
