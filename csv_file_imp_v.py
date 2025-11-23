@@ -13,10 +13,12 @@ import csv
 def regenerate_data():
     # parameteres\
     # np.random.seed(42)
-    q = -0.4
-    δ = 1 - 1 / (q + 1) ** 2
+    # q = -0.4
+    # δ = 1 - 1 / (q + 1) ** 2
+
+    δ = -1
     # δ = -0.2
-    Bº = 0.6
+    Bº = 0.4
     B_vec = np.array([0.7, 0.0, 0.0])
     N_SOURCES = 1000  # Number of data points to generate
     OUTPUT_FILE = "generated_sources.csv"
@@ -115,7 +117,7 @@ def regenerate_data():
         # sigma_default = np.random.uniform(
         #     low=0.01, high=0.5, size=len(N_SOURCES)
         # ).tolist()
-        v_sigma = abs(np.random.normal(loc=0, scale=1))
+        v_sigma = abs(np.random.normal(loc=0, scale=0.1))
         # v_sigma = 0.2
         v_obs = np.random.normal(loc=v_true_value, scale=v_sigma)
 
