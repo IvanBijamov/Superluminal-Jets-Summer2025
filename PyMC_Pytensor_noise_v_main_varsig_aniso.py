@@ -306,7 +306,7 @@ def main():
         r_unit = pm.math.sigmoid(rho)
         B_vec = pm.Deterministic("B_vec", r_unit * u)
         # TODO
-
+        start_point = {"Bº": 0.0, "B_vec": 0.0}
         # find better reparamterization, this seems to work for now though
         B_n = pm.math.dot(n_hat_data, B_vec)
 
@@ -314,7 +314,10 @@ def main():
 
         # Likelihood (sampling distribution) of observations
         vt_obs = pm.CustomDist(
-            "vt_obs", wc_expr, observed=vt_data_with_sigma, logp=loglike
+            "vt_obs",
+            wc_expr,
+            observed=vt_data_with_sigma,
+            logp=loglike,
         )
         # step = pm.Metropolis()
 
@@ -327,6 +330,7 @@ def main():
             init="jitter+adapt_diag",
             random_seed=42,
             var_names=["Bº", "B_vec"],
+            initval=start_point,
         )
 
     # summ = az.summary(trace)
