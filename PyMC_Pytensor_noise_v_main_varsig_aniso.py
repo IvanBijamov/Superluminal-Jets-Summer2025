@@ -61,11 +61,7 @@ def loglike(
     v_minus_vt = v - vt_bcast
     v_plus_vt = v + vt_bcast
 
-    # need to somehow get w in here as a pytensor thing using pytensor computations
-    # check if inputs are corret
-    # Compute squared terms
-    # TODO fix naming, it's very jack hammered atm
-
+    # This is the CDF function or C(v) in the distribution notes
     def CDF_function(v_inner):
 
         w_inner = pt.switch(pt.eq(v_inner, 0), 0, pt.pow(v_inner, -1))
@@ -108,10 +104,6 @@ def loglike(
         # expr2 if wc > 1
 
         return result
-
-    # coefficient = (w_minus_wt / (pt.sqrt(2 * pt.pi) * sigma**3)) * pt.exp(
-    #     (-(w_minus_wt**2)) / (2 * sigma**2)
-    # )
 
     coefficient = (
         v_minus_vt * pt.exp(-(v_minus_vt**2) / (2 * sigma_bcast**2))
@@ -160,6 +152,9 @@ def main():
     # Warren
     vt_data = [sublist[3] for sublist in dataAll]
     sigmas = [sublist[4] for sublist in dataAll]
+
+    # Test sigmas if you want to try a flat identical sigma value across the entire dataset
+
     # sigmas = [0.2] * len(vt_data)
 
     # Print the top 10 highest velocities from vt_data (descending)
@@ -207,18 +202,82 @@ def main():
     # vt_data_with_sigma = vt_and_sigma_noNaN[
     #     vt_and_sigma_noNaN[:, 1] <= vt_and_sigma_noNaN[:, 0]
     # ]
+
     vt_data_with_sigma = vt_and_sigma_noNaN
     if idx_keep is not None:
         vt_data_with_sigma = vt_data_with_sigma[idx_keep]
     # print(vt_data_with_sigma)
     size = len(vt_data_with_sigma)
+
     # Load observed n̂ from generated CSV (first three columns), align with NaN mask
+
+    # TODO incorporate this into simulation import
     n_hat_full = np.genfromtxt(
         dataSource, delimiter=",", skip_header=1, usecols=(0, 1, 2)
     )
     n_hats = n_hat_full[mask]
     if idx_keep is not None:
         n_hats = n_hats[idx_keep]
+
+    model = pm.Model()
+
+    # Configuration of the model parameters
+    with model:
+
+        n_hat_data = pm.Data("n_hat_data", n_hats)
+        Bº = pm.HalfNormal("Bº", sigma=3)
+        # Bº = pm.TruncatedNormal("Bº", lower=0, upper=1, sigma=3)
+
+        # Reparameterize B_vec to keep ||B_vec|| < 1
+        b_raw = pm.Normal("b_raw", mu=0, sigma=1, shape=3)
+        r_raw = pt.sqrt(pt.sum(b_raw**2))
+        u = b_raw / (r_raw + 1e-9)
+        # beta to get r^2 based curve to better match signmoid skewing
+        rho = pm.Beta("rho", alpha=3, beta=1)
+        r_unit = pm.math.sigmoid(rho)
+        B_vec = pm.Deterministic("B_vec", r_unit * u)
+        # Determines the chain start points. Doesn't appear to do anything.
+        start_point = {"Bº": 0.0, "B_vec": 0.0}
+        # maybe find better reparameterization, this seems to work for now though
+        B_n = pm.math.dot(n_hat_data, B_vec)
+
+        wc_expr = (-Bº * B_n + pt.sqrt(1 + (Bº**2 - B_n**2) ** 2)) / (1 + Bº**2)
+
+        # Likelihood (sampling distribution) of observations
+        vt_obs = pm.CustomDist(
+            "vt_obs",
+            wc_expr,
+            observed=vt_data_with_sigma,
+            logp=loglike,
+        )
+        # step = pm.Metropolis()
+
+        trace = pm.sample(
+            draws=1000,
+            tune=1000,
+            target_accept=0.90,
+            chains=4,
+            cores=4,
+            init="jitter+adapt_diag",
+            # fixed random seed to get identical runs on the same dataset. Should be removed
+            # in standard operation of the code post-debugging
+            random_seed=42,
+            var_names=["Bº", "B_vec"],
+            initval=start_point,
+        )
+
+    summ = az.summary(trace)
+    print(summ)
+    # Diagnostics and plots
+    summary_with_quartiles = az.summary(
+        trace,
+        stat_funcs={
+            "25%": lambda x: np.percentile(x, 25),
+            "50%": lambda x: np.percentile(x, 50),
+            "75%": lambda x: np.percentile(x, 75),
+        },
+    )
+    # Plot to establish relation between B0 and B_vec parameter
 
     # Mollweide scatter plot of observed speeds vt by direction
     # Uses n_hats (unit vectors) aligned with vt_data_with_sigma after masking/stripping
@@ -288,62 +347,6 @@ def main():
             print("No velocities above 1 to plot; skipping Mollweide.")
     except Exception as e:
         print(f"Failed to produce Mollweide plot: {e}")
-    model = pm.Model()
-
-    with model:
-
-        n_hat_data = pm.Data("n_hat_data", n_hats)
-        Bº = pm.HalfNormal("Bº", sigma=3)
-        # Bº = pm.TruncatedNormal("Bº", lower=0, upper=1, sigma=3)
-
-        # Reparameterize B_vec to keep ||B_vec|| < 1
-        b_raw = pm.Normal("b_raw", mu=0, sigma=1, shape=3)
-        r_raw = pt.sqrt(pt.sum(b_raw**2))
-        u = b_raw / (r_raw + 1e-9)
-        # beta to get r^2 based curve to better match signmoid skewing
-        rho = pm.Beta("rho", alpha=3, beta=1)
-        r_unit = pm.math.sigmoid(rho)
-        B_vec = pm.Deterministic("B_vec", r_unit * u)
-        # TODO
-        start_point = {"Bº": 0.0, "B_vec": 0.0}
-        # find better reparamterization, this seems to work for now though
-        B_n = pm.math.dot(n_hat_data, B_vec)
-
-        wc_expr = (-Bº * B_n + pt.sqrt(1 + (Bº**2 - B_n**2) ** 2)) / (1 + Bº**2)
-
-        # Likelihood (sampling distribution) of observations
-        vt_obs = pm.CustomDist(
-            "vt_obs",
-            wc_expr,
-            observed=vt_data_with_sigma,
-            logp=loglike,
-        )
-        # step = pm.Metropolis()
-
-        trace = pm.sample(
-            draws=1000,
-            tune=1000,
-            target_accept=0.90,
-            chains=4,
-            cores=4,
-            init="jitter+adapt_diag",
-            random_seed=42,
-            var_names=["Bº", "B_vec"],
-            initval=start_point,
-        )
-
-    # summ = az.summary(trace)
-    # print(summ)
-    # Diagnostics and plots
-    summary_with_quartiles = az.summary(
-        trace,
-        stat_funcs={
-            "25%": lambda x: np.percentile(x, 25),
-            "50%": lambda x: np.percentile(x, 50),
-            "75%": lambda x: np.percentile(x, 75),
-        },
-    )
-    # Plot to establish relation between B0 and B_vec parameter
     az.plot_pair(
         trace,
         var_names=["Bº", "B_vec"],
@@ -374,11 +377,13 @@ def main():
         plt.close()
         az.plot_posterior(trace, round_to=3, figsize=[8, 4], textsize=10)
         plt.show()
-        plt.savefig(
-            os.path.join(dir_path, "posterior.png"), dpi=150, bbox_inches="tight"
-        )
+        plt.close()
+
+        # plt.savefig(
+        #     os.path.join(dir_path, "posterior.png"), dpi=150, bbox_inches="tight"
+        # )
         # plt.show()
-        # plt.close()
+
         # az.plot_energy(trace)
         # plt.show()
         # plt.savefig(os.path.join(dir_path, "energy.png"), dpi=150, bbox_inches="tight")
