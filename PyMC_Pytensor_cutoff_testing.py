@@ -8,17 +8,14 @@ Created on Tue Jun  3 08:53:03 2025
 
 import arviz as az
 import matplotlib.pyplot as plt
-import matplotlib.ticker as ticker
 import numpy as np
 import pymc as pm
 import pytensor
 import pytensor.tensor as pt
 import os
-import scipy
 
-from csv_file_imp_v import regenerate_data
+from aniso_simulated_data_gen_v import regenerate_data
 from simulationImport import importCSV
-from graphofloglike_v import make_plot_like
 
 pytensor.config.exception_verbosity = "high"
 pytensor.config.cxx = "/usr/bin/clang++"
