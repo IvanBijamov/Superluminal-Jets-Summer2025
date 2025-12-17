@@ -1,0 +1,21 @@
+[project]
+name = "superluminaljets"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.13"
+dependencies = [
+    "arviz>=0.21.0",
+    "black>=25.1.0",
+    "lxml>=6.0.0",
+    "matplotlib>=3.10.3",
+    "mkdocs>=1.6.1",
+    "mkdocs-material>=9.7.0",
+    "mkdocstrings[python]>=1.0.0",
+    "numpy>=2.2.6",
+    "pandas-stubs~=2.2.3",
+    "pymc>=5.23.0",
+    "pymdown-extensions>=10.19.1",
+    "pytensor>=2.31.3",
+    "requests>=2.32.4",
+    "scipy-stubs~=1.15.3",
+]
