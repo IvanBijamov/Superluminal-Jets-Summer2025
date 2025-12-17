@@ -10,7 +10,7 @@ import pytensor.tensor as pt
 
 pytensor.config.exception_verbosity = "high"
 
-from simulationImport import importCSV
+from scripts.simulationImport import importCSV
 
 
 def loglike_broadcast(

@@ -15,7 +15,7 @@ import pytensor.tensor as pt
 import os
 
 from csv_file_imp import regenerate_data
-from simulationImport import importCSV
+from scripts.simulationImport import importCSV
 from graphofloglike import make_plot_like
 
 pytensor.config.exception_verbosity = "high"

@@ -2,9 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pytensor
 import pytensor.tensor as pt
-from pytensor.compile.nanguardmode import NanGuardMode
 
-from simulationImport import importCSV
+from scripts.simulationImport import importCSV
 import os
 
 # n_val = 15
@@ -121,13 +120,15 @@ def make_plot_like(n_val_default, ax, bound_min, bound_max, scale, summed=True):
     )
 
     vt_and_sigma_noNaN = vt_and_sigma[~np.isnan(vt_and_sigma).any(axis=1)]
-    
+
     datasetsize = len(vt_and_sigma_noNaN)
 
-    nstart = 0 # First source
-    nsources = 2000 # Number of sources in plot
-    nsources = min(datasetsize - nstart, nsources) # In case we try to grab more sources than are available
-    vt_data_with_sigma = vt_and_sigma_noNaN[nstart:nstart + nsources]
+    nstart = 0  # First source
+    nsources = 2000  # Number of sources in plot
+    nsources = min(
+        datasetsize - nstart, nsources
+    )  # In case we try to grab more sources than are available
+    vt_data_with_sigma = vt_and_sigma_noNaN[nstart : nstart + nsources]
     vt_stack_sym = pt.dmatrix("vt_stack_sym")
     wc_sym = pt.dscalar("wc_sym")
 
@@ -139,17 +140,17 @@ def make_plot_like(n_val_default, ax, bound_min, bound_max, scale, summed=True):
     ngraphpoints = 100
     q_array = np.linspace(bound_min, bound_max, ngraphpoints)
 
-    log_likelihood_values = np.empty((ngraphpoints,nsources))
+    log_likelihood_values = np.empty((ngraphpoints, nsources))
 
     for i, q_val in enumerate(q_array):
         wc_val = q_val + 1
 
-        log_likelihood_values[i,:] = f_loglike(vt_data_with_sigma, wc_val)
-    
+        log_likelihood_values[i, :] = f_loglike(vt_data_with_sigma, wc_val)
+
     # Print any array indices where the log_likelihood is a Nan
-    if not(summed):
+    if not (summed):
         print(np.argwhere(np.isnan(log_likelihood_values)))
-    
+
     total_log_likelihood = np.sum(log_likelihood_values, axis=1)
 
     if summed:
@@ -162,14 +163,8 @@ def make_plot_like(n_val_default, ax, bound_min, bound_max, scale, summed=True):
         )
     else:
         labels = [str(nstart + i) for i in range(nsources)]
-        lw = max(min(1.0, 10/nsources),0.2)
-        ax.plot(
-            q_array,
-            log_likelihood_values,
-            marker="",
-            label=labels,
-            linewidth=lw
-        )
+        lw = max(min(1.0, 10 / nsources), 0.2)
+        ax.plot(q_array, log_likelihood_values, marker="", label=labels, linewidth=lw)
 
     return ax
 
@@ -186,7 +181,12 @@ def main_test():
     q_max = 2.0
     plot_scale = 1.0
     make_plot_like(
-        n_val_default=n_val, ax=ax1, bound_min=q_min, bound_max=q_max, scale=plot_scale,summed=False
+        n_val_default=n_val,
+        ax=ax1,
+        bound_min=q_min,
+        bound_max=q_max,
+        scale=plot_scale,
+        summed=False,
     )
     make_plot_like(
         n_val_default=n_val, ax=ax2, bound_min=q_min, bound_max=q_max, scale=plot_scale

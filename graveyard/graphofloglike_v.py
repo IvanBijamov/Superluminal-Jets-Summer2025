@@ -2,9 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pytensor
 import pytensor.tensor as pt
-from pytensor.compile.nanguardmode import NanGuardMode
 
-from simulationImport import importCSV
+from scripts.simulationImport import importCSV
 import os
 
 # n_val = 15

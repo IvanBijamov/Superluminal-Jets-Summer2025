@@ -7,16 +7,13 @@ Created on Tue Jun  3 08:53:03 2025
 """
 
 import arviz as az
-import matplotlib.pyplot as plt
 import numpy as np
 import pymc as pm
 import pytensor
 import pytensor.tensor as pt
 import os
 
-from pytensor.tensor import as_tensor_variable
-
-from simulationImport import importCSV
+from scripts.simulationImport import importCSV
 
 pytensor.config.exception_verbosity = "high"
 

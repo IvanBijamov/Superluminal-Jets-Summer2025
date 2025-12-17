@@ -14,8 +14,8 @@ import pytensor
 import pytensor.tensor as pt
 import os
 
-from aniso_simulated_data_gen_v import regenerate_data
-from simulationImport import importCSV
+from scripts.aniso_simulated_data_gen_v import regenerate_data
+from scripts.simulationImport import importCSV
 
 # from graphofloglike import make_plot_like
 
