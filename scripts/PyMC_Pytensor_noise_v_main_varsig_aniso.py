@@ -4,6 +4,7 @@
 Anistropic model main code.
 
 This tool:
+
 - Regenerates a simulated dataset or reads from an actual (MOJAVE) dataset.
 - Loads velocity and sigma measurements from CSV.
 - Constructs a PyMC probabilistic model involving Bº, B_vec, and wc.
