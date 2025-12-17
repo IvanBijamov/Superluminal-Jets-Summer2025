@@ -1,9 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Tue Jun  3 08:53:03 2025
+Anistropic model main code.
 
-@author: mseifer1
+This tool:
+- Regenerates a simulated dataset or reads from an actual (MOJAVE) dataset.
+- Loads velocity and sigma measurements from CSV.
+- Constructs a PyMC probabilistic model involving Bº, B_vec, and wc.
+- Defines a custom log-likelihood for vt and sigma pairs.
+- Runs MCMC sampling.
+- Produces visualization plots.
 """
 
 import arviz as az
@@ -18,6 +24,17 @@ from aniso_simulated_data_gen_v import regenerate_data
 from simulationImport import importCSV
 from matplotlib import colors as mcolors
 
+
+# -----------------------------------------------------------------------------
+# Configuration constants
+# -----------------------------------------------------------------------------
+"""
+Configuration.
+
+- `n_val_default` : integration resolution for the likelihood.
+- File paths and dataset selections are controlled inside `main()`.
+"""
+
 # pytensor.config.exception_verbosity = "high"
 
 # Prof. Seifert needs the code line below to run PyMC on his machine
@@ -25,7 +42,6 @@ from matplotlib import colors as mcolors
 pytensor.config.cxx = "/usr/bin/clang++"
 
 # pytensor.config.mode = "NanGuardMode"
-
 
 # sigma_default = 0.1
 
@@ -35,10 +51,36 @@ n_val_default = 20
 
 def loglike(
     vt_stack: pt.TensorVariable,
-    # sigma: pt.TensorVariable,
     wc: pt.TensorVariable,
     n_val=n_val_default,
 ) -> pt.TensorVariable:
+    """
+    Custom PyMC log-likelihood for transverse velocities.
+
+    Parameters
+    ----------
+    vt_stack : TensorVariable
+        A 2‑column array where:
+        - index 0 contains observed transverse velocities `vt`
+        - index 1 contains corresponding uncertainties `sigma`
+    wc : TensorVariable
+        Inverse of the true velocity derived from Bº, B_vec, and n_hat.
+    n_val : int, optional
+        Integration resolution for the likelihood.
+
+    Returns
+    -------
+    TensorVariable
+        The summed log‑likelihood of all observations.
+
+    Notes
+    -----
+    - Uses clipping to avoid log(0) situations.
+
+    This function is passed to `pm.CustomDist` and must therefore return
+    a **scalar** log-probability for the entire dataset.
+    """
+
     vt = vt_stack[:, 0]
     sigma = vt_stack[:, 1]
     # configurables
@@ -120,6 +162,31 @@ def loglike(
 
 
 def main():
+
+    def main():
+        """
+        Run the full anisotropy analysis workflow.
+
+        Steps
+        -----
+        1. Regenerate or load observational data (vt, sigma, n_hat).
+        2. Clean NaNs and optionally remove top‑percentile velocity outliers.
+        3. Construct a PyMC model:
+           - Bº ~ HalfNormal
+           - B_vec defined via a normalized reparameterization of raw vector
+           - wc expression from model geometry
+           - Custom vt likelihood using `loglike`
+        4. Sample the posterior using NUTS with configured tuning settings.
+        5. Print summaries and diagnostics.
+        6. Produce optional Mollweide sky maps and posterior trace plots.
+
+        Notes
+        -----
+        - Some dataset paths are customizable; adjust to your filesystem.
+        - Diagnostic plots may require a graphical backend unless saved to disk.
+        - Random seeds are included for debugging repeatability.
+        """
+
     # Get the directory this code file is stored in
     dir_path = os.path.dirname(os.path.realpath(__file__))
     regenerate_data()
