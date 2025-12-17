@@ -1,6 +1,9 @@
-site_name: My Scientific Scripts
+site_name: Lorentz Symmetry Violations of Superluminal Jets
 theme:
   name: material
+  features:
+    - navigation.sections
+    - navigation.indexes
 
 plugins:
   - search
@@ -16,9 +19,3 @@ markdown_extensions:
   - pymdownx.arithmatex:
       generic: true
 
-nav:
-  - Home: index.md
-  - Scripts:
-      - PyMC_Pytensor_noise_v_main_varsig_aniso: scripts/PyMC_Pytensor_noise_v_main_varsig_aniso.md
-#      - analyze_chain: scripts/analyze_chain.md
-#      - compute_summary: scripts/compute_summary.md
