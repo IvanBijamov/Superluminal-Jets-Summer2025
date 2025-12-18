@@ -1,8 +1,9 @@
 
 .DS_Store
 scripts/generated_sources.csv
-__pycache__/*
 /scripts/mojave_cleaned.csv
 /.spyproject/
 /.pytype/
 /.idea/
+**/__pycache__/
+*.py[cod]
