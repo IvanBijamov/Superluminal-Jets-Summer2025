@@ -5,3 +5,4 @@ __pycache__/*
 /scripts/mojave_cleaned.csv
 /.spyproject/
 /.pytype/
+/.idea/
