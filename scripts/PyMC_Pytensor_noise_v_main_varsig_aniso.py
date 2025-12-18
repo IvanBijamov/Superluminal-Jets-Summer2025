@@ -161,67 +161,55 @@ def loglike(
     sum_over_v = pt.sum(summand, axis=1)
 
     # Final Probability and Log -Probability
-    # Multiply by Δw to get the final probability for each observation.
+    # Multiply by Δv to get the final probability for each observation.
     P_obs = sum_over_v * delta_v
     return pt.sum(pt.log(pt.clip(P_obs, 1e-12, np.inf)))
 
 
 def main():
+    """
+    Run the full anisotropy analysis workflow.
 
-    def main():
-        """
-        Run the full anisotropy analysis workflow.
+    Steps
+    -----
+    1. Regenerate or load observational data (vt, sigma, n_hat).
+    2. Clean NaNs and optionally remove top‑percentile velocity outliers.
+    3. Construct a PyMC model:
+       - Bº ~ HalfNormal
+       - B_vec defined via a normalized reparameterization of raw vector
+       - wc expression from model geometry
+       - Custom vt likelihood using `loglike`
+    4. Sample the posterior using NUTS with configured tuning settings.
+    5. Print summaries and diagnostics.
+    6. Produce optional Mollweide sky maps and posterior trace plots.
 
-        Steps
-        -----
-        1. Regenerate or load observational data (vt, sigma, n_hat).
-        2. Clean NaNs and optionally remove top‑percentile velocity outliers.
-        3. Construct a PyMC model:
-           - Bº ~ HalfNormal
-           - B_vec defined via a normalized reparameterization of raw vector
-           - wc expression from model geometry
-           - Custom vt likelihood using `loglike`
-        4. Sample the posterior using NUTS with configured tuning settings.
-        5. Print summaries and diagnostics.
-        6. Produce optional Mollweide sky maps and posterior trace plots.
-
-        Notes
-        -----
-        - Some dataset paths are customizable; adjust to your filesystem.
-        - Diagnostic plots may require a graphical backend unless saved to disk.
-        - Random seeds are included for debugging repeatability.
-        """
+    Notes
+    -----
+    - Some dataset paths are customizable; adjust to your filesystem.
+    - Diagnostic plots may require a graphical backend unless saved to disk.
+    - Random seeds are included for debugging repeatability.
+    """
 
     # Get the directory this code file is stored in
     dir_path = os.path.dirname(os.path.realpath(__file__))
     regenerate_data()
 
     # find the path for the data source;  this should work on everyone's system now
-    # dataset = "/isotropic_sims/10000/data_3957522615761_xx_0.8_yy_0.8_zz_0.8.csv"
-    # dataset = "/isotropic_sims/10000/data_3957522615600_xx_1.2_yy_1.2_zz_1.2.csv"
     # dataset = "/mojave_cleaned.csv"
     dataset = "/generated_sources.csv"
 
     dataSource = dir_path + dataset
 
     print(f"Running on PyMC v{pm.__version__}")
-
+    if dataset == "/generated_sources.csv":
+        filetype_choice = "Simulated"
+    elif dataset == "/mojave_cleaned.csv":
+        filetype_choice = "Mojave"
     # Import data from file
-    dataAll = importCSV(dataSource, filetype="Schindler")
+    dataAll = importCSV(dataSource, filetype=filetype_choice)
     # dataAll = importCSV(dataSource, filetype="Mojave")
-    # radec_data = [sublist[1:3] for sublist in dataAll]
-    # vt_data = np.array([sublist[3] for sublist in dataAll])
-    # vt_data_noNaN = vt_data[~np.isnan(vt_data)]
-    # sigma_default = np.array([sublist[4] for sublist in dataAll])
-    # sigma_default_noNaN = sigma_default[~np.isnan(sigma_default)]
-    # vt_data_with_sigma = np.stack([vt_data_noNaN, sigma_default_noNaN], axis=1)
+    radec_data = [sublist[0:3] for sublist in dataAll]
 
-    # Mojave
-    # vt_and_sigma = np.stack(
-    #     [[sublist[3] for sublist in dataAll], [sublist[4] for sublist in dataAll]],
-    #     axis=1,
-    # )
-    # Warren
     vt_data = [sublist[3] for sublist in dataAll]
     sigmas = [sublist[4] for sublist in dataAll]
 
@@ -279,7 +267,6 @@ def main():
     if idx_keep is not None:
         vt_data_with_sigma = vt_data_with_sigma[idx_keep]
     # print(vt_data_with_sigma)
-    size = len(vt_data_with_sigma)
 
     # Load observed n̂ from generated CSV (first three columns), align with NaN mask
 
