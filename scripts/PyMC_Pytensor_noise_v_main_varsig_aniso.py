@@ -186,24 +186,25 @@ def main():
     Notes
     -----
     - Some dataset paths are customizable; adjust to your filesystem.
-    - Diagnostic plots may require a graphical backend unless saved to disk.
     - Random seeds are included for debugging repeatability.
     """
 
     # Get the directory this code file is stored in
     dir_path = os.path.dirname(os.path.realpath(__file__))
     regenerate_data()
-
+    # Project root is one level above scripts/
+    project_root = os.path.abspath(os.path.join(dir_path, os.pardir))
     # find the path for the data source;  this should work on everyone's system now
-    # dataset = "/mojave_cleaned.csv"
-    dataset = "/generated_sources.csv"
+    # dataset = "mojave_cleaned.csv"
+    dataset = "generated_sources.csv"
 
-    dataSource = dir_path + dataset
+    # Always read generated_sources.csv from the main project folder
+    dataSource = os.path.join(project_root, dataset)
 
     print(f"Running on PyMC v{pm.__version__}")
-    if dataset == "/generated_sources.csv":
+    if dataset == "generated_sources.csv":
         filetype_choice = "Simulated"
-    elif dataset == "/mojave_cleaned.csv":
+    elif dataset == "mojave_cleaned.csv":
         filetype_choice = "Mojave"
     # Import data from file
     dataAll = importCSV(dataSource, filetype=filetype_choice)

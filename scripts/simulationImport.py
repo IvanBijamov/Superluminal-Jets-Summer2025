@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 
 
-def importCSV(filepath, filetype="Mojave"):
+def importCSV(filepath, filetype):
     # Must modify file path to match where your version of the file is stored
     # Ensure that you correct the headers of the file you use, as by default only
     # 6 out of the 9 have headers, which causes it to break
