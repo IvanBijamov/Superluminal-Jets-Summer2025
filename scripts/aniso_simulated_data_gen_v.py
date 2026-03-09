@@ -18,8 +18,8 @@ def regenerate_data():
 
     δ = -1
     # δ = -0.2
-    Bº = 0.4
-    B_vec = np.array([0.0, 0.0, 0.7])
+    Bº = 0.8
+    B_vec = np.array([0.5, 0.0, 0.2])
     N_SOURCES = 1000  # Number of data points to generate
     OUTPUT_FILE = "generated_sources.csv"
 

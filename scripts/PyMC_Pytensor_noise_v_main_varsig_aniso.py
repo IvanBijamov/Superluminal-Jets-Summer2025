@@ -292,16 +292,16 @@ def main():
         b_raw = pm.Normal("b_raw", mu=0, sigma=1, shape=3)
         r_raw = pt.sqrt(pt.sum(b_raw**2))
         u = b_raw / (r_raw + 1e-9)
-        # beta to get r^2 based curve to better match signmoid skewing
-        rho = pm.Beta("rho", alpha=3, beta=1)
-        r_unit = pm.math.sigmoid(rho)
-        B_vec = pm.Deterministic("B_vec", r_unit * u)
-        # Determines the chain start points. Doesn't appear to do anything.
-        start_point = {"Bº": 0.0, "B_vec": 0.0}
+        rho = pm.Beta("rho", alpha=2, beta=2)
+        B_vec = pm.Deterministic("B_vec", rho * u)
+        start_point = {"Bº": 0.1, "b_raw": np.zeros(3), "rho": 0.5}
         # maybe find better reparameterization, this seems to work for now though
         B_n = pm.math.dot(n_hat_data, B_vec)
 
-        wc_expr = (-Bº * B_n + pt.sqrt(1 + (Bº**2 - B_n**2) ** 2)) / (1 + Bº**2)
+        # wc from quadratic solver (δ=-1): positive root of -(B0²+1)wc² - 2B0·Bn·wc + (1-Bn²) = 0
+        wc_expr = (
+            -Bº * B_n + pt.sqrt(pt.clip(1 + Bº**2 - B_n**2, 1e-12, np.inf))
+        ) / (1 + Bº**2)
 
         # Likelihood (sampling distribution) of observations
         vt_obs = pm.CustomDist(
@@ -313,9 +313,9 @@ def main():
         # step = pm.Metropolis()
 
         trace = pm.sample(
-            draws=1000,
+            draws=8000,
             tune=1000,
-            target_accept=0.90,
+            target_accept=0.93,
             chains=4,
             cores=4,
             init="jitter+adapt_diag",
