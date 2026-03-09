@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Anistropic model main code.
-
-This tool:
+Anisotropic model main code.
 
 - Regenerates a simulated dataset or reads from an actual (MOJAVE) dataset.
 - Loads velocity and sigma measurements from CSV.
@@ -26,34 +24,47 @@ from simulationImport import importCSV
 from matplotlib import colors as mcolors
 
 
-# -----------------------------------------------------------------------------
-# Configuration constants
-# -----------------------------------------------------------------------------
-"""
-Configuration.
+# =============================================================================
+# Configuration  —  adjust these before each run
+# =============================================================================
 
-- `n_val_default` : integration resolution for the likelihood.
-- File paths and dataset selections are controlled inside `main()`.
-"""
-
-# pytensor.config.exception_verbosity = "high"
-
+# -- PyTensor compiler --------------------------------------------------------
 # Prof. Seifert needs the code line below to run PyMC on his machine
 # Please just comment out instead of deleting it!
 pytensor.config.cxx = "/usr/bin/clang++"
 
-# pytensor.config.mode = "NanGuardMode"
+# -- Dataset ------------------------------------------------------------------
+# Choose one:  "generated_sources.csv"  or  "mojave_cleaned.csv"
+DATASET = "generated_sources.csv"
 
-# sigma_default = 0.1
+# -- Likelihood ---------------------------------------------------------------
+# Integration resolution for the likelihood summation (higher = slower but more accurate)
+N_VAL = 20
+
+# -- Outlier filtering --------------------------------------------------------
+# Set True to remove the top 10% highest-velocity sources before sampling
+ENABLE_STRIP_TOP_10_PERCENT = False
+
+# -- MCMC sampler -------------------------------------------------------------
+DRAWS = 1000
+TUNE = 1000
+TARGET_ACCEPT = 0.93
+CHAINS = 4
+CORES = 4
+INIT_METHOD = "jitter+adapt_diag"
+# Fixed random seed for reproducibility during debugging.
+# Set to None for production runs.
+RANDOM_SEED = 42
 
 
-n_val_default = 20
-
+# =============================================================================
+# Log-likelihood
+# =============================================================================
 
 def loglike(
     vt_stack: pt.TensorVariable,
     wc: pt.TensorVariable,
-    n_val=n_val_default,
+    n_val=N_VAL,
 ) -> pt.TensorVariable:
     r"""
     Custom PyMC log-likelihood for transverse velocities.
@@ -65,7 +76,7 @@ def loglike(
     Parameters
     ----------
     vt_stack : TensorVariable
-        A 2‑column array where:
+        A 2-column array where:
         - index 0 contains observed transverse velocities `vt`
         - index 1 contains corresponding uncertainties `sigma`
     wc : TensorVariable
@@ -76,7 +87,7 @@ def loglike(
     Returns
     -------
     TensorVariable
-        The summed log‑likelihood of all observations.
+        The summed log-likelihood of all observations.
 
     Notes
     -----
@@ -88,7 +99,6 @@ def loglike(
 
     vt = vt_stack[:, 0]
     sigma = vt_stack[:, 1]
-    # configurables
     delta_v = sigma
 
     sigma_bcast = sigma[:, None]
@@ -121,7 +131,6 @@ def loglike(
         at = pt.arctan(square_root)
 
         numer1 = w_inner * (square_root - at)
-        # denom = sum_squares
         expr1 = 1 - numer1 / sum_squares
 
         at2 = pt.arctan(w_inner / wc_bcast)
@@ -160,11 +169,14 @@ def loglike(
     summand = coefficient * CDF_function(v)
     sum_over_v = pt.sum(summand, axis=1)
 
-    # Final Probability and Log -Probability
     # Multiply by Δv to get the final probability for each observation.
     P_obs = sum_over_v * delta_v
     return pt.sum(pt.log(pt.clip(P_obs, 1e-12, np.inf)))
 
+
+# =============================================================================
+# Main workflow
+# =============================================================================
 
 def main():
     """
@@ -173,50 +185,36 @@ def main():
     Steps
     -----
     1. Regenerate or load observational data (vt, sigma, n_hat).
-    2. Clean NaNs and optionally remove top‑percentile velocity outliers.
+    2. Clean NaNs and optionally remove top-percentile velocity outliers.
     3. Construct a PyMC model:
        - Bº ~ HalfNormal
        - B_vec defined via a normalized reparameterization of raw vector
        - wc expression from model geometry
-       - Custom vt likelihood using `loglike`
+       - Custom vt likelihood using ``loglike``
     4. Sample the posterior using NUTS with configured tuning settings.
     5. Print summaries and diagnostics.
     6. Produce optional Mollweide sky maps and posterior trace plots.
-
-    Notes
-    -----
-    - Some dataset paths are customizable; adjust to your filesystem.
-    - Random seeds are included for debugging repeatability.
     """
 
-    # Get the directory this code file is stored in
     dir_path = os.path.dirname(os.path.realpath(__file__))
-    regenerate_data()
-    # Project root is one level above scripts/
     project_root = os.path.abspath(os.path.join(dir_path, os.pardir))
-    # find the path for the data source;  this should work on everyone's system now
-    # dataset = "mojave_cleaned.csv"
-    dataset = "generated_sources.csv"
 
-    # Always read generated_sources.csv from the main project folder
-    dataSource = os.path.join(project_root, dataset)
+    # ---- Data loading -------------------------------------------------------
+    regenerate_data()
+
+    dataSource = os.path.join(project_root, DATASET)
 
     print(f"Running on PyMC v{pm.__version__}")
-    if dataset == "generated_sources.csv":
+    if DATASET == "generated_sources.csv":
         filetype_choice = "Simulated"
-    elif dataset == "mojave_cleaned.csv":
+    elif DATASET == "mojave_cleaned.csv":
         filetype_choice = "Mojave"
-    # Import data from file
+
     dataAll = importCSV(dataSource, filetype=filetype_choice)
-    # dataAll = importCSV(dataSource, filetype="Mojave")
     radec_data = [sublist[0:3] for sublist in dataAll]
 
     vt_data = [sublist[3] for sublist in dataAll]
     sigmas = [sublist[4] for sublist in dataAll]
-
-    # Test sigmas if you want to try a flat identical sigma value across the entire dataset
-
-    # sigmas = [0.2] * len(vt_data)
 
     # Print the top 10 highest velocities from vt_data (descending)
     try:
@@ -231,20 +229,15 @@ def main():
     except Exception as _e:
         print(f"Failed to compute top 10 vt_data velocities: {_e}")
 
+    # ---- NaN masking & outlier stripping ------------------------------------
     vt_and_sigma = np.stack(
         [vt_data, sigmas],
         axis=1,
     )
 
-    # print(vt_and_sigma[:10])
-
     mask = ~np.isnan(vt_and_sigma).any(axis=1)
     vt_and_sigma_noNaN = vt_and_sigma[mask]
 
-    # Toggle: set to False to disable stripping the top 5% highest-velocity sources
-    ENABLE_STRIP_TOP_10_PERCENT = False
-
-    # Index mask for rows to keep (None means no stripping)
     idx_keep = None
     if ENABLE_STRIP_TOP_10_PERCENT:
         try:
@@ -256,22 +249,15 @@ def main():
                 f"Top 10% strip enabled: threshold={thresh:.3f}, removed {removed}/{vt_vals.size}"
             )
         except Exception as _e:
-            print(f"Top 5% strip computation failed: {_e}")
+            print(f"Top 10% strip computation failed: {_e}")
             idx_keep = None
-
-    # Test that removes sigma values bigger than the data value in case something funky
-    # vt_data_with_sigma = vt_and_sigma_noNaN[
-    #     vt_and_sigma_noNaN[:, 1] <= vt_and_sigma_noNaN[:, 0]
-    # ]
 
     vt_data_with_sigma = vt_and_sigma_noNaN
     if idx_keep is not None:
         vt_data_with_sigma = vt_data_with_sigma[idx_keep]
-    # print(vt_data_with_sigma)
 
-    # Load observed n̂ from generated CSV (first three columns), align with NaN mask
-
-    # TODO incorporate this into simulation import
+    # Load observed n_hat from generated CSV (first three columns), align with NaN mask
+    # TODO incorporate this into simulationImport
     n_hat_full = np.genfromtxt(
         dataSource, delimiter=",", skip_header=1, usecols=(0, 1, 2)
     )
@@ -279,14 +265,13 @@ def main():
     if idx_keep is not None:
         n_hats = n_hats[idx_keep]
 
+    # ---- PyMC model ---------------------------------------------------------
     model = pm.Model()
 
-    # Configuration of the model parameters
     with model:
 
         n_hat_data = pm.Data("n_hat_data", n_hats)
         Bº = pm.HalfNormal("Bº", sigma=3)
-        # Bº = pm.TruncatedNormal("Bº", lower=0, upper=1, sigma=3)
 
         # Reparameterize B_vec to keep ||B_vec|| < 1
         b_raw = pm.Normal("b_raw", mu=0, sigma=1, shape=3)
@@ -295,7 +280,7 @@ def main():
         rho = pm.Beta("rho", alpha=2, beta=2)
         B_vec = pm.Deterministic("B_vec", rho * u)
         start_point = {"Bº": 0.1, "b_raw": np.zeros(3), "rho": 0.5}
-        # maybe find better reparameterization, this seems to work for now though
+
         B_n = pm.math.dot(n_hat_data, B_vec)
 
         # wc from quadratic solver (δ=-1): positive root of -(B0²+1)wc² - 2B0·Bn·wc + (1-Bn²) = 0
@@ -310,25 +295,23 @@ def main():
             observed=vt_data_with_sigma,
             logp=loglike,
         )
-        # step = pm.Metropolis()
 
         trace = pm.sample(
-            draws=1000,
-            tune=1000,
-            target_accept=0.93,
-            chains=4,
-            cores=4,
-            init="jitter+adapt_diag",
-            # fixed random seed to get identical runs on the same dataset. Should be removed
-            # in standard operation of the code post-debugging
-            random_seed=42,
+            draws=DRAWS,
+            tune=TUNE,
+            target_accept=TARGET_ACCEPT,
+            chains=CHAINS,
+            cores=CORES,
+            init=INIT_METHOD,
+            random_seed=RANDOM_SEED,
             var_names=["Bº", "B_vec"],
             initval=start_point,
         )
 
+    # ---- Diagnostics --------------------------------------------------------
     summ = az.summary(trace)
     print(summ)
-    # Diagnostics and plots
+
     summary_with_quartiles = az.summary(
         trace,
         stat_funcs={
@@ -337,84 +320,7 @@ def main():
             "75%": lambda x: np.percentile(x, 75),
         },
     )
-    # Plot to establish relation between B0 and B_vec parameter
 
-    # Mollweide scatter plot of observed speeds vt by direction
-    # Uses n_hats (unit vectors) aligned with vt_data_with_sigma after masking/stripping
-    try:
-        vt_obs_vals = vt_data_with_sigma[:, 0].astype(float)
-        nh = np.asarray(n_hats, dtype=float)
-
-        # Ensure arrays are aligned in length (defensive)
-        m = min(len(vt_obs_vals), nh.shape[0])
-        vt_obs_vals = vt_obs_vals[:m]
-        nh = nh[:m]
-
-        # Convert Cartesian (x,y,z) on unit sphere to sky coords for Mollweide
-        # Longitude in [-pi, pi], latitude in [-pi/2, pi/2]
-        x, y, z = nh[:, 0], nh[:, 1], nh[:, 2]
-        lon = -np.arctan2(y, x)  # RA-style: flip sign for conventional sky orientation
-        lon = (lon + np.pi) % (2 * np.pi) - np.pi  # wrap to [-pi, pi]
-        lat = np.arcsin(np.clip(z, -1.0, 1.0))
-
-        # plot only v > 1
-
-        mask_gt1 = np.asarray(vt_obs_vals) > 1.0
-        if np.any(mask_gt1):
-            lon_f = lon[mask_gt1]
-            lat_f = lat[mask_gt1]
-            vt_f = vt_obs_vals[mask_gt1]
-
-            vmin = float(np.nanmin(vt_f))
-            vmax = float(np.nanmax(vt_f))
-            if not np.isfinite(vmin) or not np.isfinite(vmax):
-                raise ValueError("Non-finite vt values for color scaling")
-            if vmin == vmax:
-                vmax = vmin + 1e-12
-            norm = mcolors.PowerNorm(gamma=1.0, vmin=vmin, vmax=vmax)
-
-            # Plotting
-            fig = plt.figure(figsize=(10, 5))
-            ax_mw = fig.add_subplot(111, projection="mollweide")
-            sc = ax_mw.scatter(
-                lon_f,
-                lat_f,
-                c=vt_f,
-                s=12,
-                cmap="viridis",
-                norm=norm,
-                alpha=0.9,
-                edgecolors="none",
-            )
-            ax_mw.grid(True, linestyle=":", alpha=0.6)
-            # Remove degree labeling from axes
-            ax_mw.set_xticklabels([])
-            ax_mw.set_yticklabels([])
-            ax_mw.tick_params(labelbottom=False, labelleft=False)
-
-            ax_mw.set_title("Observed speeds by direction (Mollweide, v > 1)", pad=18)
-            cbar = fig.colorbar(
-                sc, ax=ax_mw, orientation="horizontal", pad=0.06, fraction=0.06
-            )
-            cbar.set_label("Observed speed v_t (v > 1)")
-            plt.show()
-            # out_path_mw = os.path.join(dir_path, "mollweide_speeds.png")
-
-            # plt.savefig(out_path_mw, dpi=150, bbox_inches="tight")
-            plt.close(fig)
-            print(f"Mollweide success")
-        else:
-            print("No velocities above 1 to plot; skipping Mollweide.")
-    except Exception as e:
-        print(f"Failed to produce Mollweide plot: {e}")
-    az.plot_pair(
-        trace,
-        var_names=["Bº", "B_vec"],
-        kind="kde",
-        divergences=True,
-        textsize=18,
-    )
-    # Divergences and tree depth
     try:
         div_total = int(trace.sample_stats["diverging"].values.sum())
     except Exception:
@@ -429,7 +335,77 @@ def main():
     print(f"  Max tree depth: {max_tree}")
     print(summary_with_quartiles)
 
-    # Save plots instead of showing (Agg backend)
+    # ---- Plots --------------------------------------------------------------
+
+    # Mollweide scatter plot of observed speeds vt by direction
+    try:
+        vt_obs_vals = vt_data_with_sigma[:, 0].astype(float)
+        nh = np.asarray(n_hats, dtype=float)
+
+        # Ensure arrays are aligned in length (defensive)
+        m = min(len(vt_obs_vals), nh.shape[0])
+        vt_obs_vals = vt_obs_vals[:m]
+        nh = nh[:m]
+
+        # Convert Cartesian (x,y,z) on unit sphere to sky coords for Mollweide
+        x, y, z = nh[:, 0], nh[:, 1], nh[:, 2]
+        lon = -np.arctan2(y, x)  # RA-style: flip sign for conventional sky orientation
+        lon = (lon + np.pi) % (2 * np.pi) - np.pi  # wrap to [-pi, pi]
+        lat = np.arcsin(np.clip(z, -1.0, 1.0))
+
+        # Plot only v > 1
+        mask_gt1 = np.asarray(vt_obs_vals) > 1.0
+        if np.any(mask_gt1):
+            lon_f = lon[mask_gt1]
+            lat_f = lat[mask_gt1]
+            vt_f = vt_obs_vals[mask_gt1]
+
+            vmin = float(np.nanmin(vt_f))
+            vmax = float(np.nanmax(vt_f))
+            if not np.isfinite(vmin) or not np.isfinite(vmax):
+                raise ValueError("Non-finite vt values for color scaling")
+            if vmin == vmax:
+                vmax = vmin + 1e-12
+            norm = mcolors.PowerNorm(gamma=1.0, vmin=vmin, vmax=vmax)
+
+            fig = plt.figure(figsize=(10, 5))
+            ax_mw = fig.add_subplot(111, projection="mollweide")
+            sc = ax_mw.scatter(
+                lon_f,
+                lat_f,
+                c=vt_f,
+                s=12,
+                cmap="viridis",
+                norm=norm,
+                alpha=0.9,
+                edgecolors="none",
+            )
+            ax_mw.grid(True, linestyle=":", alpha=0.6)
+            ax_mw.set_xticklabels([])
+            ax_mw.set_yticklabels([])
+            ax_mw.tick_params(labelbottom=False, labelleft=False)
+
+            ax_mw.set_title("Observed speeds by direction (Mollweide, v > 1)", pad=18)
+            cbar = fig.colorbar(
+                sc, ax=ax_mw, orientation="horizontal", pad=0.06, fraction=0.06
+            )
+            cbar.set_label("Observed speed v_t (v > 1)")
+            plt.show()
+            plt.close(fig)
+            print("Mollweide success")
+        else:
+            print("No velocities above 1 to plot; skipping Mollweide.")
+    except Exception as e:
+        print(f"Failed to produce Mollweide plot: {e}")
+
+    az.plot_pair(
+        trace,
+        var_names=["Bº", "B_vec"],
+        kind="kde",
+        divergences=True,
+        textsize=18,
+    )
+
     try:
         axes = az.plot_trace(trace, combined=False, legend=True)
         plt.savefig(os.path.join(dir_path, "trace.png"), dpi=150, bbox_inches="tight")
@@ -438,16 +414,6 @@ def main():
         az.plot_posterior(trace, round_to=3, figsize=[8, 4], textsize=10)
         plt.show()
         plt.close()
-
-        # plt.savefig(
-        #     os.path.join(dir_path, "posterior.png"), dpi=150, bbox_inches="tight"
-        # )
-        # plt.show()
-
-        # az.plot_energy(trace)
-        # plt.show()
-        # plt.savefig(os.path.join(dir_path, "energy.png"), dpi=150, bbox_inches="tight")
-        # plt.close()
     except Exception as e:
         print(f"Plot saving failed: {e}")
 
