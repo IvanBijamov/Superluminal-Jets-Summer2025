@@ -1,9 +1,24 @@
 
 .DS_Store
-scripts/generated_sources.csv
-/scripts/mojave_cleaned.csv
-/.spyproject/
-/.pytype/
-/.idea/
 **/__pycache__/
 *.py[cod]
+
+# Generated data & outputs (re-created by scripts)
+generated_sources.csv
+scripts/generated_sources.csv
+scripts/mojave_cleaned.csv
+scripts/trace.png
+scripts/trace_iso.png
+
+# IDE / editor
+/.idea/
+/.spyproject/
+*.iml
+
+# Tool caches
+/.pytype/
+/.ruff_cache/
+/.mypy_cache/
+
+# Virtual environment
+/.venv/
