@@ -71,7 +71,7 @@ def loglike(
     Custom PyMC log-likelihood for transverse velocities.
 
     $$
-    \mathcal{P}_{\mathrm{obs}}(v_t) \approx\sum_{v = v_t - m\sigma_v}^{\,v_t + m\sigma_v}\frac{v - v_t}{\sqrt{2\pi}\,\sigma_v^{3}}\exp\!\left[-\frac{(v - v_t)^2}{2\sigma_v^{2}}\right]C_v(v)\,\Delta v
+    \mathcal{P}_{\mathrm{obs}}(v_t) \approx\sum_{v = v_t - m\sigma_v}^{\,v_t + m\sigma_v}\frac{1}{\sqrt{2\pi}\,\sigma_v^{3}}\left[(v - v_t)\exp\!\left(-\frac{(v - v_t)^2}{2\sigma_v^{2}}\right) + (v + v_t)\exp\!\left(-\frac{(v + v_t)^2}{2\sigma_v^{2}}\right)\right]C_v(v)\,\Delta v
     $$
 
     Parameters

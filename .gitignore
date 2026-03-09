@@ -15,6 +15,9 @@ scripts/trace_iso.png
 /.spyproject/
 *.iml
 
+# MkDocs build output
+/site/
+
 # Tool caches
 /.pytype/
 /.ruff_cache/
