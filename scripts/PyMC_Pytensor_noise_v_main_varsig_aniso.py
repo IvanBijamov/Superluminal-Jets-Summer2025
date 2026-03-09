@@ -211,10 +211,10 @@ def main():
         filetype_choice = "Mojave"
 
     dataAll = importCSV(dataSource, filetype=filetype_choice)
-    radec_data = [sublist[0:3] for sublist in dataAll]
 
     vt_data = [sublist[3] for sublist in dataAll]
     sigmas = [sublist[4] for sublist in dataAll]
+    n_hat_full = np.array([[sublist[5], sublist[6], sublist[7]] for sublist in dataAll])
 
     # Print the top 10 highest velocities from vt_data (descending)
     try:
@@ -256,11 +256,6 @@ def main():
     if idx_keep is not None:
         vt_data_with_sigma = vt_data_with_sigma[idx_keep]
 
-    # Load observed n_hat from generated CSV (first three columns), align with NaN mask
-    # TODO incorporate this into simulationImport
-    n_hat_full = np.genfromtxt(
-        dataSource, delimiter=",", skip_header=1, usecols=(0, 1, 2)
-    )
     n_hats = n_hat_full[mask]
     if idx_keep is not None:
         n_hats = n_hats[idx_keep]
