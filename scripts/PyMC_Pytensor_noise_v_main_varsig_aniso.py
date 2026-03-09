@@ -61,6 +61,7 @@ RANDOM_SEED = 42
 # Log-likelihood
 # =============================================================================
 
+
 def loglike(
     vt_stack: pt.TensorVariable,
     wc: pt.TensorVariable,
@@ -178,6 +179,7 @@ def loglike(
 # Main workflow
 # =============================================================================
 
+
 def main():
     """
     Run the full anisotropy analysis workflow.
@@ -201,7 +203,6 @@ def main():
 
     # ---- Data loading -------------------------------------------------------
     regenerate_data()
-
     dataSource = os.path.join(project_root, DATASET)
 
     print(f"Running on PyMC v{pm.__version__}")

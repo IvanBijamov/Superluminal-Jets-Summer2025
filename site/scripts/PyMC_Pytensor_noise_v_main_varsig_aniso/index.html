@@ -1,0 +1,1814 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../">
+      
+      
+        <link rel="next" href="../iso_model/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+    
+    
+      
+        <title>Anisotropic Model - Lorentz Symmetry Violations of Superluminal Jets</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.618322db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#anisotropic-model" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Lorentz Symmetry Violations of Superluminal Jets" class="md-header__button md-logo" aria-label="Lorentz Symmetry Violations of Superluminal Jets" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Lorentz Symmetry Violations of Superluminal Jets
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Anisotropic Model
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Lorentz Symmetry Violations of Superluminal Jets" class="md-nav__button md-logo" aria-label="Lorentz Symmetry Violations of Superluminal Jets" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Lorentz Symmetry Violations of Superluminal Jets
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scripts
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Scripts
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Anisotropic Model
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Anisotropic Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#model-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Model Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Model Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#priors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Priors
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#derived-quantities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Derived quantities
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#likelihood" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Likelihood
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#outputs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Outputs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        API Reference
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#PyMC_Pytensor_noise_v_main_varsig_aniso.loglike" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        loglike
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#PyMC_Pytensor_noise_v_main_varsig_aniso.main" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        main
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../iso_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Isotropic Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data_gen/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data Generator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../simulation_import/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Simulation Import
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mojave_scraper/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MOJAVE Scraper
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#model-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Model Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Model Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#priors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Priors
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#derived-quantities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Derived quantities
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#likelihood" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Likelihood
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#outputs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Outputs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        API Reference
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#PyMC_Pytensor_noise_v_main_varsig_aniso.loglike" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        loglike
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#PyMC_Pytensor_noise_v_main_varsig_aniso.main" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        main
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="anisotropic-model">Anisotropic Model</h1>
+<p><code>scripts/PyMC_Pytensor_noise_v_main_varsig_aniso.py</code></p>
+<p>Samples the scalar Lorentz-violation magnitude <span class="arithmatex">\(B_0\)</span> and the 3-vector <span class="arithmatex">\(\vec{B}\)</span> using a custom log-likelihood for transverse velocity data. The critical velocity <span class="arithmatex">\(w_c\)</span> varies per observation depending on the sky direction <span class="arithmatex">\(\hat{n}\)</span>.</p>
+<h2 id="usage">Usage</h2>
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>scripts/PyMC_Pytensor_noise_v_main_varsig_aniso.py
+</code></pre></div>
+<p>When using simulated data, the script calls <code>regenerate_data()</code> at startup to produce a fresh <code>generated_sources.csv</code> before sampling.</p>
+<h2 id="configuration">Configuration</h2>
+<p>All settings are at the top of the file. Adjust before each run.</p>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>DATASET</code></td>
+<td><code>"generated_sources.csv"</code></td>
+<td>Input CSV. Set to <code>"mojave_cleaned.csv"</code> for real data.</td>
+</tr>
+<tr>
+<td><code>N_VAL</code></td>
+<td><code>20</code></td>
+<td>Integration resolution for likelihood summation. Higher = more accurate, slower.</td>
+</tr>
+<tr>
+<td><code>ENABLE_STRIP_TOP_10_PERCENT</code></td>
+<td><code>False</code></td>
+<td>Remove top 10% highest-velocity sources before sampling.</td>
+</tr>
+<tr>
+<td><code>DRAWS</code></td>
+<td><code>1000</code></td>
+<td>Number of posterior draws per chain.</td>
+</tr>
+<tr>
+<td><code>TUNE</code></td>
+<td><code>1000</code></td>
+<td>Number of tuning (burn-in) samples per chain.</td>
+</tr>
+<tr>
+<td><code>TARGET_ACCEPT</code></td>
+<td><code>0.93</code></td>
+<td>NUTS target acceptance rate.</td>
+</tr>
+<tr>
+<td><code>CHAINS</code></td>
+<td><code>4</code></td>
+<td>Number of independent chains.</td>
+</tr>
+<tr>
+<td><code>CORES</code></td>
+<td><code>4</code></td>
+<td>Number of CPU cores for parallel sampling.</td>
+</tr>
+<tr>
+<td><code>INIT_METHOD</code></td>
+<td><code>"jitter+adapt_diag"</code></td>
+<td>PyMC initialization method.</td>
+</tr>
+<tr>
+<td><code>RANDOM_SEED</code></td>
+<td><code>42</code></td>
+<td>Fixed seed for reproducibility. Set to <code>None</code> for production.</td>
+</tr>
+</tbody>
+</table>
+<p>!!! note "PyTensor compiler"
+    The line <code>pytensor.config.cxx = "/usr/bin/clang++"</code> is hardcoded for a specific machine. Comment it out or adjust for your system.</p>
+<h2 id="model-structure">Model Structure</h2>
+<h3 id="priors">Priors</h3>
+<ul>
+<li><strong><span class="arithmatex">\(B_0\)</span></strong> (<code>Bº</code>): <code>HalfNormal(sigma=3)</code> — scalar LV magnitude, non-negative.</li>
+<li><strong><span class="arithmatex">\(\vec{B}\)</span></strong> (<code>B_vec</code>): Reparameterized to enforce <span class="arithmatex">\(\|\vec{B}\| &lt; 1\)</span>:<ol>
+<li><code>b_raw ~ Normal(0, 1, shape=3)</code> — unconstrained direction vector.</li>
+<li><span class="arithmatex">\(\hat{u} = \texttt{b\_raw} / \|\texttt{b\_raw}\|\)</span> — normalized to a unit vector.</li>
+<li><span class="arithmatex">\(\rho \sim \text{Beta}(2, 2)\)</span> — radial magnitude in <span class="arithmatex">\([0, 1)\)</span>.</li>
+<li><span class="arithmatex">\(\vec{B} = \rho \cdot \hat{u}\)</span>.</li>
+</ol>
+</li>
+</ul>
+<h3 id="derived-quantities">Derived quantities</h3>
+<p>The per-observation inverse critical velocity <span class="arithmatex">\(w_c\)</span> comes from the positive root of:</p>
+<div class="arithmatex">\[
+-(\,B_0^2 + 1)\,w_c^2 \;-\; 2\,B_0\,B_n\,w_c \;+\; (1 - B_n^2) \;=\; 0
+\]</div>
+<p>where <span class="arithmatex">\(B_n = \hat{n} \cdot \vec{B}\)</span> is the projection of <span class="arithmatex">\(\vec{B}\)</span> onto the source direction. The solution used is:</p>
+<div class="arithmatex">\[
+w_c = \frac{-B_0\,B_n + \sqrt{1 + B_0^2 - B_n^2}}{1 + B_0^2}
+\]</div>
+<h3 id="likelihood">Likelihood</h3>
+<p>The observed-velocity probability for each source is computed by numerical integration over a Gaussian measurement kernel:</p>
+<div class="arithmatex">\[
+\mathcal{P}_{\mathrm{obs}}(v_t) \approx \sum_{v = v_t - m\sigma_v}^{v_t + m\sigma_v}
+\frac{1}{\sqrt{2\pi}\,\sigma_v^{3}}
+\left[
+(v - v_t)\exp\!\left(-\frac{(v - v_t)^2}{2\sigma_v^{2}}\right)
++ (v + v_t)\exp\!\left(-\frac{(v + v_t)^2}{2\sigma_v^{2}}\right)
+\right]
+C_v(v)\,\Delta v
+\]</div>
+<p>where <span class="arithmatex">\(C_v(v)\)</span> is the cumulative distribution function of the underlying velocity distribution, evaluated piecewise depending on whether <span class="arithmatex">\(w_c &lt; 1\)</span> (fast-light regime) or <span class="arithmatex">\(w_c \geq 1\)</span> (slow-light regime).</p>
+<p>!!! warning "Current limitation"
+    Only the fast-light case (<span class="arithmatex">\(w_c &lt; 1\)</span>) is implemented in the anisotropic code. The slow-light branch is not yet incorporated.</p>
+<p>The total log-likelihood is <span class="arithmatex">\(\sum_i \log \mathcal{P}_{\mathrm{obs}}(v_{t,i})\)</span>.</p>
+<h2 id="outputs">Outputs</h2>
+<table>
+<thead>
+<tr>
+<th>Output</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Trace plot</strong></td>
+<td>Saved to <code>scripts/trace.png</code>. Shows MCMC chains for <span class="arithmatex">\(B_0\)</span> and <span class="arithmatex">\(\vec{B}\)</span> components.</td>
+</tr>
+<tr>
+<td><strong>Mollweide map</strong></td>
+<td>Sky projection of sources with <span class="arithmatex">\(v_t &gt; 1\)</span>, colored by observed speed.</td>
+</tr>
+<tr>
+<td><strong>Pair plot</strong></td>
+<td>KDE joint posterior of <span class="arithmatex">\(B_0\)</span> and <span class="arithmatex">\(\vec{B}\)</span> with divergence markers.</td>
+</tr>
+<tr>
+<td><strong>Posterior plot</strong></td>
+<td>Marginal posterior densities with HDI intervals.</td>
+</tr>
+<tr>
+<td><strong>Console summary</strong></td>
+<td>ArviZ summary table with quartiles and sampler diagnostics (divergences, max tree depth).</td>
+</tr>
+</tbody>
+</table>
+<h2 id="api-reference">API Reference</h2>
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="PyMC_Pytensor_noise_v_main_varsig_aniso.loglike" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">PyMC_Pytensor_noise_v_main_varsig_aniso</span><span class="o">.</span><span class="n">loglike</span><span class="p">(</span><span class="n">vt_stack</span><span class="p">,</span> <span class="n">wc</span><span class="p">,</span> <span class="n">n_val</span><span class="o">=</span><span class="n">N_VAL</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents first">
+
+        <p>Custom PyMC log-likelihood for transverse velocities.</p>
+<div class="arithmatex">\[
+\mathcal{P}_{\mathrm{obs}}(v_t) \approx\sum_{v = v_t - m\sigma_v}^{\,v_t + m\sigma_v}\frac{v - v_t}{\sqrt{2\pi}\,\sigma_v^{3}}\exp\!\left[-\frac{(v - v_t)^2}{2\sigma_v^{2}}\right]C_v(v)\,\Delta v
+\]</div>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>vt_stack</code>
+            </td>
+            <td>
+                  <code><span title="TensorVariable">TensorVariable</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>A 2-column array where:
+- index 0 contains observed transverse velocities <code>vt</code>
+- index 1 contains corresponding uncertainties <code>sigma</code></p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>wc</code>
+            </td>
+            <td>
+                  <code><span title="TensorVariable">TensorVariable</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Inverse of the true velocity derived from Bº, B_vec, and n_hat.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>n_val</code>
+            </td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Integration resolution for the likelihood.</p>
+              </div>
+            </td>
+            <td>
+                  <code><span title="PyMC_Pytensor_noise_v_main_varsig_aniso.N_VAL">N_VAL</span></code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="TensorVariable">TensorVariable</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The summed log-likelihood of all observations.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<details class="note" open>
+  <summary>Notes</summary>
+  <ul>
+<li>Uses clipping to avoid log(0) situations.</li>
+</ul>
+<p>This function is passed to <code>pm.CustomDist</code> and must therefore return
+a <strong>scalar</strong> log-probability for the entire dataset.</p>
+</details>
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>scripts/PyMC_Pytensor_noise_v_main_varsig_aniso.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">loglike</span><span class="p">(</span>
+    <span class="n">vt_stack</span><span class="p">:</span> <span class="n">pt</span><span class="o">.</span><span class="n">TensorVariable</span><span class="p">,</span>
+    <span class="n">wc</span><span class="p">:</span> <span class="n">pt</span><span class="o">.</span><span class="n">TensorVariable</span><span class="p">,</span>
+    <span class="n">n_val</span><span class="o">=</span><span class="n">N_VAL</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pt</span><span class="o">.</span><span class="n">TensorVariable</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Custom PyMC log-likelihood for transverse velocities.</span>
+
+<span class="sd">    $$</span>
+<span class="sd">    \mathcal{P}_{\mathrm{obs}}(v_t) \approx\sum_{v = v_t - m\sigma_v}^{\,v_t + m\sigma_v}\frac{v - v_t}{\sqrt{2\pi}\,\sigma_v^{3}}\exp\!\left[-\frac{(v - v_t)^2}{2\sigma_v^{2}}\right]C_v(v)\,\Delta v</span>
+<span class="sd">    $$</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    vt_stack : TensorVariable</span>
+<span class="sd">        A 2-column array where:</span>
+<span class="sd">        - index 0 contains observed transverse velocities `vt`</span>
+<span class="sd">        - index 1 contains corresponding uncertainties `sigma`</span>
+<span class="sd">    wc : TensorVariable</span>
+<span class="sd">        Inverse of the true velocity derived from Bº, B_vec, and n_hat.</span>
+<span class="sd">    n_val : int, optional</span>
+<span class="sd">        Integration resolution for the likelihood.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    TensorVariable</span>
+<span class="sd">        The summed log-likelihood of all observations.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - Uses clipping to avoid log(0) situations.</span>
+
+<span class="sd">    This function is passed to `pm.CustomDist` and must therefore return</span>
+<span class="sd">    a **scalar** log-probability for the entire dataset.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">vt</span> <span class="o">=</span> <span class="n">vt_stack</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">sigma</span> <span class="o">=</span> <span class="n">vt_stack</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="n">delta_v</span> <span class="o">=</span> <span class="n">sigma</span>
+
+    <span class="n">sigma_bcast</span> <span class="o">=</span> <span class="n">sigma</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span>
+
+    <span class="c1"># Broadcast wc per observation across the integration axis</span>
+    <span class="n">wc_bcast</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">pt</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">wc</span><span class="p">)[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="k">if</span> <span class="n">wc</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">pt</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">vt</span><span class="p">)[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">wc</span>
+    <span class="p">)</span>
+
+    <span class="n">v_offsets</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="n">n_val</span><span class="p">,</span> <span class="n">n_val</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">n_val</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">vt_bcast</span> <span class="o">=</span> <span class="n">vt</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span>
+    <span class="n">delta_v_bcast</span> <span class="o">=</span> <span class="n">delta_v</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span>
+    <span class="n">v_offsets_bcast</span> <span class="o">=</span> <span class="n">v_offsets</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
+
+    <span class="n">v</span> <span class="o">=</span> <span class="n">vt_bcast</span> <span class="o">+</span> <span class="n">v_offsets_bcast</span> <span class="o">*</span> <span class="n">delta_v_bcast</span>
+    <span class="n">v_minus_vt</span> <span class="o">=</span> <span class="n">v</span> <span class="o">-</span> <span class="n">vt_bcast</span>
+    <span class="n">v_plus_vt</span> <span class="o">=</span> <span class="n">v</span> <span class="o">+</span> <span class="n">vt_bcast</span>
+
+    <span class="c1"># This is the CDF function or C(v) in the distribution notes</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">CDF_function</span><span class="p">(</span><span class="n">v_inner</span><span class="p">):</span>
+
+        <span class="n">w_inner</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">switch</span><span class="p">(</span><span class="n">pt</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">v_inner</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="n">pt</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">v_inner</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">wt_squared</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">w_inner</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">wc_squared</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">wc_bcast</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">sum_squares</span> <span class="o">=</span> <span class="n">wc_squared</span> <span class="o">+</span> <span class="n">wt_squared</span>
+
+        <span class="c1"># First expression (used when wc &lt; 1)</span>
+        <span class="n">square_root</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">pt</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">sum_squares</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">1e-12</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">))</span>
+        <span class="n">at</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">arctan</span><span class="p">(</span><span class="n">square_root</span><span class="p">)</span>
+
+        <span class="n">numer1</span> <span class="o">=</span> <span class="n">w_inner</span> <span class="o">*</span> <span class="p">(</span><span class="n">square_root</span> <span class="o">-</span> <span class="n">at</span><span class="p">)</span>
+        <span class="n">expr1</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">numer1</span> <span class="o">/</span> <span class="n">sum_squares</span>
+
+        <span class="n">at2</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">arctan</span><span class="p">(</span><span class="n">w_inner</span> <span class="o">/</span> <span class="n">wc_bcast</span><span class="p">)</span>
+        <span class="n">numer2</span> <span class="o">=</span> <span class="n">w_inner</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="n">w_inner</span> <span class="o">*</span> <span class="n">at2</span>
+        <span class="n">expr2</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">numer2</span> <span class="o">/</span> <span class="n">sum_squares</span>
+
+        <span class="n">fastslowcondition</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">lt</span><span class="p">(</span><span class="n">wc_bcast</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">switch</span><span class="p">(</span><span class="n">fastslowcondition</span><span class="p">,</span> <span class="n">expr1</span><span class="p">,</span> <span class="n">expr2</span><span class="p">)</span>
+        <span class="c1"># result is now:</span>
+        <span class="c1"># expr1 if wc &lt; 1</span>
+        <span class="c1"># expr2 if wc &gt; 1</span>
+
+        <span class="n">sumsquarecondition</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">lt</span><span class="p">(</span><span class="n">sum_squares</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">switch</span><span class="p">(</span><span class="n">sumsquarecondition</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
+        <span class="c1"># result is now:</span>
+        <span class="c1"># 1 if wc &lt; 1 and wt^2 + wc^2 &lt; 1</span>
+        <span class="c1"># expr1 if wc &lt; 1 and wt^2 + wc^2 &gt; 1</span>
+        <span class="c1"># expr2 if wc &gt; 1</span>
+
+        <span class="n">negvcondition</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">lt</span><span class="p">(</span><span class="n">v_inner</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">switch</span><span class="p">(</span><span class="n">negvcondition</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
+        <span class="c1"># result is now:</span>
+        <span class="c1"># 0 if vt &lt; 0</span>
+        <span class="c1"># 1 if wc &lt; 1 and wt^2 + wc^2 &lt; 1</span>
+        <span class="c1"># expr1 if wc &lt; 1 and wt^2 + wc^2 &gt; 1</span>
+        <span class="c1"># expr2 if wc &gt; 1</span>
+
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="n">coefficient</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">v_minus_vt</span> <span class="o">*</span> <span class="n">pt</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">v_minus_vt</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">sigma_bcast</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+        <span class="o">+</span> <span class="n">v_plus_vt</span> <span class="o">*</span> <span class="n">pt</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">v_plus_vt</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">sigma_bcast</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+    <span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">pt</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">pt</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">*</span> <span class="n">sigma_bcast</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span>
+
+    <span class="n">summand</span> <span class="o">=</span> <span class="n">coefficient</span> <span class="o">*</span> <span class="n">CDF_function</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+    <span class="n">sum_over_v</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">summand</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># Multiply by Δv to get the final probability for each observation.</span>
+    <span class="n">P_obs</span> <span class="o">=</span> <span class="n">sum_over_v</span> <span class="o">*</span> <span class="n">delta_v</span>
+    <span class="k">return</span> <span class="n">pt</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">pt</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">pt</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">P_obs</span><span class="p">,</span> <span class="mf">1e-12</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)))</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="PyMC_Pytensor_noise_v_main_varsig_aniso.main" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">PyMC_Pytensor_noise_v_main_varsig_aniso</span><span class="o">.</span><span class="n">main</span><span class="p">()</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents first">
+
+        <p>Run the full anisotropy analysis workflow.</p>
+
+
+<details class="steps" open>
+  <summary>Steps</summary>
+  <ol>
+<li>Regenerate or load observational data (vt, sigma, n_hat).</li>
+<li>Clean NaNs and optionally remove top-percentile velocity outliers.</li>
+<li>Construct a PyMC model:</li>
+<li>Bº ~ HalfNormal</li>
+<li>B_vec defined via a normalized reparameterization of raw vector</li>
+<li>wc expression from model geometry</li>
+<li>Custom vt likelihood using <code>loglike</code></li>
+<li>Sample the posterior using NUTS with configured tuning settings.</li>
+<li>Print summaries and diagnostics.</li>
+<li>Produce optional Mollweide sky maps and posterior trace plots.</li>
+</ol>
+</details>
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>scripts/PyMC_Pytensor_noise_v_main_varsig_aniso.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span>
+<span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span>
+<span class="normal">307</span>
+<span class="normal">308</span>
+<span class="normal">309</span>
+<span class="normal">310</span>
+<span class="normal">311</span>
+<span class="normal">312</span>
+<span class="normal">313</span>
+<span class="normal">314</span>
+<span class="normal">315</span>
+<span class="normal">316</span>
+<span class="normal">317</span>
+<span class="normal">318</span>
+<span class="normal">319</span>
+<span class="normal">320</span>
+<span class="normal">321</span>
+<span class="normal">322</span>
+<span class="normal">323</span>
+<span class="normal">324</span>
+<span class="normal">325</span>
+<span class="normal">326</span>
+<span class="normal">327</span>
+<span class="normal">328</span>
+<span class="normal">329</span>
+<span class="normal">330</span>
+<span class="normal">331</span>
+<span class="normal">332</span>
+<span class="normal">333</span>
+<span class="normal">334</span>
+<span class="normal">335</span>
+<span class="normal">336</span>
+<span class="normal">337</span>
+<span class="normal">338</span>
+<span class="normal">339</span>
+<span class="normal">340</span>
+<span class="normal">341</span>
+<span class="normal">342</span>
+<span class="normal">343</span>
+<span class="normal">344</span>
+<span class="normal">345</span>
+<span class="normal">346</span>
+<span class="normal">347</span>
+<span class="normal">348</span>
+<span class="normal">349</span>
+<span class="normal">350</span>
+<span class="normal">351</span>
+<span class="normal">352</span>
+<span class="normal">353</span>
+<span class="normal">354</span>
+<span class="normal">355</span>
+<span class="normal">356</span>
+<span class="normal">357</span>
+<span class="normal">358</span>
+<span class="normal">359</span>
+<span class="normal">360</span>
+<span class="normal">361</span>
+<span class="normal">362</span>
+<span class="normal">363</span>
+<span class="normal">364</span>
+<span class="normal">365</span>
+<span class="normal">366</span>
+<span class="normal">367</span>
+<span class="normal">368</span>
+<span class="normal">369</span>
+<span class="normal">370</span>
+<span class="normal">371</span>
+<span class="normal">372</span>
+<span class="normal">373</span>
+<span class="normal">374</span>
+<span class="normal">375</span>
+<span class="normal">376</span>
+<span class="normal">377</span>
+<span class="normal">378</span>
+<span class="normal">379</span>
+<span class="normal">380</span>
+<span class="normal">381</span>
+<span class="normal">382</span>
+<span class="normal">383</span>
+<span class="normal">384</span>
+<span class="normal">385</span>
+<span class="normal">386</span>
+<span class="normal">387</span>
+<span class="normal">388</span>
+<span class="normal">389</span>
+<span class="normal">390</span>
+<span class="normal">391</span>
+<span class="normal">392</span>
+<span class="normal">393</span>
+<span class="normal">394</span>
+<span class="normal">395</span>
+<span class="normal">396</span>
+<span class="normal">397</span>
+<span class="normal">398</span>
+<span class="normal">399</span>
+<span class="normal">400</span>
+<span class="normal">401</span>
+<span class="normal">402</span>
+<span class="normal">403</span>
+<span class="normal">404</span>
+<span class="normal">405</span>
+<span class="normal">406</span>
+<span class="normal">407</span>
+<span class="normal">408</span>
+<span class="normal">409</span>
+<span class="normal">410</span>
+<span class="normal">411</span>
+<span class="normal">412</span>
+<span class="normal">413</span>
+<span class="normal">414</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Run the full anisotropy analysis workflow.</span>
+
+<span class="sd">    Steps</span>
+<span class="sd">    -----</span>
+<span class="sd">    1. Regenerate or load observational data (vt, sigma, n_hat).</span>
+<span class="sd">    2. Clean NaNs and optionally remove top-percentile velocity outliers.</span>
+<span class="sd">    3. Construct a PyMC model:</span>
+<span class="sd">       - Bº ~ HalfNormal</span>
+<span class="sd">       - B_vec defined via a normalized reparameterization of raw vector</span>
+<span class="sd">       - wc expression from model geometry</span>
+<span class="sd">       - Custom vt likelihood using ``loglike``</span>
+<span class="sd">    4. Sample the posterior using NUTS with configured tuning settings.</span>
+<span class="sd">    5. Print summaries and diagnostics.</span>
+<span class="sd">    6. Produce optional Mollweide sky maps and posterior trace plots.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">dir_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+    <span class="n">project_root</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dir_path</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">pardir</span><span class="p">))</span>
+
+    <span class="c1"># ---- Data loading -------------------------------------------------------</span>
+    <span class="n">regenerate_data</span><span class="p">()</span>
+    <span class="n">dataSource</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">project_root</span><span class="p">,</span> <span class="n">DATASET</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Running on PyMC v</span><span class="si">{</span><span class="n">pm</span><span class="o">.</span><span class="n">__version__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">DATASET</span> <span class="o">==</span> <span class="s2">&quot;generated_sources.csv&quot;</span><span class="p">:</span>
+        <span class="n">filetype_choice</span> <span class="o">=</span> <span class="s2">&quot;Simulated&quot;</span>
+    <span class="k">elif</span> <span class="n">DATASET</span> <span class="o">==</span> <span class="s2">&quot;mojave_cleaned.csv&quot;</span><span class="p">:</span>
+        <span class="n">filetype_choice</span> <span class="o">=</span> <span class="s2">&quot;Mojave&quot;</span>
+
+    <span class="n">dataAll</span> <span class="o">=</span> <span class="n">importCSV</span><span class="p">(</span><span class="n">dataSource</span><span class="p">,</span> <span class="n">filetype</span><span class="o">=</span><span class="n">filetype_choice</span><span class="p">)</span>
+
+    <span class="n">vt_data</span> <span class="o">=</span> <span class="p">[</span><span class="n">sublist</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="k">for</span> <span class="n">sublist</span> <span class="ow">in</span> <span class="n">dataAll</span><span class="p">]</span>
+    <span class="n">sigmas</span> <span class="o">=</span> <span class="p">[</span><span class="n">sublist</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="k">for</span> <span class="n">sublist</span> <span class="ow">in</span> <span class="n">dataAll</span><span class="p">]</span>
+    <span class="n">n_hat_full</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">sublist</span><span class="p">[</span><span class="mi">5</span><span class="p">],</span> <span class="n">sublist</span><span class="p">[</span><span class="mi">6</span><span class="p">],</span> <span class="n">sublist</span><span class="p">[</span><span class="mi">7</span><span class="p">]]</span> <span class="k">for</span> <span class="n">sublist</span> <span class="ow">in</span> <span class="n">dataAll</span><span class="p">])</span>
+
+    <span class="c1"># Print the top 10 highest velocities from vt_data (descending)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">vt_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">vt_data</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">vt_arr</span> <span class="o">=</span> <span class="n">vt_arr</span><span class="p">[</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">vt_arr</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="n">vt_arr</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+            <span class="n">top10</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">vt_arr</span><span class="p">)[</span><span class="o">-</span><span class="mi">10</span><span class="p">:][::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="s2">&quot;Top 10 vt_data velocities (desc):&quot;</span><span class="p">,</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">array2string</span><span class="p">(</span><span class="n">top10</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">separator</span><span class="o">=</span><span class="s2">&quot;, &quot;</span><span class="p">),</span>
+            <span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">_e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to compute top 10 vt_data velocities: </span><span class="si">{</span><span class="n">_e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># ---- NaN masking &amp; outlier stripping ------------------------------------</span>
+    <span class="n">vt_and_sigma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">vt_data</span><span class="p">,</span> <span class="n">sigmas</span><span class="p">],</span>
+        <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">mask</span> <span class="o">=</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">vt_and_sigma</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">vt_and_sigma_noNaN</span> <span class="o">=</span> <span class="n">vt_and_sigma</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+
+    <span class="n">idx_keep</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">ENABLE_STRIP_TOP_10_PERCENT</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">vt_vals</span> <span class="o">=</span> <span class="n">vt_and_sigma_noNaN</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+            <span class="n">thresh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">vt_vals</span><span class="p">,</span> <span class="mi">80</span><span class="p">)</span>
+            <span class="n">idx_keep</span> <span class="o">=</span> <span class="n">vt_vals</span> <span class="o">&lt;=</span> <span class="n">thresh</span>
+            <span class="n">removed</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">vt_vals</span><span class="o">.</span><span class="n">size</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">idx_keep</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Top 10% strip enabled: threshold=</span><span class="si">{</span><span class="n">thresh</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, removed </span><span class="si">{</span><span class="n">removed</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">vt_vals</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">_e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Top 10% strip computation failed: </span><span class="si">{</span><span class="n">_e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">idx_keep</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">vt_data_with_sigma</span> <span class="o">=</span> <span class="n">vt_and_sigma_noNaN</span>
+    <span class="k">if</span> <span class="n">idx_keep</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">vt_data_with_sigma</span> <span class="o">=</span> <span class="n">vt_data_with_sigma</span><span class="p">[</span><span class="n">idx_keep</span><span class="p">]</span>
+
+    <span class="n">n_hats</span> <span class="o">=</span> <span class="n">n_hat_full</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">idx_keep</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">n_hats</span> <span class="o">=</span> <span class="n">n_hats</span><span class="p">[</span><span class="n">idx_keep</span><span class="p">]</span>
+
+    <span class="c1"># ---- PyMC model ---------------------------------------------------------</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">Model</span><span class="p">()</span>
+
+    <span class="k">with</span> <span class="n">model</span><span class="p">:</span>
+
+        <span class="n">n_hat_data</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="s2">&quot;n_hat_data&quot;</span><span class="p">,</span> <span class="n">n_hats</span><span class="p">)</span>
+        <span class="n">Bº</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">HalfNormal</span><span class="p">(</span><span class="s2">&quot;Bº&quot;</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+        <span class="c1"># Reparameterize B_vec to keep ||B_vec|| &lt; 1</span>
+        <span class="n">b_raw</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">Normal</span><span class="p">(</span><span class="s2">&quot;b_raw&quot;</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+        <span class="n">r_raw</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">pt</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">b_raw</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="n">b_raw</span> <span class="o">/</span> <span class="p">(</span><span class="n">r_raw</span> <span class="o">+</span> <span class="mf">1e-9</span><span class="p">)</span>
+        <span class="n">rho</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">Beta</span><span class="p">(</span><span class="s2">&quot;rho&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">B_vec</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">Deterministic</span><span class="p">(</span><span class="s2">&quot;B_vec&quot;</span><span class="p">,</span> <span class="n">rho</span> <span class="o">*</span> <span class="n">u</span><span class="p">)</span>
+        <span class="n">start_point</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Bº&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s2">&quot;b_raw&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="s2">&quot;rho&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">}</span>
+
+        <span class="n">B_n</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">n_hat_data</span><span class="p">,</span> <span class="n">B_vec</span><span class="p">)</span>
+
+        <span class="c1"># wc from quadratic solver (δ=-1): positive root of -(B0²+1)wc² - 2B0·Bn·wc + (1-Bn²) = 0</span>
+        <span class="n">wc_expr</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="o">-</span><span class="n">Bº</span> <span class="o">*</span> <span class="n">B_n</span> <span class="o">+</span> <span class="n">pt</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">pt</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">Bº</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="n">B_n</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="mf">1e-12</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">))</span>
+        <span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">Bº</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="c1"># Likelihood (sampling distribution) of observations</span>
+        <span class="n">vt_obs</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">CustomDist</span><span class="p">(</span>
+            <span class="s2">&quot;vt_obs&quot;</span><span class="p">,</span>
+            <span class="n">wc_expr</span><span class="p">,</span>
+            <span class="n">observed</span><span class="o">=</span><span class="n">vt_data_with_sigma</span><span class="p">,</span>
+            <span class="n">logp</span><span class="o">=</span><span class="n">loglike</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">trace</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span>
+            <span class="n">draws</span><span class="o">=</span><span class="n">DRAWS</span><span class="p">,</span>
+            <span class="n">tune</span><span class="o">=</span><span class="n">TUNE</span><span class="p">,</span>
+            <span class="n">target_accept</span><span class="o">=</span><span class="n">TARGET_ACCEPT</span><span class="p">,</span>
+            <span class="n">chains</span><span class="o">=</span><span class="n">CHAINS</span><span class="p">,</span>
+            <span class="n">cores</span><span class="o">=</span><span class="n">CORES</span><span class="p">,</span>
+            <span class="n">init</span><span class="o">=</span><span class="n">INIT_METHOD</span><span class="p">,</span>
+            <span class="n">random_seed</span><span class="o">=</span><span class="n">RANDOM_SEED</span><span class="p">,</span>
+            <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Bº&quot;</span><span class="p">,</span> <span class="s2">&quot;B_vec&quot;</span><span class="p">],</span>
+            <span class="n">initval</span><span class="o">=</span><span class="n">start_point</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="c1"># ---- Diagnostics --------------------------------------------------------</span>
+    <span class="n">summ</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">trace</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">summ</span><span class="p">)</span>
+
+    <span class="n">summary_with_quartiles</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span>
+        <span class="n">trace</span><span class="p">,</span>
+        <span class="n">stat_funcs</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;25%&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">25</span><span class="p">),</span>
+            <span class="s2">&quot;50%&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">50</span><span class="p">),</span>
+            <span class="s2">&quot;75%&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">75</span><span class="p">),</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">div_total</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">trace</span><span class="o">.</span><span class="n">sample_stats</span><span class="p">[</span><span class="s2">&quot;diverging&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="n">div_total</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">max_tree</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">trace</span><span class="o">.</span><span class="n">sample_stats</span><span class="p">[</span><span class="s2">&quot;tree_depth&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="n">max_tree</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Sampler diagnostics:&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Divergences total: </span><span class="si">{</span><span class="n">div_total</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Max tree depth: </span><span class="si">{</span><span class="n">max_tree</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">summary_with_quartiles</span><span class="p">)</span>
+
+    <span class="c1"># ---- Plots --------------------------------------------------------------</span>
+
+    <span class="c1"># Mollweide scatter plot of observed speeds vt by direction</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">vt_obs_vals</span> <span class="o">=</span> <span class="n">vt_data_with_sigma</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">nh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">n_hats</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+        <span class="c1"># Ensure arrays are aligned in length (defensive)</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">vt_obs_vals</span><span class="p">),</span> <span class="n">nh</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">vt_obs_vals</span> <span class="o">=</span> <span class="n">vt_obs_vals</span><span class="p">[:</span><span class="n">m</span><span class="p">]</span>
+        <span class="n">nh</span> <span class="o">=</span> <span class="n">nh</span><span class="p">[:</span><span class="n">m</span><span class="p">]</span>
+
+        <span class="c1"># Convert Cartesian (x,y,z) on unit sphere to sky coords for Mollweide</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">nh</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">nh</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">nh</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span>
+        <span class="n">lon</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>  <span class="c1"># RA-style: flip sign for conventional sky orientation</span>
+        <span class="n">lon</span> <span class="o">=</span> <span class="p">(</span><span class="n">lon</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">%</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>  <span class="c1"># wrap to [-pi, pi]</span>
+        <span class="n">lat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arcsin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
+
+        <span class="c1"># Plot only v &gt; 1</span>
+        <span class="n">mask_gt1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">vt_obs_vals</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">1.0</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">mask_gt1</span><span class="p">):</span>
+            <span class="n">lon_f</span> <span class="o">=</span> <span class="n">lon</span><span class="p">[</span><span class="n">mask_gt1</span><span class="p">]</span>
+            <span class="n">lat_f</span> <span class="o">=</span> <span class="n">lat</span><span class="p">[</span><span class="n">mask_gt1</span><span class="p">]</span>
+            <span class="n">vt_f</span> <span class="o">=</span> <span class="n">vt_obs_vals</span><span class="p">[</span><span class="n">mask_gt1</span><span class="p">]</span>
+
+            <span class="n">vmin</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">vt_f</span><span class="p">))</span>
+            <span class="n">vmax</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">vt_f</span><span class="p">))</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">vmin</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">vmax</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Non-finite vt values for color scaling&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">vmin</span> <span class="o">==</span> <span class="n">vmax</span><span class="p">:</span>
+                <span class="n">vmax</span> <span class="o">=</span> <span class="n">vmin</span> <span class="o">+</span> <span class="mf">1e-12</span>
+            <span class="n">norm</span> <span class="o">=</span> <span class="n">mcolors</span><span class="o">.</span><span class="n">PowerNorm</span><span class="p">(</span><span class="n">gamma</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">)</span>
+
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+            <span class="n">ax_mw</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="s2">&quot;mollweide&quot;</span><span class="p">)</span>
+            <span class="n">sc</span> <span class="o">=</span> <span class="n">ax_mw</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+                <span class="n">lon_f</span><span class="p">,</span>
+                <span class="n">lat_f</span><span class="p">,</span>
+                <span class="n">c</span><span class="o">=</span><span class="n">vt_f</span><span class="p">,</span>
+                <span class="n">s</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
+                <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;viridis&quot;</span><span class="p">,</span>
+                <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">,</span>
+                <span class="n">alpha</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
+                <span class="n">edgecolors</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">ax_mw</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">)</span>
+            <span class="n">ax_mw</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">([])</span>
+            <span class="n">ax_mw</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">([])</span>
+            <span class="n">ax_mw</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">labelbottom</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">labelleft</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+            <span class="n">ax_mw</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Observed speeds by direction (Mollweide, v &gt; 1)&quot;</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+            <span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span>
+                <span class="n">sc</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax_mw</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="s2">&quot;horizontal&quot;</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mf">0.06</span><span class="p">,</span> <span class="n">fraction</span><span class="o">=</span><span class="mf">0.06</span>
+            <span class="p">)</span>
+            <span class="n">cbar</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="s2">&quot;Observed speed v_t (v &gt; 1)&quot;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Mollweide success&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No velocities above 1 to plot; skipping Mollweide.&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to produce Mollweide plot: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">az</span><span class="o">.</span><span class="n">plot_pair</span><span class="p">(</span>
+        <span class="n">trace</span><span class="p">,</span>
+        <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Bº&quot;</span><span class="p">,</span> <span class="s2">&quot;B_vec&quot;</span><span class="p">],</span>
+        <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;kde&quot;</span><span class="p">,</span>
+        <span class="n">divergences</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">textsize</span><span class="o">=</span><span class="mi">18</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">axes</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">combined</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dir_path</span><span class="p">,</span> <span class="s2">&quot;trace.png&quot;</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">az</span><span class="o">.</span><span class="n">plot_posterior</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">round_to</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="n">textsize</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Plot saving failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.indexes"], "search": "../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

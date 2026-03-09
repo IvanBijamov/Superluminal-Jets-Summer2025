@@ -5,6 +5,16 @@ theme:
     - navigation.sections
     - navigation.indexes
 
+nav:
+  - Home: index.md
+  - Scripts:
+    - scripts/index.md
+    - Anisotropic Model: scripts/PyMC_Pytensor_noise_v_main_varsig_aniso.md
+    - Isotropic Model: scripts/iso_model.md
+    - Data Generator: scripts/data_gen.md
+    - Simulation Import: scripts/simulation_import.md
+    - MOJAVE Scraper: scripts/mojave_scraper.md
+
 plugins:
   - search
   - mkdocstrings:
