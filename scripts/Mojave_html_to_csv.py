@@ -53,11 +53,10 @@ df_clean = df[new_cols]
 df_clean = df_clean.apply(pd.to_numeric, errors="ignore")
 
 
-# save path
+# save path — write to project root (one level above scripts/)
 dir_path = os.path.dirname(os.path.realpath(__file__))
-dataset = "/mojave_cleaned.csv"
-csv_path = dir_path + dataset
-# csv_path = "/Users/warrenschindler/Desktop/one/mojave_cleaned.csv"
+project_root = os.path.abspath(os.path.join(dir_path, os.pardir))
+csv_path = os.path.join(project_root, "mojave_cleaned.csv")
 df_clean.to_csv(csv_path, index=False)
 
 print(f"Cleaned table saved as {csv_path}")

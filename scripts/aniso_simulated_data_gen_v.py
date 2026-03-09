@@ -8,20 +8,18 @@ author: mseifer1
 
 import numpy as np
 import csv
+import os
 
 
 def regenerate_data():
-    # parameteres\
-    # np.random.seed(42)
-    # q = -0.4
-    # δ = 1 - 1 / (q + 1) ** 2
-
     δ = -1
-    # δ = -0.2
     Bº = 0.8
     B_vec = np.array([0.5, 0.0, 0.2])
     N_SOURCES = 1000  # Number of data points to generate
-    OUTPUT_FILE = "generated_sources.csv"
+
+    # Always write to project root, regardless of working directory
+    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
+    OUTPUT_FILE = os.path.join(project_root, "generated_sources.csv")
 
     # fns
     def solve_wc(δ, Bº, B_vec, n_hat):

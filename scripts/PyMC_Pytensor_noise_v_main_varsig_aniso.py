@@ -313,7 +313,7 @@ def main():
         # step = pm.Metropolis()
 
         trace = pm.sample(
-            draws=8000,
+            draws=1000,
             tune=1000,
             target_accept=0.93,
             chains=4,
