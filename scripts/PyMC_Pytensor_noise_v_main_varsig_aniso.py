@@ -10,6 +10,8 @@ Anisotropic model main code.
 - Runs MCMC sampling.
 - Produces visualization plots.
 """
+import multiprocessing
+import subprocess
 
 import arviz as az
 import matplotlib.pyplot as plt
@@ -44,17 +46,29 @@ N_VAL = 20
 # -- Outlier filtering --------------------------------------------------------
 # Set True to remove the top 10% highest-velocity sources before sampling
 ENABLE_STRIP_TOP_10_PERCENT = False
+# To utilize all performance cores of my computer where applicable. Set CORES to be equal to an integer value if this section causes bugs
+
+
+def performance_core_count():
+    p = subprocess.run(
+        ["sysctl", "-n", "hw.perflevel0.physicalcpu"],
+        capture_output=True,
+        text=True,
+    )
+    return int(p.stdout) if p.returncode == 0 else multiprocessing.cpu_count()
+
 
 # -- MCMC sampler -------------------------------------------------------------
 DRAWS = 1000
 TUNE = 1000
 TARGET_ACCEPT = 0.93
-CHAINS = 4
-CORES = 4
+CHAINS = 6
+CORES = performance_core_count()
 INIT_METHOD = "jitter+adapt_diag"
+REGENERATE_DATA = True
 # Fixed random seed for reproducibility during debugging.
 # Set to None for production runs.
-RANDOM_SEED = 42
+RANDOM_SEED = None
 
 
 # =============================================================================
@@ -202,7 +216,8 @@ def main():
     project_root = os.path.abspath(os.path.join(dir_path, os.pardir))
 
     # ---- Data loading -------------------------------------------------------
-    regenerate_data()
+    if REGENERATE_DATA:
+        regenerate_data()
     dataSource = os.path.join(project_root, DATASET)
 
     print(f"Running on PyMC v{pm.__version__}")

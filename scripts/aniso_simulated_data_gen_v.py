@@ -14,8 +14,9 @@ import os
 def regenerate_data():
     δ = -1
     Bº = 0.8
-    B_vec = np.array([0.5, 0.0, 0.2])
+    B_vec = np.array([0.7, 0.0, 0.2])
     N_SOURCES = 1000  # Number of data points to generate
+    print("N_SOURCES = ", N_SOURCES)
 
     # Always write to project root, regardless of working directory
     project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
@@ -42,7 +43,6 @@ def regenerate_data():
         sqrt_disc = np.sqrt(discriminant)
         wc1 = (-b + sqrt_disc) / (2 * a)
         wc2 = (-b - sqrt_disc) / (2 * a)
-
         positive_wc = [wc for wc in (wc1, wc2) if wc > 0]
         return positive_wc if positive_wc else None
 
@@ -129,6 +129,7 @@ def regenerate_data():
         # data storage
         row = list(n_hat) + [v_obs, v_sigma, v_true_value]
         rows.append(row)
+    print("Amount of data entries generated:", len(rows))
 
     # csv file
     with open(OUTPUT_FILE, mode="w", newline="") as csvfile:
