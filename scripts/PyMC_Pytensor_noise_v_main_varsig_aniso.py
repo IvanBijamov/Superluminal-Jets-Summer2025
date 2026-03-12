@@ -317,6 +317,7 @@ def main():
             random_seed=RANDOM_SEED,
             var_names=["Bº", "B_vec"],
             initval=start_point,
+            # nuts_sampler="numpyro",
         )
 
     # ---- Diagnostics --------------------------------------------------------
