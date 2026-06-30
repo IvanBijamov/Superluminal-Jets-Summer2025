@@ -13,8 +13,8 @@ import os
 
 def regenerate_data():
     δ = -1
-    Bº = 0.8
-    B_vec = np.array([0.7, 0.0, 0.2])
+    Bº = 0.1
+    B_vec = np.array([0.0, 0.0, 0.0])
     N_SOURCES = 1000  # Number of data points to generate
     print("N_SOURCES = ", N_SOURCES)
 

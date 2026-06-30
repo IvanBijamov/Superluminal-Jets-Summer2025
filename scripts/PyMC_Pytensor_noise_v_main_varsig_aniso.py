@@ -62,8 +62,8 @@ def performance_core_count():
 DRAWS = 1000
 TUNE = 1000
 TARGET_ACCEPT = 0.93
-CHAINS = 6
 CORES = performance_core_count()
+CHAINS = CORES # Can set higher to get more data; but unles CHAINS >> CORES it is generally most efficient to have CHAINS be a multiple of CORES
 INIT_METHOD = "jitter+adapt_diag"
 REGENERATE_DATA = True
 # Fixed random seed for reproducibility during debugging.
