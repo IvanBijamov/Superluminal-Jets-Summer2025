@@ -18,6 +18,9 @@ import re
 
 def radecstringparse(radecstring):
     
+    # Takes string of form 0h5m57.175s+38d20'15.149" and returns decimal values
+    # of RA & Dec as list.
+    
     numberstrings = re.findall(r'\+|-|[\d]+', radecstring) #split string into digits & sign of dec
     signstring = numberstrings[4] # extract sign and then drop from list
     numberstrings.pop(4)
@@ -30,19 +33,34 @@ def radecstringparse(radecstring):
     
 
 def main():
+    
+    # Import CSV values into dataframes.
     radecfilepath = "../mojave_radec.csv" # in parent directory
     datafilepath = "../mojave_cleaned.csv" # in parent directory
     radecdata = pd.read_csv(radecfilepath, header=0)
     cleaneddata = pd.read_csv(datafilepath, header=0)
     
-    # print(radecdata.dtypes)
+    # print(radecdata.columns)
     # print(cleaneddata.dtypes)
     
+    # Add RA & Dec values to RAdec dataframe. 
     radecstrings = radecdata['RA_Dec_J2000']
-    radecvalues = [radecstringparse(x) for x in radecstrings]
-    print(radecvalues)
+    radecvalues = np.array([radecstringparse(x) for x in radecstrings])
+    # print(radecvalues[:,0])
+    radecdata.insert(3, "RA J2000", radecvalues[:,0])
+    radecdata.insert(4, "Dec J2000", radecvalues[:,1])
+    # Drop original string column
+    radecdata = radecdata.drop(columns=["RA_Dec_J2000"])
+    # Rename column for compatibility & clarity in final dataset
+    radecdata = radecdata.rename(
+        columns={"B1950_Name" : "B1950 Name",
+                 "Source_URL" : "Main data page URL"})
     
-    
+    # Merge radecdata & cleaneddata
+    newdata = pd.merge(cleaneddata,radecdata,how='left',on='B1950 Name')
+
+    # Export to CSV file  
+    newdata.to_csv("../mojave_cleaned_radec.csv",index=False)
     
 
 if __name__ == "__main__":
