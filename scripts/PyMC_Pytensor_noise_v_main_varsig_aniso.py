@@ -63,7 +63,7 @@ DRAWS = 1000
 TUNE = 1000
 TARGET_ACCEPT = 0.93
 CORES = performance_core_count()
-CHAINS = CORES # Can set higher to get more data; but unles CHAINS >> CORES it is generally most efficient to have CHAINS be a multiple of CORES
+CHAINS = 4  # Can set higher to get more data; but unles CHAINS >> CORES it is generally most efficient to have CHAINS be a multiple of CORES
 INIT_METHOD = "jitter+adapt_diag"
 REGENERATE_DATA = True
 # Fixed random seed for reproducibility during debugging.
@@ -190,6 +190,92 @@ def loglike(
 
 
 # =============================================================================
+# Model construction & sampling
+# =============================================================================
+
+
+def build_and_sample(
+    vt_with_sigma,
+    n_hats,
+    *,
+    draws=DRAWS,
+    tune=TUNE,
+    chains=CHAINS,
+    cores=CORES,
+    target_accept=TARGET_ACCEPT,
+    init=INIT_METHOD,
+    random_seed=RANDOM_SEED,
+    rho_alpha=1,
+    rho_beta=1,
+    progressbar=True,
+):
+    """
+    Build the anisotropic PyMC model and sample the posterior.
+
+    Parameters
+    ----------
+    vt_with_sigma : ndarray
+        2-column array (col 0 = observed vt, col 1 = sigma), NaN-free.
+    n_hats : ndarray
+        (N, 3) unit vectors aligned row-for-row with `vt_with_sigma`.
+    rho_alpha, rho_beta : float
+        Beta prior parameters for the magnitude ||B_vec||. The default
+        (1, 1) is uniform on [0, 1); pass (2, 2) to reproduce the older
+        prior peaked at 0.5.
+
+    Returns
+    -------
+    arviz.InferenceData
+    """
+    model = pm.Model()
+
+    with model:
+
+        n_hat_data = pm.Data("n_hat_data", n_hats)
+        # Bº = pm.HalfNormal("Bº", sigma=3)
+        Bº = pm.TruncatedNormal("Bº", sigma=3, lower=0)
+
+        # Reparameterize B_vec to keep ||B_vec|| < 1
+        b_raw = pm.Normal("b_raw", mu=0, sigma=1, shape=3)
+        r_raw = pt.sqrt(pt.sum(b_raw**2))
+        u = b_raw / (r_raw + 1e-9)
+        rho = pm.Beta("rho", alpha=rho_alpha, beta=rho_beta)
+        B_vec = pm.Deterministic("B_vec", rho * u)
+        start_point = {"Bº": 0.3, "b_raw": np.zeros(3), "rho": 0.5}
+
+        B_n = pm.math.dot(n_hat_data, B_vec)
+
+        # wc from quadratic solver (δ=-1): positive root of -(B0²+1)wc² - 2B0·Bn·wc + (1-Bn²) = 0
+        wc_expr = (
+            -Bº * B_n + pt.sqrt(pt.clip(1 + Bº**2 - B_n**2, 1e-12, np.inf))
+        ) / (1 + Bº**2)
+
+        # Likelihood (sampling distribution) of observations
+        vt_obs = pm.CustomDist(
+            "vt_obs",
+            wc_expr,
+            observed=vt_with_sigma,
+            logp=loglike,
+        )
+
+        trace = pm.sample(
+            draws=draws,
+            tune=tune,
+            target_accept=target_accept,
+            chains=chains,
+            cores=cores,
+            init=init,
+            random_seed=random_seed,
+            var_names=["Bº", "B_vec"],
+            initval=start_point,
+            progressbar=progressbar,
+            # nuts_sampler="numpyro",
+        )
+
+    return trace
+
+
+# =============================================================================
 # Main workflow
 # =============================================================================
 
@@ -277,48 +363,7 @@ def main():
         n_hats = n_hats[idx_keep]
 
     # ---- PyMC model ---------------------------------------------------------
-    model = pm.Model()
-
-    with model:
-
-        n_hat_data = pm.Data("n_hat_data", n_hats)
-        Bº = pm.HalfNormal("Bº", sigma=3)
-
-        # Reparameterize B_vec to keep ||B_vec|| < 1
-        b_raw = pm.Normal("b_raw", mu=0, sigma=1, shape=3)
-        r_raw = pt.sqrt(pt.sum(b_raw**2))
-        u = b_raw / (r_raw + 1e-9)
-        rho = pm.Beta("rho", alpha=2, beta=2)
-        B_vec = pm.Deterministic("B_vec", rho * u)
-        start_point = {"Bº": 0.1, "b_raw": np.zeros(3), "rho": 0.5}
-
-        B_n = pm.math.dot(n_hat_data, B_vec)
-
-        # wc from quadratic solver (δ=-1): positive root of -(B0²+1)wc² - 2B0·Bn·wc + (1-Bn²) = 0
-        wc_expr = (
-            -Bº * B_n + pt.sqrt(pt.clip(1 + Bº**2 - B_n**2, 1e-12, np.inf))
-        ) / (1 + Bº**2)
-
-        # Likelihood (sampling distribution) of observations
-        vt_obs = pm.CustomDist(
-            "vt_obs",
-            wc_expr,
-            observed=vt_data_with_sigma,
-            logp=loglike,
-        )
-
-        trace = pm.sample(
-            draws=DRAWS,
-            tune=TUNE,
-            target_accept=TARGET_ACCEPT,
-            chains=CHAINS,
-            cores=CORES,
-            init=INIT_METHOD,
-            random_seed=RANDOM_SEED,
-            var_names=["Bº", "B_vec"],
-            initval=start_point,
-            # nuts_sampler="numpyro",
-        )
+    trace = build_and_sample(vt_data_with_sigma, n_hats)
 
     # ---- Diagnostics --------------------------------------------------------
     summ = az.summary(trace)

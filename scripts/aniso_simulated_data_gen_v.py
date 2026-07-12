@@ -11,14 +11,21 @@ import csv
 import os
 
 
-def regenerate_data():
+def regenerate_data(
+    B0=0.6,
+    B_vec=(0.3, 0, 0.7),
+    n_sources=1000,
+    decfilter=True,
+    seed=None,
+):
     δ = -1
-    Bº = 0.6
-    B_vec = np.array([0.3, 0, 0.7])
-    N_SOURCES = 1000  # Number of data points to generate
-    decfilter = True 
-    # Set to True to limit the number of sources with declination < 0° S, 
+    Bº = B0
+    B_vec = np.asarray(B_vec, dtype=float)
+    N_SOURCES = n_sources  # Number of data points to generate
+    # decfilter: set to True to limit the number of sources with declination < 0° S,
     # to mimic MOJAVE data.
+    if seed is not None:
+        np.random.seed(seed)
     print("N_SOURCES = ", N_SOURCES)
 
     # Always write to project root, regardless of working directory
@@ -63,10 +70,12 @@ def regenerate_data():
     rows = []
 
     if decfilter:
-        n_gen = 2*N_SOURCES # Generate extra points to help get N_SOURCES datapoints in the end
+        n_gen = (
+            2 * N_SOURCES
+        )  # Generate extra points to help get N_SOURCES datapoints in the end
     else:
         n_gen = N_SOURCES
-        
+
     for _ in range(n_gen):
 
         # 1generate v_hat
@@ -141,16 +150,16 @@ def regenerate_data():
 
     print("Initial number of data points generated:", len(rows))
     # print(np.array(rows)[:,2])
-        
-    if decfilter: # Apply declination filter if desired
-       rows = [x for x in rows if np.random.rand() < 2*x[2] + 1] 
-       # If in Southern Hemisphere, accept with prob. going from 0 at -30° to 1 at 0°
-       # Note that x[2] = sin(dec)
-       if len(rows) < N_SOURCES:
-           print("WARNING: fewer than", N_SOURCES, "data points remain after filter.")
-       else:
-           rows = rows[:N_SOURCES]
-           
+
+    if decfilter:  # Apply declination filter if desired
+        rows = [x for x in rows if np.random.rand() < 2 * x[2] + 1]
+        # If in Southern Hemisphere, accept with prob. going from 0 at -30° to 1 at 0°
+        # Note that x[2] = sin(dec)
+        if len(rows) < N_SOURCES:
+            print("WARNING: fewer than", N_SOURCES, "data points remain after filter.")
+        else:
+            rows = rows[:N_SOURCES]
+
     print("Final size of data set:", len(rows))
 
     # csv file
