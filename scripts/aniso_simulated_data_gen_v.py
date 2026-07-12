@@ -12,8 +12,8 @@ import os
 
 
 def regenerate_data(
-    B0=0.6,
-    B_vec=(0.3, 0, 0.7),
+    B0=0.3,
+    B_vec=(0.2, 0.2, 0.6),
     n_sources=1000,
     decfilter=True,
     seed=None,

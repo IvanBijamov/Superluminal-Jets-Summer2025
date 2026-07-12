@@ -36,8 +36,9 @@ from matplotlib import colors as mcolors
 pytensor.config.cxx = "/usr/bin/clang++"
 
 # -- Dataset ------------------------------------------------------------------
-# Choose one:  "generated_sources.csv"  or  "mojave_cleaned.csv"
-DATASET = "generated_sources.csv"
+# Choose one:  "generated_sources.csv"  or  "mojave_cleaned_radec.csv"
+# DATASET = "generated_sources.csv"
+DATASET = "mojave_cleaned_radec.csv"
 
 # -- Likelihood ---------------------------------------------------------------
 # Integration resolution for the likelihood summation (higher = slower but more accurate)
@@ -59,8 +60,8 @@ def performance_core_count():
 
 
 # -- MCMC sampler -------------------------------------------------------------
-DRAWS = 1000
-TUNE = 1000
+DRAWS = 2000
+TUNE = 2000
 TARGET_ACCEPT = 0.93
 CORES = performance_core_count()
 CHAINS = 4  # Can set higher to get more data; but unles CHAINS >> CORES it is generally most efficient to have CHAINS be a multiple of CORES
@@ -302,14 +303,14 @@ def main():
     project_root = os.path.abspath(os.path.join(dir_path, os.pardir))
 
     # ---- Data loading -------------------------------------------------------
-    if REGENERATE_DATA:
+    if REGENERATE_DATA and DATASET == "generated_sources.csv":
         regenerate_data()
     dataSource = os.path.join(project_root, DATASET)
 
     print(f"Running on PyMC v{pm.__version__}")
     if DATASET == "generated_sources.csv":
         filetype_choice = "Simulated"
-    elif DATASET == "mojave_cleaned.csv":
+    elif DATASET == "mojave_cleaned_radec.csv":
         filetype_choice = "Mojave"
 
     dataAll = importCSV(dataSource, filetype=filetype_choice)
@@ -337,7 +338,7 @@ def main():
         axis=1,
     )
 
-    mask = ~np.isnan(vt_and_sigma).any(axis=1)
+    mask = ~(np.isnan(vt_and_sigma).any(axis=1) | np.isnan(n_hat_full).any(axis=1))
     vt_and_sigma_noNaN = vt_and_sigma[mask]
 
     idx_keep = None

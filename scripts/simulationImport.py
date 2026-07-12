@@ -18,7 +18,9 @@ def importCSV(filepath, filetype):
     filepath : str
         Path to the CSV file.
     filetype : str
-        ``"Simulated"`` for generated data or ``"Mojave"`` for the MOJAVE survey.
+        ``"Simulated"`` for generated data or ``"Mojave"`` for the MOJAVE
+        survey (expects mojave_cleaned_radec.csv, which carries RA/Dec in
+        decimal degrees as its last two columns).
 
     Returns
     -------
@@ -28,9 +30,6 @@ def importCSV(filepath, filetype):
         - index 3: observed transverse velocity
         - index 4: velocity uncertainty (sigma)
         - indices 5-7: Cartesian unit vector n_hat (n_x, n_y, n_z)
-
-        For MOJAVE data, indices 0-2 and 5-7 are NaN (no sky-direction data
-        in the CSV).
     """
     dataImport = pd.read_csv(filepath, header=None, skiprows=1)
 
@@ -50,11 +49,14 @@ def importCSV(filepath, filetype):
             phi = np.arctan2(n_y, n_x)
             theta = np.arcsin(n_z / r)
         else:
-            # TODO: derive n_hat for MOJAVE data from B1950 source name (encodes RA/Dec).
-            # Currently returns NaN — the anisotropic model will NOT work with MOJAVE data
-            # until this is implemented.
-            r, theta, phi = np.nan, np.nan, np.nan
-            n_x, n_y, n_z = np.nan, np.nan, np.nan
+            # RA/Dec (J2000, decimal degrees) are the last two columns of
+            # mojave_cleaned_radec.csv
+            ra = np.deg2rad(float(dataImport.iloc[i, -2]))
+            dec = np.deg2rad(float(dataImport.iloc[i, -1]))
+            n_x = np.cos(dec) * np.cos(ra)
+            n_y = np.cos(dec) * np.sin(ra)
+            n_z = np.sin(dec)
+            r, theta, phi = 1.0, dec, ra
 
         newList.append(
             [

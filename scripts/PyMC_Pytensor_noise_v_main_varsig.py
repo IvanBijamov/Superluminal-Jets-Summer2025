@@ -106,14 +106,14 @@ def main():
     project_root = os.path.abspath(os.path.join(dir_path, os.pardir))
 
     dataset = "generated_sources.csv"
-    # dataset = "mojave_cleaned.csv"
+    # dataset = "mojave_cleaned_radec.csv"
 
     dataSource = os.path.join(project_root, dataset)
 
     print(f"Running on PyMC v{pm.__version__}")
     if dataset == "generated_sources.csv":
         filetype_choice = "Simulated"
-    elif dataset == "mojave_cleaned.csv":
+    elif dataset == "mojave_cleaned_radec.csv":
         filetype_choice = "Mojave"
 
     dataAll = importCSV(dataSource, filetype=filetype_choice)
