@@ -13,5 +13,6 @@ dependencies = [
     "pymc>=5.23.0",
     "pytensor>=2.31.3",
     "requests>=2.32.4",
-    "scipy-stubs~=1.15.3",
+    "scipy>=1.18.1,<2",
+    "scipy-stubs[scipy]>=1.18.1,<2",
 ]

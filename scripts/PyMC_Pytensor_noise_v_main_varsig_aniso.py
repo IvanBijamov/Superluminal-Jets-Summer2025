@@ -11,6 +11,7 @@ Anisotropic model main code.
 - Produces visualization plots.
 """
 import multiprocessing
+import platform
 import subprocess
 
 import arviz as az
@@ -34,6 +35,23 @@ from matplotlib import colors as mcolors
 # Prof. Seifert needs the code line below to run PyMC on his machine
 # Please just comment out instead of deleting it!
 pytensor.config.cxx = "/usr/bin/clang++"
+
+
+def _configure_macos_linker():
+    """Remove PyTensor's unsupported -ld64 linker flag on macOS 27+."""
+    if platform.system() != "Darwin" or int(platform.mac_ver()[0].split(".")[0]) < 27:
+        return
+    from pytensor.link.c.cmodule import GCC_compiler
+
+    original_compile_args = GCC_compiler.compile_args
+
+    def compile_args(march_flags=True):
+        return [flag for flag in original_compile_args(march_flags) if flag != "-ld64"]
+
+    GCC_compiler.compile_args = staticmethod(compile_args)
+
+
+_configure_macos_linker()
 
 # -- Dataset ------------------------------------------------------------------
 # Choose one:  "generated_sources.csv"  or  "mojave_cleaned_radec.csv"
@@ -60,12 +78,13 @@ def performance_core_count():
 
 
 # -- MCMC sampler -------------------------------------------------------------
-DRAWS = 2000
-TUNE = 2000
+DRAWS = 5000
+TUNE = 5000
 TARGET_ACCEPT = 0.93
 CORES = performance_core_count()
 CHAINS = 4  # Can set higher to get more data; but unles CHAINS >> CORES it is generally most efficient to have CHAINS be a multiple of CORES
 INIT_METHOD = "jitter+adapt_diag"
+SIGNED_B0 = True  # Allow B0 to cross zero during sampling.
 REGENERATE_DATA = True
 # Fixed random seed for reproducibility during debugging.
 # Set to None for production runs.
@@ -209,6 +228,9 @@ def build_and_sample(
     rho_alpha=1,
     rho_beta=1,
     progressbar=True,
+    signed_b0=SIGNED_B0,
+    initvals=None,
+    callback=None,
 ):
     """
     Build the anisotropic PyMC model and sample the posterior.
@@ -223,6 +245,13 @@ def build_and_sample(
         Beta prior parameters for the magnitude ||B_vec||. The default
         (1, 1) is uniform on [0, 1); pass (2, 2) to reproduce the older
         prior peaked at 0.5.
+    signed_b0 : bool
+        Allow either sign of Bº and report B0_phys >= 0 with the matching
+        vector direction. False restricts sampling to Bº >= 0.
+    initvals : dict or list of dicts, optional
+        Initial free-variable values, optionally one dictionary per chain.
+    callback : callable, optional
+        Optional function called after each sampling draw.
 
     Returns
     -------
@@ -233,8 +262,10 @@ def build_and_sample(
     with model:
 
         n_hat_data = pm.Data("n_hat_data", n_hats)
-        # Bº = pm.HalfNormal("Bº", sigma=3)
-        Bº = pm.TruncatedNormal("Bº", sigma=3, lower=0)
+        if signed_b0:
+            Bº = pm.Normal("Bº", mu=0, sigma=3)
+        else:
+            Bº = pm.TruncatedNormal("Bº", mu=0, sigma=3, lower=0)
 
         # Reparameterize B_vec to keep ||B_vec|| < 1
         b_raw = pm.Normal("b_raw", mu=0, sigma=1, shape=3)
@@ -242,7 +273,13 @@ def build_and_sample(
         u = b_raw / (r_raw + 1e-9)
         rho = pm.Beta("rho", alpha=rho_alpha, beta=rho_beta)
         B_vec = pm.Deterministic("B_vec", rho * u)
-        start_point = {"Bº": 0.3, "b_raw": np.zeros(3), "rho": 0.5}
+        # Start with a nonzero vector so its direction is defined.
+        start_point = {"Bº": 0.3, "b_raw": np.ones(3) / np.sqrt(3), "rho": 0.5}
+
+        # Report positive B0, reversing B_vec when B0 is negative.
+        physical_sign = pt.switch(pt.ge(Bº, 0), 1.0, -1.0)
+        pm.Deterministic("B0_phys", pt.abs(Bº))
+        pm.Deterministic("B_vec_phys", physical_sign * B_vec)
 
         B_n = pm.math.dot(n_hat_data, B_vec)
 
@@ -267,9 +304,10 @@ def build_and_sample(
             cores=cores,
             init=init,
             random_seed=random_seed,
-            var_names=["Bº", "B_vec"],
-            initval=start_point,
+            var_names=["Bº", "B_vec", "B0_phys", "B_vec_phys"],
+            initvals=start_point if initvals is None else initvals,
             progressbar=progressbar,
+            callback=callback,
             # nuts_sampler="numpyro",
         )
 
@@ -290,7 +328,7 @@ def main():
     1. Regenerate or load observational data (vt, sigma, n_hat).
     2. Clean NaNs and optionally remove top-percentile velocity outliers.
     3. Construct a PyMC model:
-       - Bº ~ HalfNormal
+       - Signed Bº ~ Normal, folded to B0_phys >= 0 for reporting
        - B_vec defined via a normalized reparameterization of raw vector
        - wc expression from model geometry
        - Custom vt likelihood using ``loglike``
@@ -367,11 +405,13 @@ def main():
     trace = build_and_sample(vt_data_with_sigma, n_hats)
 
     # ---- Diagnostics --------------------------------------------------------
-    summ = az.summary(trace)
+    physical_vars = ["B0_phys", "B_vec_phys"]
+    summ = az.summary(trace, var_names=physical_vars)
     print(summ)
 
     summary_with_quartiles = az.summary(
         trace,
+        var_names=physical_vars,
         stat_funcs={
             "25%": lambda x: np.percentile(x, 25),
             "50%": lambda x: np.percentile(x, 50),
@@ -458,18 +498,22 @@ def main():
 
     az.plot_pair(
         trace,
-        var_names=["Bº", "B_vec"],
+        var_names=physical_vars,
         kind="kde",
         divergences=True,
         textsize=18,
     )
 
     try:
-        axes = az.plot_trace(trace, combined=False, legend=True)
+        axes = az.plot_trace(
+            trace, var_names=physical_vars, combined=False, legend=True
+        )
         plt.savefig(os.path.join(dir_path, "trace.png"), dpi=150, bbox_inches="tight")
         plt.show()
         plt.close()
-        az.plot_posterior(trace, round_to=3, figsize=[8, 4], textsize=10)
+        az.plot_posterior(
+            trace, var_names=physical_vars, round_to=3, figsize=[8, 4], textsize=10
+        )
         plt.show()
         plt.close()
     except Exception as e:

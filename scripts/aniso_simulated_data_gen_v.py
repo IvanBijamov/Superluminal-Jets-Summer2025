@@ -17,6 +17,7 @@ def regenerate_data(
     n_sources=1000,
     decfilter=True,
     seed=None,
+    output_file=None,
 ):
     δ = -1
     Bº = B0
@@ -28,9 +29,13 @@ def regenerate_data(
         np.random.seed(seed)
     print("N_SOURCES = ", N_SOURCES)
 
-    # Always write to project root, regardless of working directory
+    # Use the project root unless an output path is supplied.
     project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
-    OUTPUT_FILE = os.path.join(project_root, "generated_sources.csv")
+    OUTPUT_FILE = (
+        os.path.join(project_root, "generated_sources.csv")
+        if output_file is None
+        else os.fspath(output_file)
+    )
 
     # fns
     def solve_wc(δ, Bº, B_vec, n_hat):

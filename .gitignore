@@ -4,6 +4,9 @@
 *.py[cod]
 
 # Generated data & outputs (re-created by scripts)
+/results/
+/testing_script_archive/
+/scripts/mirror_mode_fig*.png
 generated_sources.csv
 scripts/generated_sources.csv
 scripts/mojave_cleaned.csv
