@@ -1,9 +1,5 @@
 To run this code on your computer, ensure that you have Python installed on your computer.
 
-mkdocs generated documentation for this rspository is located here: 
-
-https://ivanbijamov.github.io/Superluminal-Jets-Summer2025/
-
 - `PyMC_PyTensor_noise_v_main_varsig_aniso.py`
 This is the current main project file for the Markov-chain Monte Carlo code.
 It is an anisotropic version of the model, that is configured to accept differing
