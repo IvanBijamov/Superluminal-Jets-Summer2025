@@ -15,7 +15,9 @@ scripts/trace_iso.png
 /.spyproject/
 *.iml
 
-# MkDocs build output
+# MkDocs docs (kept locally, no longer tracked or deployed)
+/docs/
+/mkdocs.yml
 /site/
 
 # Tool caches
