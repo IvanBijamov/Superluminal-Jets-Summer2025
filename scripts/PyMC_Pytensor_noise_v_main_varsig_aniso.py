@@ -59,8 +59,12 @@ _configure_macos_linker()
 DATASET = "mojave_cleaned_radec.csv"
 
 # -- Likelihood ---------------------------------------------------------------
-# Integration resolution for the likelihood summation (higher = slower but more accurate)
-N_VAL = 20
+# Integration half-width, in units of each source's sigma. Beyond ~8 sigma every
+# source's probability is already below the 1e-12 clip, so 10 loses nothing.
+N_VAL = 10
+# Integration step, as a fraction of each source's sigma (smaller = slower but more accurate).
+# A step of one sigma leaves ripples in the likelihood near each source's kinematic edge.
+STEP_FRAC = 0.25
 
 # -- Outlier filtering --------------------------------------------------------
 # Set True to remove the top 10% highest-velocity sources before sampling
@@ -80,11 +84,13 @@ def performance_core_count():
 # -- MCMC sampler -------------------------------------------------------------
 DRAWS = 5000
 TUNE = 5000
-TARGET_ACCEPT = 0.93
+TARGET_ACCEPT = 0.97  # High value needed near steep kinematic-edge walls in the likelihood
 CORES = performance_core_count()
 CHAINS = 4  # Can set higher to get more data; but unles CHAINS >> CORES it is generally most efficient to have CHAINS be a multiple of CORES
 INIT_METHOD = "jitter+adapt_diag"
 SIGNED_B0 = True  # Allow B0 to cross zero during sampling.
+# Width of the radial term keeping |b_raw| near 1 (None disables it).
+B_RAW_SHELL_SD = 0.1
 REGENERATE_DATA = True
 # Fixed random seed for reproducibility during debugging.
 # Set to None for production runs.
@@ -100,6 +106,7 @@ def loglike(
     vt_stack: pt.TensorVariable,
     wc: pt.TensorVariable,
     n_val=N_VAL,
+    step_frac=STEP_FRAC,
 ) -> pt.TensorVariable:
     r"""
     Custom PyMC log-likelihood for transverse velocities.
@@ -117,7 +124,9 @@ def loglike(
     wc : TensorVariable
         Inverse of the true velocity derived from Bº, B_vec, and n_hat.
     n_val : int, optional
-        Integration resolution for the likelihood.
+        Integration half-width, in units of each source's sigma.
+    step_frac : float, optional
+        Integration step, as a fraction of each source's sigma.
 
     Returns
     -------
@@ -134,7 +143,7 @@ def loglike(
 
     vt = vt_stack[:, 0]
     sigma = vt_stack[:, 1]
-    delta_v = sigma
+    delta_v = sigma * step_frac
 
     sigma_bcast = sigma[:, None]
 
@@ -143,7 +152,12 @@ def loglike(
         pt.flatten(wc)[:, None] if wc.ndim > 0 else pt.ones_like(vt)[:, None] * wc
     )
 
-    v_offsets = pt.linspace(-n_val, n_val, 2 * n_val + 1)
+    # Grid built with NumPy: pt.linspace (PyTensor 2.31) corrupts grids
+    # with more than 127 points.
+    n_steps = int(round(n_val / step_frac))
+    v_offsets = pt.as_tensor_variable(
+        np.arange(-n_steps, n_steps + 1, dtype="float64")
+    )
 
     vt_bcast = vt[:, None]
     delta_v_bcast = delta_v[:, None]
@@ -229,6 +243,7 @@ def build_and_sample(
     rho_beta=1,
     progressbar=True,
     signed_b0=SIGNED_B0,
+    b_raw_shell_sd=B_RAW_SHELL_SD,
     initvals=None,
     callback=None,
 ):
@@ -248,6 +263,11 @@ def build_and_sample(
     signed_b0 : bool
         Allow either sign of Bº and report B0_phys >= 0 with the matching
         vector direction. False restricts sampling to Bº >= 0.
+    b_raw_shell_sd : float or None
+        Width of an isotropic radial term keeping ||b_raw|| near 1, away
+        from the direction singularity at the origin. Only the direction of
+        b_raw enters the model, so the prior on B_vec is unchanged. None
+        disables it.
     initvals : dict or list of dicts, optional
         Initial free-variable values, optionally one dictionary per chain.
     callback : callable, optional
@@ -270,6 +290,9 @@ def build_and_sample(
         # Reparameterize B_vec to keep ||B_vec|| < 1
         b_raw = pm.Normal("b_raw", mu=0, sigma=1, shape=3)
         r_raw = pt.sqrt(pt.sum(b_raw**2))
+        if b_raw_shell_sd is not None:
+            # Isotropic, so the direction u stays uniform: B_vec prior unchanged.
+            pm.Potential("b_raw_shell", -0.5 * ((r_raw - 1) / b_raw_shell_sd) ** 2)
         u = b_raw / (r_raw + 1e-9)
         rho = pm.Beta("rho", alpha=rho_alpha, beta=rho_beta)
         B_vec = pm.Deterministic("B_vec", rho * u)
